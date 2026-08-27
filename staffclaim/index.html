@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="applogo.png">
+    <link rel="manifest" href="manifest.json">
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../config.js"></script>
+    <link rel="icon" href="ilogopc.PNG" type="image/PNG"> 
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/vendor/supabase-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script type="text/javascript" src="/vendor/emailjs.min.js"></script>
+
+    <title>Company | Staff Claim</title>
+
+    <script>
+        document.documentElement.style.display = 'none';
+        const GUARD_URL = 'https://YOUR_PROJECT_REF.supabase.co';
+        const GUARD_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const guardClient = supabase.createClient(GUARD_URL, GUARD_KEY);
+
+        async function checkSession() {
+            const { data: { session } } = await guardClient.auth.getSession();
+            if (!session) { window.location.href = "../index.html"; } 
+            else { const __e = (session.user.email || ''); const __A = ['admin1@example.com','admin2@example.com','admin3@example.com']; if (__A.includes(__e.toLowerCase())) { document.documentElement.style.display = ''; } else { try { const __r = await guardClient.from('staff').select('id').eq('email', __e).limit(1); if (__r.data && __r.data.length) { document.documentElement.style.display = ''; } else { window.location.href = '../index.html'; } } catch (e) { window.location.href = '../index.html'; } } }
+        }
+        checkSession();
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .input-box { border: 2px solid #f1f5f9; padding: 1rem; border-radius: 1.25rem; background: #f8fafc; font-weight: 700; width: 100%; outline: none; transition: all 0.2s; }
+        .input-box:focus { border-color: #a855f7; background: white; }
+        .tab-active { background: #a855f7; color: white; box-shadow: 0 10px 15px -3px rgba(168, 85, 247, 0.3); }
+        .item-number-badge { background: #0f172a; color: white; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 10px; font-weight: 900; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-approved { background: #dcfce7; color: #166534; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .status-draft { background: #e0e7ff; color: #3730a3; }
+        
+        /* Universal Drag and Drop Effects */
+        .drag-over {
+            border-color: var(--drag-theme, #a855f7) !important;
+            background-color: var(--drag-bg, rgba(168, 85, 247, 0.1)) !important;
+        }
+        .file-drop-zone * {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen pb-24 text-slate-900 font-medium">
+
+    <nav class="bg-[#0f172a] text-white p-5 sticky top-0 z-50 shadow-xl border-b-2 border-purple-600">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="../index.html" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-all"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+                <h1 class="font-black italic text-xl uppercase tracking-tighter leading-none">COMPANY <span class="text-purple-500 uppercase text-xs">Staff Claim</span></h1>
+            </div>
+            <div class="flex bg-slate-800 p-1 rounded-xl gap-1 overflow-x-auto">
+                <button onclick="switchTab('create')" id="nav-create" class="px-3 py-2 rounded-lg text-[9px] font-bold tab-active uppercase transition-all">Create</button>
+                <button onclick="switchTab('review')" id="nav-review" class="px-3 py-2 rounded-lg text-[9px] font-bold text-slate-400 uppercase transition-all">Review</button>
+                <button onclick="switchTab('history')" id="nav-history" class="px-3 py-2 rounded-lg text-[9px] font-bold text-slate-400 uppercase transition-all">Archive</button>
+                <button onclick="switchTab('admin')" id="nav-admin" class="px-3 py-2 rounded-lg text-[9px] font-bold text-slate-400 uppercase transition-all">Admin</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto p-4 mt-6">
+        <div id="auth-lock-screen" class="hidden p-10 text-center bg-white rounded-[2.5rem] border shadow-sm space-y-4">
+            <i data-lucide="shield-off" class="w-12 h-12 mx-auto text-red-400"></i>
+            <h3 class="font-black text-lg uppercase italic text-slate-800">Access Restricted</h3>
+            <p class="text-xs text-slate-500">This section is restricted to authorized administrators only.</p>
+        </div>
+
+        <div id="tab-create">
+            <section id="ai-scan-container" class="mb-6 bg-slate-900 p-6 rounded-[2.5rem] shadow-xl border-t-4 border-purple-500 text-white">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="font-black uppercase text-[10px] tracking-widest text-purple-400 italic">SMART SCANNER</h2>
+                        <p class="text-[14px] font-bold">PDF & JPG Auto-Extraction</p>
+                    </div>
+                    <i data-lucide="sparkles" class="w-6 h-6 text-purple-400"></i>
+                </div>
+                <div class="flex gap-3">
+                    <label id="drop-zone" for="receipt-file" class="file-drop-zone flex-1 bg-white/5 border-2 border-dashed border-slate-500 hover:border-purple-500 hover:bg-purple-500/10 p-8 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all min-h-[140px]" style="--drag-theme: #a855f7; --drag-bg: rgba(168, 85, 247, 0.1);">
+                        <i data-lucide="camera" class="w-8 h-8 mb-3 text-purple-500"></i>
+                        <span class="text-[11px] font-black uppercase tracking-widest text-center text-slate-300">Scan Receipts (Drop PDF/Img Here)<br><span class="text-[9px] font-medium text-slate-400 normal-case mt-1 inline-block">or click to browse your files</span></span>
+                        <input type="file" id="receipt-file" accept="image/*,.pdf" class="hidden" multiple onchange="handleAIProcessing(this)">
+                    </label>
+                    <div id="ai-status" class="hidden flex-1 bg-purple-500/10 border-2 border-purple-500/20 p-4 rounded-2xl flex flex-col items-center justify-center gap-2">
+                        <div class="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span id="ai-status-text" class="text-[9px] font-black uppercase tracking-widest text-purple-500 text-center">Uploading...</span>
+                    </div>
+                </div>
+            </section>
+
+            <form id="claim-form" class="space-y-6">
+                <input type="hidden" id="edit-id" value="">
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <section class="bg-white p-6 rounded-[2rem] shadow-sm border space-y-3">
+                        <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400 italic">Entity & Date</h2>
+                        <select id="issuing-company" class="input-box text-purple-600 uppercase italic">
+                            <option value="SOLUTIONS">COMPANY A SDN. BHD.</option>
+                            <option value="OPTIMIZATION">COMPANY B SDN. BHD.</option>
+                            <option value="ENERGY">COMPANY C SDN. BHD.</option>
+                        </select>
+                        <input type="text" id="claim-no" class="input-box bg-slate-100 text-slate-500 font-black" readonly>
+                        <input type="date" id="submission-date" class="input-box" required>
+                    </section>
+                    <section class="bg-white p-6 rounded-[2rem] shadow-sm border space-y-3">
+                        <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400 italic">Claimant Details</h2>
+                        <input type="text" id="staff-name" placeholder="Staff Full Name" class="input-box" required>
+                        <input type="email" id="staff-email" placeholder="Staff Email Address" class="input-box" required>
+                    </section>
+                </div>
+
+                <section class="bg-white p-6 rounded-[2rem] shadow-sm border space-y-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400 italic">Staff Claim List</h2>
+                        <button type="button" onclick="addItemRow()" class="bg-purple-50 text-purple-600 px-4 py-2 rounded-xl font-black text-[10px] uppercase flex items-center gap-1 shadow-sm"><i data-lucide="plus-circle" class="w-3 h-3"></i> Add Item</button>
+                    </div>
+                    <div id="items-list" class="space-y-3"></div>
+                </section>
+
+                <div class="flex gap-3">
+                    <button type="button" onclick="previewPDF()" class="w-1/3 bg-blue-50 text-blue-600 border border-blue-100 font-black p-6 rounded-[2.5rem] shadow-sm uppercase tracking-widest text-[10px] italic flex flex-col md:flex-row items-center justify-center gap-2 hover:bg-blue-100 transition-all">
+                        <i data-lucide="eye" class="w-5 h-5"></i> Preview
+                    </button>
+                    <button type="submit" id="submit-btn" class="w-2/3 bg-slate-900 text-white font-black p-6 rounded-[2.5rem] shadow-xl uppercase tracking-widest text-xs italic flex flex-col md:flex-row items-center justify-center gap-3">
+                        <i data-lucide="send" class="w-5 h-5"></i> <span id="submit-text">Submit Staff Claim</span>
+                    </button>
+                </div>
+
+                <button type="button" onclick="saveDraft()" class="w-full bg-indigo-50 text-indigo-600 border border-indigo-100 font-black p-4 rounded-[2.5rem] shadow-sm uppercase tracking-widest text-[10px] italic flex items-center justify-center gap-2 hover:bg-indigo-100 transition-all">
+                    <i data-lucide="file-edit" class="w-4 h-4"></i> Save as Draft
+                </button>
+
+                <button type="button" id="cancel-edit-btn" onclick="location.reload()" class="hidden w-full text-slate-400 font-black uppercase text-[10px] tracking-widest mt-2 hover:text-slate-600 transition-all">Cancel Resubmission</button>
+            </form>
+        </div>
+
+        <div id="tab-review" class="hidden space-y-4"><div id="review-list" class="space-y-3"></div></div>
+        <div id="tab-history" class="hidden space-y-4"><div id="history-list" class="space-y-3"></div></div>
+
+        <div id="tab-admin" class="hidden space-y-4">
+            <section class="bg-white p-8 rounded-[2.5rem] border shadow-sm space-y-8 text-center">
+                <i data-lucide="database" class="w-12 h-12 mx-auto text-purple-500"></i>
+                <button onclick="exportClaimsCSV()" class="w-full bg-slate-900 text-white p-5 rounded-3xl font-black uppercase text-xs tracking-widest shadow-lg flex items-center justify-center gap-3"><i data-lucide="download" class="w-5 h-5"></i> Export Database (CSV)</button>
+                <hr class="border-slate-100">
+            </section>
+        </div>
+        <footer class="text-center py-4 mt-6">
+        <p class="text-[9px] font-black uppercase tracking-[0.6em] text-slate-400">© 2026 ALL RIGHTS RESERVED.</p>
+    </footer>
+</main>
+
+    <script>
+        // AI calls now go through our own server-side proxy (key stays on the server).
+        const GEMINI_PROXY = '/api/gemini';
+        async function aiAuthHeaders(extra = {}) {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            return { 'Authorization': `Bearer ${session?.access_token || ''}`, ...extra };
+        }
+
+        const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
+        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const EMAIL_SERVICE = "YOUR_EMAILJS_SERVICE_ID", EMAIL_TEMPLATE = "YOUR_EMAILJS_TEMPLATE_ID", EMAIL_KEY = "YOUR_EMAILJS_PUBLIC_KEY";
+        const HQ_ADDR = "123 Company Street, City, State, Postcode, Country.";
+        const HQ_TEL = "+000-000 0000 (Head Office)";
+        const CO_DATA = {
+            'SOLUTIONS': { name: 'COMPANY A SDN. BHD.', reg: 'XXXXXXXXXXXX (XXXXXXX-X)', email: 'companya@example.com' },
+            'OPTIMIZATION': { name: 'COMPANY B SDN. BHD.', reg: 'XXXXXXXXXXXX (XXXXXXX-X)', email: 'companyb@example.com' },
+            'ENERGY': { name: 'COMPANY C SDN. BHD.', reg: 'XXXXXXXXXXXX (XXXXXXX-X)', email: 'companyc@example.com' }
+        };
+
+        const ADMIN_EMAILS = ['admin1@example.com', 'admin2@example.com', 'admin3@example.com'];
+        const APPROVER_MAP = { 'admin1@example.com': 'HFS', 'admin3@example.com': 'WKS', 'admin2@example.com': 'TFH' };
+        let currentClaims = [], isAuthorized = false, targetTab = 'create', currentApproverInitials = '';
+        const formatRM = (num) => num.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const createRow = (label, value) => `<tr><td style="padding: 8px 0; color: #64748b; font-size: 12px; font-weight: bold;">${label}</td><td style="padding: 8px 0; color: #0f172a; font-size: 14px; font-weight: bold; text-align: right;">${value}</td></tr>`;
+
+        async function fillClaimantData() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session && session.user) {
+                const userEmail = session.user.email;
+                document.getElementById('staff-email').value = userEmail;
+                
+                const { data: staffData } = await supabaseClient.from('staff').select('name').eq('email', userEmail).single();
+                
+                if (staffData && staffData.name) {
+                    document.getElementById('staff-name').value = staffData.name;
+                } else {
+                    document.getElementById('staff-name').value = session.user.user_metadata?.full_name || session.user.user_metadata?.name || userEmail.split('@')[0];
+                }
+            }
+        }
+
+        async function init() {
+            try { emailjs.init(EMAIL_KEY); } catch (e) { console.warn('EmailJS unavailable:', e); }
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session && ADMIN_EMAILS.includes(session.user.email)) isAuthorized = true;
+                if (session && session.user) currentApproverInitials = APPROVER_MAP[session.user.email] || '';
+            } catch (e) { console.warn('Session check failed:', e); }
+
+            addItemRow();
+            setAutoPCNumber();
+            fillClaimantData();
+            lucide.createIcons();
+
+            // --- ADDED DRAG AND DROP EVENT LISTENERS (Foolproof Version) ---
+            const dropZone = document.getElementById('drop-zone');
+            if(dropZone) {
+                // Prevent default behaviors so the browser allows dropping
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }, false);
+                });
+
+                // Add the purple highlight when dragging over
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => {
+                        dropZone.classList.add('drag-over');
+                    }, false);
+                });
+
+                // Remove the highlight when dragging leaves or drops
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => {
+                        dropZone.classList.remove('drag-over');
+                    }, false);
+                });
+
+                // Handle the actual file drop
+                dropZone.addEventListener('drop', (e) => {
+                    if(e.dataTransfer.files.length) {
+                        const fileInput = document.getElementById('receipt-file');
+                        fileInput.files = e.dataTransfer.files;
+                        handleAIProcessing(fileInput);
+                    }
+                });
+            }
+        }
+
+        async function getWorkingModel() {
+            const preferred = ["gemini-3-flash-preview", "gemini-flash-latest", "gemini-2.5-flash"];
+            try {
+                const res = await fetch(`${GEMINI_PROXY}/v1beta/models`, { headers: await aiAuthHeaders() });
+                const data = await res.json();
+                for (const p of preferred) {
+                    const m = data.models.find(mod => mod.name.includes(p) && mod.supportedGenerationMethods.includes("generateContent"));
+                    if (m) return m.name;
+                }
+                const m = data.models.find(mod => mod.name.includes("flash") && mod.supportedGenerationMethods.includes("generateContent"));
+                return m ? m.name : "models/gemini-3-flash-preview";
+            } catch (e) { return "models/gemini-3-flash-preview"; }
+        }
+
+        async function handleAIProcessing(input) {
+            const files = input.files;
+            if (files.length === 0) return;
+            const statusEl = document.getElementById('ai-status');
+            const statusText = document.getElementById('ai-status-text');
+            statusEl.classList.remove('hidden');
+            input.parentElement.classList.add('hidden');
+
+            const modelName = await getWorkingModel();
+            let failed = 0;
+
+            const scanOne = async (file, attempt = 1) => {
+                let mime = file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg');
+                const uploadRes = await fetch(`${GEMINI_PROXY}/upload/v1beta/files`, {
+                    method: 'POST', headers: await aiAuthHeaders({ 'X-Goog-Upload-Protocol': 'raw', 'X-Goog-Upload-Header-Content-Type': mime, 'Content-Type': mime }), body: file
+                });
+                const uploadData = await uploadRes.json();
+                const fileUri = uploadData.file.uri;
+
+                // Wait until file is ACTIVE (Gemini processes uploaded files async)
+                for (let w = 0; w < 10; w++) {
+                    const st = await fetch(`${GEMINI_PROXY}/v1beta/files/${fileUri.split('/').pop()}`, { headers: await aiAuthHeaders() });
+                    const sd = await st.json();
+                    if (!sd.file || sd.file.state === 'ACTIVE') break;
+                    await new Promise(r => setTimeout(r, 1000));
+                }
+
+                const response = await fetch(`${GEMINI_PROXY}/v1beta/${modelName}:generateContent`, {
+                    method: 'POST', headers: await aiAuthHeaders({ 'Content-Type': 'application/json' }),
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "Act as an expert accountant handling staff claims. Extract receipt data. Return ONLY a raw JSON object with exactly these keys: merchant, receipt_amount, receipt_currency, receipt_date, category (string, logically categorize this expense to act as a remark, e.g., 'Car Fuel', 'Phone Bill', 'Accommodation', 'Transport', 'Courier Service', 'Meals', 'Hardware', etc.). Do not wrap in markdown." }, { fileData: { mimeType: mime, fileUri: fileUri } }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+
+                // Retry on rate limit (429)
+                if (response.status === 429 && attempt <= 3) {
+                    const wait = attempt * 5000;
+                    statusText.innerText = `Rate limit hit — waiting ${wait/1000}s before retry (${file.name})...`;
+                    await new Promise(r => setTimeout(r, wait));
+                    return scanOne(file, attempt + 1);
+                }
+
+                const result = await response.json();
+                let rawText = result.candidates[0].content.parts[0].text;
+                rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const data = JSON.parse(rawText);
+
+                const rows = document.querySelectorAll('.item-row');
+                if (rows.length === 1 && rows[0].querySelectorAll('input')[0].value === "") rows[0].remove();
+                addItemRow(data.merchant || "Extracted Vendor", (parseFloat(data.receipt_amount) || 0).toFixed(2), "", data.category || "General Expense");
+            };
+
+            for (let i = 0; i < files.length; i++) {
+                statusText.innerText = `Scanning (${i+1}/${files.length})...`;
+                try {
+                    await scanOne(files[i]);
+                } catch (err) {
+                    console.error("Scan Error for file " + i + ":", err);
+                    failed++;
+                }
+                // Pace requests: 2s gap after every 5 files to stay under rate limit
+                if (i > 0 && (i + 1) % 5 === 0 && i + 1 < files.length) {
+                    statusText.innerText = `Pausing briefly to avoid rate limit...`;
+                    await new Promise(r => setTimeout(r, 3000));
+                } else if (i + 1 < files.length) {
+                    await new Promise(r => setTimeout(r, 800));
+                }
+            }
+
+            statusEl.classList.add('hidden');
+            input.parentElement.classList.remove('hidden');
+            input.value = "";
+            if (failed > 0) {
+                const t = document.getElementById('ai-status-text');
+                statusEl.classList.remove('hidden');
+                t.innerText = `Done — ${files.length - failed} scanned, ${failed} failed (check console).`;
+                setTimeout(() => statusEl.classList.add('hidden'), 5000);
+            }
+        }
+
+        function loadForEdit(id) {
+            const pc = currentClaims.find(p => p.id === id);
+            if (!pc) return;
+
+            document.getElementById('edit-id').value = pc.id;
+            document.getElementById('staff-name').value = pc.staff_name;
+            document.getElementById('staff-email').value = pc.staff_email;
+            document.getElementById('issuing-company').value = pc.company_key;
+            document.getElementById('claim-no').value = pc.claim_number;
+            document.getElementById('submission-date').value = pc.submission_date;
+
+            document.getElementById('items-list').innerHTML = "";
+            pc.items.forEach(i => addItemRow(i.vendor, i.amount, i.project, i.remarks));
+
+            document.getElementById('submit-text').innerText = "Resubmit Corrected Claim";
+            document.getElementById('cancel-edit-btn').classList.remove('hidden');
+            switchTab('create');
+            window.scrollTo(0,0);
+        }
+
+        async function setAutoPCNumber() {
+            const now = new Date();
+            const yearMonthStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const dateStr = `${yearMonthStr}${String(now.getDate()).padStart(2, '0')}`;
+            
+            const { data } = await supabaseClient
+                .from('staff_claims')
+                .select('claim_number')
+                .like('claim_number', `SC-${yearMonthStr}%`)
+                .order('created_at', { ascending: false })
+                .limit(1);
+
+            let nextNum = 1;
+            if (data && data.length > 0 && data[0].claim_number) {
+                const parts = data[0].claim_number.split('-');
+                if (parts.length === 3) {
+                    const lastNum = parseInt(parts[2], 10);
+                    if (!isNaN(lastNum)) {
+                        nextNum = lastNum + 1;
+                    }
+                }
+            }
+            
+            document.getElementById('claim-no').value = `SC-${dateStr}-${String(nextNum).padStart(2, '0')}`;
+            document.getElementById('submission-date').value = now.toISOString().split('T')[0];
+        }
+
+        function switchTab(tab) {
+            const priv = ['review', 'admin'];
+            if(priv.includes(tab) && !isAuthorized) { targetTab = tab; document.querySelectorAll('main > div').forEach(d => d.classList.add('hidden')); document.getElementById('auth-lock-screen').classList.remove('hidden'); }
+            else { document.getElementById('auth-lock-screen').classList.add('hidden'); document.querySelectorAll('main > div').forEach(d => d.classList.toggle('hidden', d.id !== 'tab-' + tab)); if(tab === 'review' || tab === 'history' || tab === 'admin') fetchRecords(); }
+            document.querySelectorAll('nav button').forEach(b => b.className = `px-3 py-2 rounded-lg text-[9px] font-bold uppercase transition-all ${b.id === 'nav-'+tab ? 'tab-active' : 'text-slate-400'}`);
+            lucide.createIcons();
+        }
+
+        async function fetchRecords() {
+            const { data } = await supabaseClient.from('staff_claims').select('*').order('created_at', { ascending: false });
+            currentClaims = data || [];
+            
+            document.getElementById('review-list').innerHTML = currentClaims.filter(p => p.status === 'Pending').map(pc => `
+                <div class="bg-white p-6 rounded-[2.5rem] border shadow-sm space-y-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-[10px] font-bold text-purple-600 uppercase tracking-widest italic">${pc.company_name}</p>
+                            <h3 class="font-black text-lg text-slate-900 uppercase">${pc.staff_name}</h3>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${pc.claim_number}</p>
+                        </div>
+                        <div class="text-right">
+                             <p class="text-[8px] font-black text-slate-300 uppercase italic">Total Claim</p>
+                             <p class="font-black text-2xl text-slate-900 leading-none">RM ${formatRM(pc.total_amount)}</p>
+                             <button onclick="generatePDF('${pc.id}')" class="text-[9px] text-blue-500 font-bold uppercase mt-1 hover:underline flex items-center justify-end gap-1 ml-auto">
+                                <i data-lucide="eye" class="w-3 h-3"></i> View Details
+                             </button>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <textarea id="reason-${pc.id}" rows="2" class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-xs font-medium text-slate-600 outline-none focus:border-purple-500 transition-all placeholder:italic" placeholder="Approval/Rejection Remarks..."></textarea>
+
+
+                        <div class="flex gap-4 pt-2">
+                            <button onclick="handleStatusChange('${pc.id}', 'Approved')" class="flex-1 bg-[#10b981] hover:bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-sm transition-all">Approve</button>
+                            <button onclick="handleStatusChange('${pc.id}', 'Rejected')" class="flex-1 bg-[#ef4444] hover:bg-red-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-sm transition-all">Reject</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('') || '<div class="text-center p-10 text-slate-300 italic text-xs">Queue Clear</div>';
+
+            document.getElementById('history-list').innerHTML = currentClaims.map(pc => `
+                <div class="bg-white p-5 rounded-[2rem] border shadow-sm flex justify-between items-center group">
+                    <div><h3 class="font-black text-slate-800 text-sm tracking-tight">${pc.claim_number}</h3><p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">${pc.staff_name} | RM ${formatRM(pc.total_amount)}</p></div>
+                    <div class="flex items-center gap-2"><div class="status-${pc.status.toLowerCase()} px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">${pc.status}</div>
+                    ${(pc.status === 'Rejected' || pc.status === 'Draft') ? `<button onclick="loadForEdit('${pc.id}')" class="p-3 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-all"><i data-lucide="edit-3" class="w-4 h-4"></i></button>` : ''}
+                    <button onclick="generatePDF('${pc.id}')" class="p-3 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-600 hover:text-white transition-all"><i data-lucide="printer" class="w-4 h-4"></i></button>
+                    <button onclick="deleteClaim('${pc.id}')" class="p-3 bg-red-50 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        async function handleStatusChange(id, newStatus) {
+            if (!currentApproverInitials) { alert("Your login is not mapped to an approver (HFS/WKS/TFH). Action denied."); return; }
+            const approver = currentApproverInitials;
+            const now = new Date().toLocaleString('en-GB');
+            const remark = document.getElementById('reason-'+id).value || "";
+            await supabaseClient.from('staff_claims').update({ status: newStatus, approved_by: approver, approved_at: now }).eq('id', id);
+            const pcData = currentClaims.find(p => p.id === id);
+            if(pcData && newStatus !== 'Pending') {
+                const color = newStatus === 'Approved' ? "#10b981" : "#ef4444";
+                emailjs.send(EMAIL_SERVICE, EMAIL_TEMPLATE, { 
+                    system_name: "COMPANY STAFF CLAIM SYSTEM", 
+                    header_bg: color, title: `Staff Claim ${newStatus}`, 
+                    to_email: pcData.staff_email, 
+                    html_body: createRow("Claim No", pcData.claim_number) + createRow("Status", newStatus.toUpperCase()) + createRow("Action By", approver) + createRow("Total", "RM " + formatRM(pcData.total_amount)), 
+                    remark_text: remark || (newStatus === 'Approved' ? "Claim approved." : "Claim rejected.") 
+                });
+            }
+            fetchRecords();
+        }
+
+        async function generatePDF(id) {
+            const data = currentClaims.find(p => p.id === id);
+            const { jsPDF } = window.jspdf; const doc = new jsPDF(); const info = CO_DATA[data.company_key];
+            doc.setFont("helvetica", "bold").setFontSize(14).text(info.name, 14, 25);
+            doc.setFontSize(8).setFont("helvetica", "normal").text(`Company Reg. No.: ${info.reg}`, 14, 30);
+            doc.text(doc.splitTextToSize(HQ_ADDR, 100), 14, 34);
+            doc.text(`Tel: ${HQ_TEL} | Email: ${info.email} | Web: www.example.com`, 14, 42); doc.line(14, 45, 196, 45);
+            doc.setFontSize(12).setFont("helvetica", "bold").text("COMPANY - STAFF CLAIM FORM", 14, 55);
+            doc.setFontSize(10).text(`Ref No: ${data.claim_number}`, 196, 55, { align: 'right' });
+            doc.setFontSize(9).text(`Name: ${data.staff_name} (${data.staff_email})`, 14, 65);
+            doc.text(`Date: ${new Date(data.submission_date).toLocaleDateString('en-GB')}`, 150, 65);
+            doc.autoTable({ startY: 70, head: [['NO.', "VENDOR'S COMPANY NAME", 'AMOUNT (RM)', 'PROJECT NO.', 'REMARKS']], body: data.items.map((i, idx) => [idx+1, (i.vendor||'').toUpperCase(), formatRM(i.amount), (i.project||'-').toUpperCase(), (i.remarks||'').toUpperCase()]), theme: 'grid', headStyles: { fillColor: [240, 240, 240], textColor: [0,0,0] }, styles: { fontSize: 8 } });
+            const finalY = doc.lastAutoTable.finalY;
+            doc.setFont("helvetica", "bold").text(`Total: RM ${formatRM(data.total_amount)}`, 196, finalY + 10, { align: 'right' });
+            doc.setFontSize(9).setFont("helvetica", "normal").text(`Submitted by ${data.staff_name} on ${data.submitted_at || '-'}`, 14, finalY + 25);
+            if (data.status === 'Approved') {
+                const approvedAtRaw = data.approved_at;
+                const approvedAtStr = approvedAtRaw
+                    ? (approvedAtRaw.includes('T') ? new Date(approvedAtRaw).toLocaleString('en-GB') : approvedAtRaw)
+                    : '-';
+                doc.text(`Digitally approved by ${data.approved_by} on ${approvedAtStr}.`, 14, finalY + 32);
+            }
+            doc.save(`${data.claim_number}.pdf`);
+        }
+
+        async function previewPDF() {
+            const company_key = document.getElementById('issuing-company').value;
+            const info = CO_DATA[company_key];
+            const claim_number = document.getElementById('claim-no').value || 'DRAFT';
+            const submission_date = document.getElementById('submission-date').value || '-';
+            const staff_name = document.getElementById('staff-name').value || 'Claimant Name';
+            const staff_email = document.getElementById('staff-email').value || 'Email';
+
+            const items = [];
+            let total = 0;
+            document.querySelectorAll('.item-row').forEach(row => {
+                const f = row.querySelectorAll('input');
+                const vendor = f[0].value || '';
+                const amount = parseFloat(f[1].value) || 0;
+                const project = f[2].value || '';
+                const remarks = f[3].value || '';
+                if (vendor || amount > 0) {
+                    total += amount;
+                    items.push({ vendor, amount, project, remarks });
+                }
+            });
+
+            if (items.length === 0) return alert('Please add at least one item to preview.');
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFont("helvetica", "bold").setFontSize(14).text(info.name, 14, 25);
+            doc.setFontSize(8).setFont("helvetica", "normal").text(`Company Reg. No.: ${info.reg}`, 14, 30);
+            doc.text(doc.splitTextToSize(HQ_ADDR, 100), 14, 34);
+            doc.text(`Tel: ${HQ_TEL} | Email: ${info.email} | Web: www.example.com`, 14, 42); doc.line(14, 45, 196, 45);
+            doc.setFontSize(12).setFont("helvetica", "bold").text("COMPANY - STAFF CLAIM FORM", 14, 55);
+            doc.setFontSize(10).text(`Ref No: ${claim_number}`, 196, 55, { align: 'right' });
+            doc.setFontSize(9).text(`Name: ${staff_name} (${staff_email})`, 14, 65);
+            
+            let displayDate = submission_date !== '-' ? new Date(submission_date).toLocaleDateString('en-GB') : '-';
+            doc.text(`Date: ${displayDate}`, 150, 65);
+            
+            doc.autoTable({ startY: 70, head: [['No.', "Vendor's Company Name", 'Amount (RM)', 'Project No.', 'Remarks']], body: items.map((i, idx) => [idx+1, i.vendor, formatRM(i.amount), i.project || '-', i.remarks]), theme: 'grid', headStyles: { fillColor: [240, 240, 240], textColor: [0,0,0] }, styles: { fontSize: 8 } });
+            const finalY = doc.lastAutoTable.finalY;
+            doc.setFont("helvetica", "bold").text(`Total: RM ${formatRM(total)}`, 196, finalY + 10, { align: 'right' });
+            
+            doc.setTextColor(168, 85, 247); // Purple for Staff Claim
+            doc.setFontSize(14); 
+            doc.setFont("helvetica", "bold"); 
+            doc.text("PREVIEW - NOT SUBMITTED", 196, finalY + 20, { align: 'right' }); 
+            doc.setTextColor(0, 0, 0);
+
+            const cDate = new Date(); 
+            const cDateStr = cDate.toLocaleDateString('en-GB') + ' @ ' + String(cDate.getHours()).padStart(2,'0') + String(cDate.getMinutes()).padStart(2,'0') + 'hours';
+            doc.setFontSize(9).setFont("helvetica", "normal").text(`Submitted by ${staff_name} on ${cDateStr}`, 14, finalY + 25);
+            
+            window.open(URL.createObjectURL(doc.output("blob")));
+        }
+
+        function updateItemNumbers() { document.querySelectorAll('.item-num-text').forEach((el, idx) => { el.innerText = idx + 1; }); }
+        
+        function addItemRow(v = "", a = "", p = "", r = "") {
+            const container = document.getElementById('items-list'), div = document.createElement('div');
+            div.className = 'item-row grid grid-cols-12 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100 items-center';
+            div.innerHTML = `<div class="col-span-1 flex justify-center"><span class="item-number-badge item-num-text"></span></div>
+                <input type="text" placeholder="Vendor" value="${v}" class="col-span-3 bg-transparent font-bold text-[10px] outline-none" required>
+                <input type="number" step="0.01" placeholder="Amount" value="${a}" class="col-span-2 bg-transparent font-bold text-[10px] outline-none text-right" required>
+                <input type="text" placeholder="Project No." value="${p}" class="col-span-2 bg-transparent font-bold text-[10px] outline-none text-center">
+                <input type="text" placeholder="Remarks" value="${r}" class="col-span-3 bg-transparent font-bold text-[10px] outline-none" required>
+                <button type="button" onclick="this.parentElement.remove(); updateItemNumbers();" class="col-span-1 text-red-300 hover:text-red-600 flex justify-center"><i data-lucide="trash-2" class="w-3 h-3"></i></button>`;
+            container.appendChild(div); updateItemNumbers(); lucide.createIcons();
+        }
+
+        async function deleteClaim(id) { if (!isAuthorized) { alert("Admin Access Required"); return; } if(confirm("Delete?")) { await supabaseClient.from('staff_claims').delete().eq('id', id); fetchRecords(); } }
+
+        async function saveDraft() {
+            const items = []; let total = 0;
+            document.querySelectorAll('.item-row').forEach(row => { const f = row.querySelectorAll('input'); const amt = parseFloat(f[1].value) || 0; total += amt; items.push({ vendor: f[0].value, amount: amt, project: f[2].value, remarks: f[3].value }); });
+            const payload = {
+                claim_number: document.getElementById('claim-no').value,
+                company_key: document.getElementById('issuing-company').value,
+                company_name: CO_DATA[document.getElementById('issuing-company').value].name,
+                staff_name: document.getElementById('staff-name').value,
+                staff_email: document.getElementById('staff-email').value,
+                submission_date: document.getElementById('submission-date').value || new Date().toISOString().split('T')[0],
+                submitted_at: new Date().toLocaleString('en-GB'),
+                items: items, total_amount: total, status: 'Draft'
+            };
+            const editId = document.getElementById('edit-id').value;
+            let errorObj;
+            if (editId) { const { error } = await supabaseClient.from('staff_claims').update(payload).eq('id', editId); errorObj = error; }
+            else { const { error } = await supabaseClient.from('staff_claims').insert(payload); errorObj = error; }
+            if (!errorObj) { alert("Draft saved."); location.reload(); }
+            else { alert("Database Error: " + errorObj.message); }
+        }
+
+        async function exportClaimsCSV() {
+            if (!isAuthorized) { alert("Admin Access Required"); return; }
+            const headers = ['Claim No', 'Staff', 'Email', 'Total (RM)', 'Status'];
+            const csvRows = [headers.join(',')];
+            currentClaims.forEach(pc => csvRows.push([pc.claim_number, `"${pc.staff_name}"`, pc.staff_email, pc.total_amount.toFixed(2), pc.status].join(',')));
+            const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+            const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = `Claims_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+        }
+
+        document.getElementById('claim-form').onsubmit = async function(e) {
+            e.preventDefault(); 
+            const items = []; let total = 0;
+            document.querySelectorAll('.item-row').forEach(row => { 
+                const f = row.querySelectorAll('input'); 
+                const amt = parseFloat(f[1].value); 
+                total += amt; 
+                items.push({ vendor: f[0].value, amount: amt, project: f[2].value, remarks: f[3].value }); 
+            });
+            const payload = { 
+                claim_number: document.getElementById('claim-no').value, company_key: document.getElementById('issuing-company').value, 
+                company_name: CO_DATA[document.getElementById('issuing-company').value].name, staff_name: document.getElementById('staff-name').value, 
+                staff_email: document.getElementById('staff-email').value, submission_date: document.getElementById('submission-date').value, 
+                submitted_at: new Date().toLocaleString('en-GB'), items: items, total_amount: total, status: 'Pending' 
+            };
+            
+            const editId = document.getElementById('edit-id').value;
+            let errorObj;
+            
+            if (editId) {
+                const { error } = await supabaseClient.from('staff_claims').update(payload).eq('id', editId);
+                errorObj = error;
+            } else {
+                const { error } = await supabaseClient.from('staff_claims').insert(payload);
+                errorObj = error;
+            }
+
+            if(!errorObj) {
+                // Await the notification email BEFORE reloading — otherwise location.reload()
+                // cancels the in-flight request and the email is never sent.
+                // Await the send BEFORE reload — otherwise location.reload() cancels the
+                // in-flight EmailJS request and the notification never sends.
+                try {
+                    await emailjs.send(EMAIL_SERVICE, EMAIL_TEMPLATE, {
+                        to_email: "admin1@example.com",
+                        to_name: "COMPANY Admin",
+                        system_name: "COMPANY STAFF CLAIM SYSTEM",
+                        header_bg: "#0f172a",
+                        title: editId ? "Claim Resubmitted" : "New Claim Received",
+                        html_body: createRow("Claimant", payload.staff_name) + createRow("Total", "RM " + formatRM(payload.total_amount))
+                    });
+                } catch (e) { console.warn("Notification email failed:", e); }
+                alert(editId ? "Resubmitted successfully." : "Submitted successfully.");
+                location.reload();
+            } else {
+                alert("Database Error: " + errorObj.message);
+            }
+        };
+        init();
+    </script>
+</body>
+</html>

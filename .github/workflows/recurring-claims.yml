@@ -1,0 +1,167 @@
+name: Recurring Monthly Claims
+
+on:
+  schedule:
+    # 9th of every month at 01:00 UTC (9 AM MYT)
+    - cron: '0 1 9 * *'
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: 'Override submission date (YYYY-MM-DD). Defaults to today.'
+        required: false
+
+jobs:
+  issue-claims:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Issue Advisory & Cleaning Fee Claims
+        env:
+          SUPABASE_URL: https://YOUR_PROJECT_REF.supabase.co
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          TARGET_DATE: ${{ inputs.target_date }}
+        run: |
+          python3 << 'PYEOF'
+          import os, json, datetime, calendar, urllib.request, urllib.parse, sys
+
+          SUPABASE_URL = os.environ['SUPABASE_URL']
+          SERVICE_KEY  = os.environ['SUPABASE_SERVICE_KEY']
+
+          def sb_get(path):
+              url = f"{SUPABASE_URL}/rest/v1/{path}"
+              req = urllib.request.Request(url, headers={
+                  'apikey': SERVICE_KEY,
+                  'Authorization': f'Bearer {SERVICE_KEY}'
+              })
+              with urllib.request.urlopen(req) as r:
+                  return json.loads(r.read())
+
+          def sb_post(data):
+              url = f"{SUPABASE_URL}/rest/v1/cash_claims"
+              body = json.dumps(data).encode()
+              req = urllib.request.Request(url, data=body, headers={
+                  'apikey': SERVICE_KEY,
+                  'Authorization': f'Bearer {SERVICE_KEY}',
+                  'Content-Type': 'application/json',
+                  'Prefer': 'return=representation'
+              })
+              with urllib.request.urlopen(req) as r:
+                  return json.loads(r.read())
+
+          raw_date = os.environ.get('TARGET_DATE', '').strip()
+          today = datetime.date.fromisoformat(raw_date) if raw_date else datetime.date.today()
+          year  = today.year
+          month = today.month
+          submission_date = today.strftime('%Y-%m-%d')
+          date_key = today.strftime('%Y%m%d')
+
+          # Determine next sequence number for today's date
+          existing = sb_get(
+              f"cash_claims?select=claim_number&claim_number=like.CC-{date_key}-%25"
+              f"&order=claim_number.desc&limit=1"
+          )
+          if existing:
+              last_seq = int(existing[0]['claim_number'].rsplit('-', 1)[-1])
+          else:
+              last_seq = 0
+          seq = [last_seq + 1]
+
+          def next_cn():
+              num = f"CC-{date_key}-{seq[0]:02d}"
+              seq[0] += 1
+              return num
+
+          MONTHS       = ['January','February','March','April','May','June',
+                          'July','August','September','October','November','December']
+          MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun',
+                          'Jul','Aug','Sep','Oct','Nov','Dec']
+
+          def ordinal(n):
+              if 11 <= n <= 13: return f"{n}th"
+              return f"{n}{['st','nd','rd'][n%10-1] if n%10 in (1,2,3) else 'th'}"
+
+          # ── 1. ADVISORY RETAINER (claim for previous month) ──────────────────
+          prev_month = month - 1
+          prev_year  = year
+          if prev_month == 0:
+              prev_month = 12
+              prev_year -= 1
+
+          # A-number: A020 = March 2026, increments by 1 each month
+          a_num  = 20 + (prev_year - 2026) * 12 + (prev_month - 3)
+          a_code = f"A{a_num:03d}"
+          prev_month_name = MONTHS[prev_month - 1]
+
+          yuwang_project = f"{a_code} - Advisory Services {prev_month_name} {prev_year}"
+
+          dup = sb_get(
+              f"cash_claims?select=claim_number&project=eq."
+              + urllib.parse.quote(yuwang_project)
+          )
+          if dup:
+              print(f"SKIP  Advisory: '{yuwang_project}' already exists ({dup[0]['claim_number']})")
+          else:
+              rec = {
+                  "claim_number":   next_cn(),
+                  "company_key":    "SOLUTIONS",
+                  "company_name":   "COMPANY A SDN. BHD.",
+                  "submission_date": submission_date,
+                  "claimant_name":  "Staff Member A",
+                  "claimant_nric":  "000000-00-0000",
+                  "claimant_phone": "0100000000",
+                  "payable_name":   "Staff Member A",
+                  "bank_details":   "Bank Name - 000000000000",
+                  "project":        yuwang_project,
+                  "items": [{"qty": 1,
+                              "desc": f"Advisory Services Job - {prev_month_name} {prev_year}",
+                              "price": 4000}],
+                  "total_amount":   4000,
+                  "status":         "Pending",
+                  "claimant_email": "admin2@example.com",
+                  "user_id":        "00000000-0000-0000-0000-000000000000"
+              }
+              result = sb_post(rec)
+              print(f"CREATED Advisory: {result[0]['claim_number']} — {yuwang_project}")
+
+          # ── 2. OFFICE CLEANING FEE (current month, every Saturday) ─────────
+          saturdays = [
+              day
+              for week in calendar.monthcalendar(year, month)
+              for day in [week[calendar.SATURDAY]]
+              if day != 0
+          ]
+          month_short    = MONTHS_SHORT[month - 1]
+          year_short     = str(year)[2:]
+          month_name     = MONTHS[month - 1]
+          cleaning_project = f"Office Cleaning Service for {month_short}'{year_short}"
+
+          dup = sb_get(
+              f"cash_claims?select=claim_number&project=eq."
+              + urllib.parse.quote(cleaning_project)
+          )
+          if dup:
+              print(f"SKIP  Cleaning: '{cleaning_project}' already exists ({dup[0]['claim_number']})")
+          else:
+              items = [{"qty": 1, "desc": f"{ordinal(d)} {month_name} {year}", "price": 100}
+                       for d in saturdays]
+              total = len(saturdays) * 100
+              rec = {
+                  "claim_number":   next_cn(),
+                  "company_key":    "SOLUTIONS",
+                  "company_name":   "COMPANY A SDN. BHD.",
+                  "submission_date": submission_date,
+                  "claimant_name":  "Staff Member B",
+                  "claimant_nric":  "000000-00-0001",
+                  "claimant_phone": "0100000001",
+                  "payable_name":   "Staff Member B",
+                  "bank_details":   "Bank Name (Account No: 000000000001)",
+                  "project":        cleaning_project,
+                  "items":          items,
+                  "total_amount":   total,
+                  "status":         "Pending",
+                  "claimant_email": "",
+                  "user_id":        "00000000-0000-0000-0000-000000000000"
+              }
+              result = sb_post(rec)
+              print(f"CREATED Cleaning: {result[0]['claim_number']} — {cleaning_project} "
+                    f"({len(saturdays)} Saturdays = RM{total})")
+          PYEOF

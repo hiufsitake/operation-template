@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="applogo.png">
+    <link rel="manifest" href="manifest.json">
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="ilogoleave.PNG" type="image/PNG"> 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/vendor/supabase-js.min.js"></script>
+    <script type="text/javascript" src="/vendor/emailjs.min.js"></script>
+    <title>COMPANY | Leave System</title>
+
+    <script>
+        // --- AUTH GUARD ---
+        document.documentElement.style.display = 'none';
+
+        const GUARD_URL = 'https://YOUR_PROJECT_REF.supabase.co';
+        // Note: Using the same key provided in your snippet
+        const GUARD_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const guardClient = supabase.createClient(GUARD_URL, GUARD_KEY);
+
+        async function checkSession() {
+            const { data: { session } } = await guardClient.auth.getSession();
+            if (!session) {
+                window.location.href = "../index.html"; 
+            } else {
+                document.documentElement.style.display = '';
+            }
+        }
+        checkSession();
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .tab-active { background: #2563eb; color: white; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); }
+        .btn-active-half { border-color: #2563eb !important; background-color: #eff6ff !important; color: #1e40af !important; border-width: 2px !important; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-approved { background: #dcfce7; color: #166534; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .policy-notice { background: #eff6ff; border-left: 4px solid #2563eb; }
+        .balance-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen pb-24 text-slate-900 font-medium">
+
+    <nav class="bg-[#0f172a] text-white p-5 sticky top-0 z-50 shadow-xl border-b-2 border-blue-600">
+        <div class="max-w-2xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="../index.html" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-all">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                </a>
+                <h1 class="font-black italic text-xl uppercase tracking-tighter leading-none">COMPANY <span class="text-blue-500 text-2xl uppercase">LEAVE</span></h1>
+            </div>
+            <div class="flex bg-slate-800 p-1 rounded-xl gap-1 overflow-x-auto">
+                <button onclick="switchTab('apply')" id="nav-apply" class="px-3 py-2 rounded-lg text-[9px] font-bold tab-active uppercase">Apply</button>
+                <button onclick="switchTab('history')" id="nav-history" class="px-3 py-2 rounded-lg text-[9px] font-bold text-slate-400 uppercase">History</button>
+                <button onclick="switchTab('approve')" id="nav-approve" class="px-3 py-2 rounded-lg text-[9px] font-bold text-slate-400 uppercase">Review</button>
+                <button onclick="switchTab('staff')" id="nav-staff" class="px-3 py-2 rounded-lg text-[9px] font-bold text-slate-400 uppercase">Staff</button>
+                <button onclick="switchTab('admin')" id="nav-admin" class="px-3 py-2 rounded-lg text-[9px] font-bold text-slate-400 uppercase">Admin</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-xl mx-auto p-4 space-y-6">
+        
+        <div id="auth-lock-screen" class="hidden p-10 text-center bg-white rounded-[2.5rem] border shadow-sm space-y-4">
+            <i data-lucide="shield-alert" class="w-12 h-12 mx-auto text-blue-500"></i>
+            <h3 class="font-black text-lg uppercase italic text-slate-800">GM Authorization Required</h3>
+            <input type="password" id="master-pin-input" class="border-2 border-slate-100 p-4 rounded-2xl w-32 text-center text-2xl font-black bg-slate-50 focus:border-blue-500 outline-none" placeholder="****">
+            <button onclick="checkMasterAuth()" class="block mx-auto bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg">Unlock</button>
+            <p class="text-[10px] text-slate-400">Press ENTER to unlock</p>
+        </div>
+
+        <div id="tab-apply" class="space-y-6">
+            <section class="policy-notice p-5 rounded-2xl shadow-sm space-y-3">
+                <div class="flex items-center gap-2 text-blue-700">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
+                    <h2 class="text-[11px] font-black uppercase tracking-widest">Applicant Reminders</h2>
+                </div>
+                <ul class="text-[10px] space-y-2 text-slate-600 font-bold italic leading-relaxed">
+                    <li>1. Carried forward leave: Max 5 days, starts from 2025/2026 cycle only.</li>
+                    <li>2. Send a reminder to your superior after submitting application.</li>
+                    <li>3. Add your leave into Google Leave Calendar after approval.</li>
+                </ul>
+            </section>
+
+            <section id="balance-preview" class="balance-card p-6 rounded-[2rem] text-white shadow-xl hidden transition-all">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] font-bold opacity-60 uppercase tracking-widest mb-1">Earned Balance</p>
+                        <h2 id="prev-earned" class="text-5xl font-black italic">0.0</h2>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[8px] font-black opacity-40 uppercase">In Approval Queue</p>
+                        <p id="prev-pending" class="text-xl font-bold text-yellow-400">0.0d</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white p-6 rounded-[2.5rem] shadow-sm border">
+                <form id="leave-form" class="space-y-5">
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-slate-400 uppercase ml-2 tracking-widest">Select Name</label>
+                        <select id="leave-staff-select" onchange="updateBalancePreview()" class="w-full border-2 border-slate-50 p-4 rounded-2xl bg-slate-50 font-bold outline-none focus:border-blue-500" required></select>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-2xl">
+                        <button type="button" onclick="setDuration('full')" id="btn-full" class="p-3 rounded-xl font-black text-[10px] uppercase bg-white shadow-sm transition-all">Full Day</button>
+                        <button type="button" onclick="setDuration('half')" id="btn-half" class="p-3 rounded-xl font-black text-[10px] uppercase text-slate-400 transition-all">Half Day</button>
+                    </div>
+
+                    <div id="half-day-options" class="hidden grid grid-cols-2 gap-3">
+                        <button type="button" onclick="setHalfType('Morning')" id="btn-am" class="p-4 border-2 border-slate-50 rounded-2xl text-[9px] font-black text-slate-300 uppercase text-center flex flex-col items-center btn-active-half">
+                            <span>AM Session</span>
+                            <span class="opacity-60 text-[7px] mt-1 italic font-medium tracking-normal">8:30 AM - 12:00 PM</span>
+                        </button>
+                        <button type="button" onclick="setHalfType('Evening')" id="btn-pm" class="p-4 border-2 border-slate-50 rounded-2xl text-[9px] font-black text-slate-300 uppercase text-center flex flex-col items-center">
+                            <span>PM Session</span>
+                            <span class="opacity-60 text-[7px] mt-1 italic font-medium tracking-normal">1:00 PM - 4:30 PM</span>
+                        </button>
+                    </div>
+
+                    <select id="leave-type" class="w-full border-2 border-slate-50 p-4 rounded-2xl bg-slate-50 font-bold text-blue-600 outline-none">
+                        <option value="Annual">Annual Leave</option>
+                        <option value="Sick">Sick Leave</option>
+                        <option value="Hospitalization">Hospitalization</option>
+                        <option value="Compassionate">Compassionate</option>
+                        <option value="Unpaid">Unpaid Leave</option>
+                    </select>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[9px] font-black text-slate-400 uppercase ml-2">Start Date</label>
+                            <input type="date" id="start-date" class="w-full border-2 border-slate-50 p-4 rounded-2xl bg-slate-50 font-bold" required onchange="syncDates()">
+                        </div>
+                        <div class="space-y-1" id="end-date-container">
+                            <label class="text-[9px] font-black text-slate-400 uppercase ml-2">End Date</label>
+                            <input type="date" id="end-date" class="w-full border-2 border-slate-50 p-4 rounded-2xl bg-slate-50 font-bold" required>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2 italic">Reason / Remark <span class="text-red-500">*</span></label>
+                        <textarea id="leave-remark" rows="2" class="w-full border-2 border-slate-100 p-4 rounded-2xl bg-slate-50 font-medium text-sm outline-none focus:border-blue-500 focus:bg-white transition-all" placeholder="Reason for leave is mandatory..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 text-white font-black p-5 rounded-[1.5rem] shadow-xl active:scale-95 transition-all uppercase tracking-widest text-xs italic">Submit Application</button>
+                </form>
+            </section>
+        </div>
+
+        <div id="tab-history" class="hidden space-y-4">
+            <h2 class="font-black text-slate-400 uppercase text-xs tracking-widest px-2 italic text-center">Audit Logs</h2>
+            <div id="history-list" class="space-y-3"></div>
+        </div>
+
+        <div id="tab-approve" class="hidden space-y-4">
+            <div id="approval-list" class="space-y-3"></div>
+        </div>
+
+        <div id="tab-staff" class="hidden space-y-6">
+            <section class="bg-white p-6 rounded-[2rem] border shadow-sm">
+                <h2 class="font-bold mb-4 font-black uppercase text-[10px] tracking-widest">Register Staff</h2>
+                <form id="staff-form" class="space-y-4">
+                    <input type="text" id="staff-name" placeholder="Full Name" class="w-full border p-4 rounded-xl bg-slate-50 font-bold" required>
+                    <input type="email" id="staff-email" placeholder="Email Address" class="w-full border p-4 rounded-xl bg-slate-50 font-bold" required>
+                    <input type="date" id="staff-join" class="w-full border p-4 rounded-xl bg-slate-50 font-bold" required>
+                    <button type="submit" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs tracking-widest shadow-xl">Create Profile</button>
+                </form>
+            </section>
+            <div id="staff-list" class="space-y-2"></div>
+        </div>
+
+        <div id="tab-admin" class="hidden space-y-4">
+            <section class="bg-white p-6 rounded-[2.5rem] border shadow-sm space-y-6">
+                <div>
+                    <h2 class="font-black text-slate-400 uppercase text-[9px] tracking-widest mb-3">Master Reports</h2>
+                    <button onclick="exportAllDataCSV()" class="w-full bg-emerald-600 text-white p-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg flex items-center justify-center gap-3">
+                        <i data-lucide="file-spreadsheet" class="w-5 h-5"></i> Export Report (CSV)
+                    </button>
+                </div>
+                <div class="pt-6 border-t">
+                    <h2 class="font-black text-slate-400 uppercase text-[9px] tracking-widest mb-3">Access Control</h2>
+                    <div class="space-y-2">
+                        <input type="password" id="new-master-pin" placeholder="Enter New 4-Digit PIN" class="w-full border-2 border-slate-50 p-4 rounded-2xl bg-slate-50 font-bold text-center">
+                        <button onclick="updateMasterPin()" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-sm">Update PIN</button>
+                    </div>
+                </div>
+                <button onclick="logoutGM()" class="w-full border-2 border-red-50 text-red-400 p-3 rounded-xl font-black uppercase text-[8px] tracking-widest">Lock Session</button>
+            </section>
+        </div>
+
+    </main>
+
+    <script>
+        const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
+        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const EMAIL_SERVICE = "YOUR_EMAILJS_SERVICE_ID";
+        const EMAIL_TEMPLATE = "YOUR_EMAILJS_TEMPLATE_ID";
+        const EMAIL_KEY = "YOUR_EMAILJS_PUBLIC_KEY";
+
+        let db = { staff: [], logs: [], pin: '1234' };
+        let isAuthorized = false, durationMode = 'full', halfDayType = 'Morning';
+        let targetTab = 'apply'; 
+
+        let inactivityTimeout;
+        const TIMEOUT_DURATION = 900000;
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimeout);
+            inactivityTimeout = setTimeout(async () => {
+                await supabaseClient.auth.signOut();
+                alert("Session expired due to inactivity.");
+                window.location.href = "../index.html";
+            }, TIMEOUT_DURATION);
+        }
+
+        ['mousemove', 'keypress', 'click', 'scroll', 'touchstart'].forEach(evt => {
+            document.addEventListener(evt, resetInactivityTimer);
+        });
+        resetInactivityTimer();
+
+        (function() {
+            emailjs.init(EMAIL_KEY);
+            fetchData();
+            const pinInput = document.getElementById('master-pin-input');
+            if(pinInput) {
+                pinInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') checkMasterAuth();
+                });
+            }
+        })();
+
+        const createRow = (label, value) => `<tr><td style="padding: 8px 0; color: #64748b; font-size: 12px; font-weight: bold; text-transform: uppercase;">${label}</td><td style="padding: 8px 0; color: #0f172a; font-size: 14px; font-weight: bold; text-align: right;">${value}</td></tr><tr><td colspan="2" style="border-bottom: 1px solid #f1f5f9;"></td></tr>`;
+
+        async function fetchData() {
+            const { data: sData } = await supabaseClient.from('staff').select('*');
+            const { data: lData } = await supabaseClient.from('logs').select('*').order('created_at', { ascending: false });
+            const { data: pData } = await supabaseClient.from('settings').select('value').eq('key', 'pin').single();
+            db.staff = sData || []; db.logs = lData || []; db.pin = pData?.value || '1234';
+            render(); updateBalancePreview();
+        }
+
+        function setDuration(mode) {
+            durationMode = mode;
+            document.getElementById('btn-full').className = mode === 'full' ? 'p-3 rounded-xl font-black text-[10px] uppercase bg-white shadow-sm transition-all' : 'p-3 rounded-xl font-black text-[10px] uppercase text-slate-400';
+            document.getElementById('btn-half').className = mode === 'half' ? 'p-3 rounded-xl font-black text-[10px] uppercase bg-white shadow-sm transition-all' : 'p-3 rounded-xl font-black text-[10px] uppercase text-slate-400';
+            document.getElementById('half-day-options').classList.toggle('hidden', mode === 'full');
+            document.getElementById('end-date-container').classList.toggle('opacity-30', mode === 'half');
+            if(mode === 'half') syncDates();
+        }
+
+        function setHalfType(type) {
+            halfDayType = type;
+            document.getElementById('btn-am').classList.toggle('btn-active-half', type === 'Morning');
+            document.getElementById('btn-am').classList.toggle('text-slate-300', type !== 'Morning');
+            document.getElementById('btn-pm').classList.toggle('btn-active-half', type === 'Evening');
+            document.getElementById('btn-pm').classList.toggle('text-slate-300', type !== 'Evening');
+        }
+
+        function syncDates() { if(durationMode === 'half') document.getElementById('end-date').value = document.getElementById('start-date').value; }
+
+        function calculateBusinessDays(s, e) {
+            if(durationMode === 'half') return 0.5;
+            let start = new Date(s), end = new Date(e), count = 0, cur = new Date(start);
+            while (cur <= end) { if (cur.getDay() !== 0 && cur.getDay() !== 6) count++; cur.setDate(cur.getDate() + 1); }
+            return count;
+        }
+
+        function getBalances(staff, offset = 0) {
+            const joinDate = new Date(staff.join_date), now = new Date();
+            let refDate = new Date(now.getFullYear() - offset, now.getMonth(), now.getDate());
+            let cycleStart = new Date(refDate.getFullYear(), joinDate.getMonth(), joinDate.getDate());
+            if (cycleStart > refDate) cycleStart = new Date(refDate.getFullYear() - 1, joinDate.getMonth(), joinDate.getDate());
+            const cycleEnd = new Date(cycleStart.getFullYear() + 1, cycleStart.getMonth(), cycleStart.getDate());
+            if (cycleEnd <= joinDate) return { annual: 0, accrued: 0, usedAnnual: 0, cycleStart, cycleEnd };
+            const tenure = (cycleStart - joinDate) / (1000 * 60 * 60 * 24 * 365.25);
+            let base = tenure >= 5 ? 18 : (tenure >= 2 ? 16 : 12);
+            let monthsPassed = (now.getFullYear() - cycleStart.getFullYear()) * 12 + (now.getMonth() - cycleStart.getMonth());
+            if (offset > 0) monthsPassed = 12;
+            const accrued = (Math.min(12, monthsPassed) / 12) * base;
+            const approved = db.logs.filter(l => l.staff_id == staff.id && new Date(l.start_date) >= cycleStart && new Date(l.start_date) < cycleEnd && l.status === 'Approved');
+            return { annual: base, accrued, usedAnnual: approved.filter(l => l.type === 'Annual').reduce((s, l) => s + l.days, 0), cycleStart, cycleEnd };
+        }
+
+        function updateBalancePreview() {
+            const staffId = document.getElementById('leave-staff-select').value;
+            const card = document.getElementById('balance-preview');
+            if (!staffId) { card.classList.add('hidden'); return; }
+            const staff = db.staff.find(s => s.id == staffId);
+            if (staff) {
+                const b = getBalances(staff, 0), pr = getBalances(staff, 1);
+                let cf = (pr.cycleStart >= new Date('2025-01-01')) ? Math.max(0, Math.min(pr.annual - pr.usedAnnual, 5)) : 0;
+                const earned = b.accrued + cf - b.usedAnnual;
+                const pending = db.logs.filter(l => l.staff_id == staffId && l.status === 'Pending').reduce((sum, l) => sum + l.days, 0);
+                document.getElementById('prev-earned').innerText = earned.toFixed(1);
+                document.getElementById('prev-pending').innerText = pending.toFixed(1) + 'd';
+                card.classList.remove('hidden');
+            }
+        }
+
+        function render() {
+            document.getElementById('leave-staff-select').innerHTML = '<option value="">Select Name</option>' + db.staff.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+
+            document.getElementById('history-list').innerHTML = db.logs.map(l => {
+                const s = db.staff.find(st => st.id == l.staff_id);
+                const timeStr = l.days === 0.5 ? ` (${l.half_type === 'Morning' ? '8:30am-12:00pm' : '1:00pm-4:30pm'})` : '';
+                return `<div class="bg-white p-5 rounded-2xl border shadow-sm flex flex-col gap-2">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-black text-slate-800 uppercase text-[10px] tracking-tighter">${s?.name || 'Unknown'}</p>
+                            <p class="text-[9px] text-slate-400 font-bold">${l.start_date} ${l.days > 1 ? '→ ' + l.end_date : ''} (${l.days}d)${timeStr}</p>
+                        </div>
+                        <div class="status-${l.status.toLowerCase()} px-3 py-1 rounded-full font-black uppercase text-[7px] tracking-widest">${l.status}</div>
+                    </div>
+                    <p class="text-blue-600 font-black uppercase text-[8px] italic">${l.type}</p>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-dashed text-[9px] text-slate-500 italic font-bold">" ${l.remark || 'No remark'} "</div>
+                </div>`;
+            }).join('') || `<div class="p-10 text-center text-slate-300 italic text-xs">No records.</div>`;
+
+            const pendings = db.logs.filter(l => l.status === 'Pending');
+            document.getElementById('approval-list').innerHTML = pendings.map(l => {
+                const s = db.staff.find(st => st.id == l.staff_id);
+                const b = getBalances(s), pr = getBalances(s, 1);
+                let cf = (pr.cycleStart >= new Date('2025-01-01')) ? Math.max(0, Math.min(pr.annual - pr.usedAnnual, 5)) : 0;
+                const earned = b.accrued + cf - b.usedAnnual;
+                const timeStr = l.days === 0.5 ? ` [${l.half_type === 'Morning' ? '8:30AM-12:00PM' : '1:00PM-4:30PM'}]` : '';
+                
+                return `
+                <div class="bg-white p-6 rounded-[2.5rem] border shadow-sm space-y-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest italic">${l.type}</p>
+                            <h3 class="font-black text-lg text-slate-900 uppercase">${s?.name}</h3>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${l.start_date} -> ${l.end_date}${timeStr}</p>
+                        </div>
+                        <div class="text-right">
+                             <p class="text-[8px] font-black text-slate-300 uppercase italic">Duration</p>
+                             <p class="font-black text-2xl text-slate-900 leading-none">${l.days}d</p>
+                             <p class="text-[9px] ${l.days > earned ? 'text-red-500' : 'text-emerald-600'} font-bold uppercase mt-1">Bal: ${earned.toFixed(1)}d</p>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-xs font-medium text-slate-600 italic">
+                        ${l.remark}
+                    </div>
+
+                    <select id="approver-${l.id}" class="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-[10px] font-bold outline-none">
+                        <option value="HFS">Action as HFS</option>
+                        <option value="TFH">Action as TFH</option>
+                    </select>
+
+                    <div class="flex gap-4 pt-2">
+                        <button onclick="handleStatus('${l.id}', 'Approved')" class="flex-1 bg-[#10b981] hover:bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-sm transition-all">Approve</button>
+                        <button onclick="handleStatus('${l.id}', 'Rejected')" class="flex-1 bg-[#ef4444] hover:bg-red-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-sm transition-all">Reject</button>
+                    </div>
+                </div>`;
+            }).join('') || `<div class="p-10 text-center text-slate-300 italic text-xs">Queue Clear</div>`;
+
+            document.getElementById('staff-list').innerHTML = db.staff.map(s => {
+                const c = getBalances(s, 0), pr = getBalances(s, 1);
+                let cf = (pr.cycleStart >= new Date('2025-01-01')) ? Math.max(0, Math.min(pr.annual - pr.usedAnnual, 5)) : 0;
+                return `<div class="bg-white p-4 rounded-2xl border flex justify-between items-center mb-2 shadow-sm">
+                    <div><h3 class="font-bold text-slate-800 text-sm">${s.name}</h3><p class="text-[8px] font-bold text-blue-500 uppercase italic">Join: ${new Date(s.join_date).toLocaleDateString('en-GB')}</p></div>
+                    <div class="flex items-center gap-4"><div class="text-right text-lg font-black text-slate-900">${(c.accrued + cf - c.usedAnnual).toFixed(1)}d</div><button onclick="deleteStaff(${s.id})" class="text-red-100 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>
+                </div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function switchTab(t) { 
+            const priv = ['approve', 'staff', 'admin'];
+            if (priv.includes(t) && !isAuthorized) { 
+                targetTab = t;
+                document.querySelectorAll('main > div').forEach(d => d.classList.add('hidden')); 
+                document.getElementById('auth-lock-screen').classList.remove('hidden'); 
+                document.getElementById('master-pin-input').value = '';
+                document.getElementById('master-pin-input').focus(); 
+            }
+            else { 
+                document.getElementById('auth-lock-screen').classList.add('hidden'); 
+                document.querySelectorAll('main > div').forEach(d => d.classList.toggle('hidden', d.id !== 'tab-' + t)); 
+            }
+            document.querySelectorAll('nav button').forEach(b => b.className = `px-3 py-2 rounded-lg text-[9px] font-bold transition-all ${b.id === 'nav-'+t ? 'tab-active' : 'text-slate-400'}`);
+            lucide.createIcons();
+        }
+
+        function checkMasterAuth() { 
+            if (document.getElementById('master-pin-input').value === db.pin) { 
+                isAuthorized = true; 
+                switchTab(targetTab); 
+            } else { 
+                alert("Unauthorized"); 
+                document.getElementById('master-pin-input').value = '';
+            } 
+        }
+
+        async function updateMasterPin() { const newPin = document.getElementById('new-master-pin').value; if (newPin.length === 4) { await supabaseClient.from('settings').update({ value: newPin }).eq('key', 'pin'); alert("PIN Updated"); logoutGM(); fetchData(); } else { alert("4 digits required"); } }
+        function logoutGM() { isAuthorized = false; switchTab('apply'); }
+        
+        document.getElementById('staff-form').onsubmit = async (e) => {
+            e.preventDefault();
+            await supabaseClient.from('staff').insert({ 
+                id: Date.now(), 
+                name: document.getElementById('staff-name').value, 
+                email: document.getElementById('staff-email').value,
+                join_date: document.getElementById('staff-join').value 
+            });
+            fetchData(); e.target.reset();
+        };
+
+        window.deleteStaff = async (id) => { if(confirm("Delete staff profile?")) { await supabaseClient.from('staff').delete().eq('id', id); fetchData(); } };
+        
+        // --- MODIFIED FUNCTION STARTS HERE ---
+        function exportAllDataCSV() { 
+            // 1. Added "Current_Balance" header
+            let csv = "Staff,Type,Start,End,Days,Status,Remark,Current_Balance\n"; 
+            
+            db.logs.forEach(l => { 
+                const s = db.staff.find(st => st.id === l.staff_id);
+                let balanceStr = "N/A";
+                
+                // 2. Logic to calculate balance for this specific staff member
+                if (s) {
+                    const b = getBalances(s, 0);
+                    const pr = getBalances(s, 1);
+                    let cf = (pr.cycleStart >= new Date('2025-01-01')) ? Math.max(0, Math.min(pr.annual - pr.usedAnnual, 5)) : 0;
+                    const earned = b.accrued + cf - b.usedAnnual;
+                    balanceStr = earned.toFixed(2);
+                }
+
+                // 3. Append to CSV with new balance column
+                csv += `"${s?.name}","${l.type}","${l.start_date}","${l.end_date}",${l.days},"${l.status}","${l.remark?.replace(/"/g,'')}","${balanceStr}"\n`; 
+            }); 
+            
+            const link = document.createElement("a"); 
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); 
+            link.download = `COMPANY_Leave_Report.csv`; 
+            link.click(); 
+        }
+        // --- MODIFIED FUNCTION ENDS HERE ---
+
+        document.getElementById('leave-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const staffId = document.getElementById('leave-staff-select').value;
+            const staffName = db.staff.find(s => s.id == staffId)?.name;
+            const type = document.getElementById('leave-type').value;
+            const start = document.getElementById('start-date').value;
+            const end = document.getElementById('end-date').value;
+            const remark = document.getElementById('leave-remark').value;
+            const days = calculateBusinessDays(start, end);
+
+            const { error } = await supabaseClient.from('logs').insert({ 
+                staff_id: parseInt(staffId), type, start_date: start, end_date: end, days, 
+                status: 'Pending', half_type: durationMode === 'half' ? halfDayType : null, remark 
+            });
+
+            if(error) { alert("Failed to submit application."); return; }
+
+            emailjs.send(EMAIL_SERVICE, EMAIL_TEMPLATE, {
+                system_name: "COMPANY LEAVE SYSTEM",
+                header_bg: "#2563eb",
+                title: "New Leave Application",
+                html_body: 
+                    createRow("Applicant", staffName) +
+                    createRow("Type", type) +
+                    createRow("Duration", days + " Days") +
+                    createRow("Dates", `${start} to ${end}`),
+                remark_text: remark
+            });
+
+            e.target.reset(); setDuration('full'); fetchData(); 
+            alert("Leave Application Submitted!");
+        };
+
+        // --- UPDATED FUNCTION: WITH ERROR HANDLING ---
+        async function handleStatus(logId, status) {
+            const approver = document.getElementById('approver-'+logId).value;
+            
+            // 1. Try update DB
+            const { error } = await supabaseClient
+                .from('logs')
+                .update({ status: status, approved_by: approver })
+                .eq('id', logId);
+
+            // 2. Check for Error (RLS or otherwise)
+            if (error) {
+                console.error("Supabase Error:", error);
+                alert("Database Update Failed: " + error.message + "\n\nACTION REQUIRED: Please check Supabase RLS Policies.");
+                return; // Stop. Do not send email.
+            }
+
+            // 3. Success -> Send Email & Update UI
+            const log = db.logs.find(l => l.id == logId);
+            const staff = db.staff.find(s => s.id == log.staff_id);
+            const color = status === 'Approved' ? '#10b981' : '#dc2626';
+            
+            emailjs.send(EMAIL_SERVICE, EMAIL_TEMPLATE, {
+                system_name: "COMPANY LEAVE SYSTEM",
+                header_bg: color,
+                title: `Application ${status}`,
+                to_email: staff.email,
+                to_name: staff.name,
+                html_body: 
+                    createRow("Applicant", staff.name) +
+                    createRow("Status", status.toUpperCase()) +
+                    createRow("Action By", approver) + 
+                    createRow("Dates", `${log.start_date} to ${log.end_date}`),
+                remark_text: status === 'Approved' ? "Please update in COMPANY Leave Google Calendar. Thank you." : "Please contact Admin for details."
+            });
+            fetchData();
+            alert("Application " + status + "!");
+        }
+    </script>
+</body>
+</html>

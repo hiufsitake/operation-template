@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="applogo.png">
+    <link rel="manifest" href="manifest.json">
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="ilogo.PNG" type="image/png">
+
+    <!-- Warm up connections so the login/session check and fonts resolve faster -->
+    <link rel="preconnect" href="https://YOUR_PROJECT_REF.supabase.co" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Self-hosted (same-origin) so it loads as reliably as the page itself —
+         third-party CDNs (jsdelivr/unpkg) can be blocked by extensions or fail
+         intermittently, which left `supabase` undefined and broke login. -->
+    <script src="vendor/supabase-js.min.js"></script>
+    <title>Company | Portal</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        #app-loader { position: fixed; inset: 0; background-color: #ffffff; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.15s ease-out, visibility 0.15s; }
+        #app-loader.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        .input-box { border: 2px solid #f1f5f9; padding: 1rem; border-radius: 1.25rem; background: #f8fafc; font-weight: 700; width: 100%; outline: none; transition: all 0.2s; }
+        .input-box:focus { border-color: #10b981; background: white; }
+        .nav-card { position: relative; transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.18s ease, border-color 0.18s ease; border: 2px solid #f8fafc; background: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); will-change: transform; }
+        .nav-card:hover { border-color: #10b981; transform: translateY(-3px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .nav-card:active { transform: scale(0.97); transition-duration: 0.08s; }
+        .hidden-force { display: none !important; }
+        #install-banner {
+            padding-bottom: env(safe-area-inset-bottom);
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.34, 1.20, 0.64, 1);
+        }
+        #install-banner.banner-visible { transform: translateY(0); }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col items-center justify-center p-6 relative overflow-x-hidden">
+
+    <div id="app-loader">
+        <img src="logo.jpg" alt="Company" class="w-32 animate-pulse mb-4">
+        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading System...</p>
+    </div>
+
+    <div class="w-full max-w-md space-y-12 text-center">
+        <div class="flex flex-col items-center">
+            <img src="logo.jpg" alt="Company Logo" class="w-64 md:w-80 h-auto object-contain mb-4">
+            <div class="h-1 w-12 bg-emerald-500 rounded-full mb-2"></div>
+            <p class="text-[11px] font-black uppercase tracking-[0.5em] text-slate-400">Operations Portal</p>
+        </div>
+
+        <div id="auth-view" class="hidden space-y-6">
+            <div class="space-y-2">
+                <h2 id="auth-title" class="text-xl font-black text-slate-800">Welcome</h2>
+                <p id="auth-subtitle" class="text-xs font-bold text-slate-400">Please login to access the system.</p>
+            </div>
+            <div class="space-y-4">
+                <input type="email" id="email" placeholder="Email Address" class="input-box" required>
+                <input type="password" id="password" placeholder="Password" class="input-box" required>
+                <div id="forgot-link-box" class="text-right"><button onclick="toggleResetMode()" class="text-[10px] font-bold text-slate-400 hover:text-emerald-500 uppercase tracking-widest">Forgot Password?</button></div>
+            </div>
+            <div class="flex flex-col gap-3">
+                <button onclick="handleAuth()" id="submit-btn" class="w-full bg-slate-900 text-white font-black p-5 rounded-[2rem] shadow-xl uppercase tracking-widest text-xs hover:bg-emerald-600 transition-all">Login</button>
+                <button onclick="toggleAuthMode()" id="toggle-btn" class="w-full bg-white border-2 border-slate-200 text-slate-900 font-black p-5 rounded-[2rem] uppercase tracking-widest text-[10px] hover:border-emerald-500 hover:text-emerald-500 transition-all shadow-sm">Create New Account</button>
+            </div>
+            <p id="error-msg" class="text-red-500 text-xs font-bold hidden bg-red-50 p-3 rounded-xl"></p>
+        </div>
+
+        <div id="update-password-view" class="hidden space-y-6">
+            <div class="space-y-2">
+                <h2 class="text-xl font-black text-slate-800">Set New Password</h2>
+                <p class="text-xs font-bold text-slate-400">Secure your account with a new password.</p>
+            </div>
+            <div class="space-y-4">
+                <input type="password" id="new-password" placeholder="Enter New Password" class="input-box" required>
+            </div>
+            <button onclick="handlePasswordUpdate()" id="update-btn" class="w-full bg-emerald-500 text-white font-black p-5 rounded-[2rem] shadow-xl uppercase tracking-widest text-xs hover:bg-emerald-600 transition-all">Update Password</button>
+            <p id="update-msg" class="text-red-500 text-xs font-bold hidden bg-red-50 p-3 rounded-xl"></p>
+        </div>
+
+        <div id="pending-view" class="hidden">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-200 text-center space-y-5 max-w-md mx-auto">
+                <div class="bg-amber-100 text-amber-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"><i data-lucide="clock" class="w-8 h-8"></i></div>
+                <h2 class="font-black uppercase italic text-slate-800 text-lg tracking-tight">Account Pending Approval</h2>
+                <p class="text-slate-500 text-xs font-bold leading-relaxed">Your account has been created and is waiting for an administrator to approve it. You'll be able to access the portal as soon as you're approved.</p>
+                <p class="text-slate-400 text-[10px] font-bold">An admin has been notified of your sign-up.</p>
+                <button onclick="handleLogout()" class="w-full bg-slate-800 hover:bg-black text-white font-black p-4 rounded-2xl uppercase tracking-widest text-[10px] transition-all">Logout</button>
+            </div>
+        </div>
+
+        <div id="dashboard-view" class="hidden space-y-6">
+            <div class="grid grid-cols-2 gap-4">
+                <a href="project/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
+                    <div class="bg-orange-500 text-white p-3 rounded-xl"><i data-lucide="folder-kanban" class="w-5 h-5"></i></div>
+                    <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Project Management</h2></div>
+                </a>
+                <a id="card-po" href="po/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
+                    <div class="bg-emerald-500 text-white p-3 rounded-xl"><i data-lucide="shopping-cart" class="w-5 h-5"></i></div>
+                    <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">PO System</h2></div>
+                </a>
+                <a id="card-cashclaim" href="cashclaim/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
+                    <div class="bg-blue-500 text-white p-3 rounded-xl"><i data-lucide="wallet" class="w-5 h-5"></i></div>
+                    <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Cash Claim</h2></div>
+                </a>
+                <a id="card-staffclaim" href="staffclaim/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
+                    <div class="bg-purple-600 text-white p-3 rounded-xl"><i data-lucide="file-signature" class="w-5 h-5"></i></div>
+                    <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Staff Claim</h2></div>
+                </a>
+                <a id="card-leave" href="leave/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
+                    <div class="bg-slate-900 text-white p-3 rounded-xl"><i data-lucide="calendar" class="w-5 h-5"></i></div>
+                    <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Leave System</h2></div>
+                </a>
+                <a href="receiptsender/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
+                    <div class="bg-yellow-500 text-white p-3 rounded-xl"><i data-lucide="receipt" class="w-5 h-5"></i></div>
+                    <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Receipt Sender</h2></div>
+                </a>
+                <a href="customers/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
+                    <div class="bg-emerald-600 text-white p-3 rounded-xl"><i data-lucide="database" class="w-5 h-5"></i></div>
+                    <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Customer Database</h2></div>
+                </a>
+                <a href="vehicle/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
+                    <div class="bg-red-500 text-white p-3 rounded-xl"><i data-lucide="truck" class="w-5 h-5"></i></div>
+                    <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Vehicle Management</h2></div>
+                </a>
+                
+                <a href="pcm/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
+                    <div class="bg-[#78350f] text-white p-3 rounded-xl"><i data-lucide="banknote" class="w-5 h-5"></i></div>
+                    <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Project Costing (PCM)</h2></div>
+                </a>
+
+                <a href="settings/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
+                    <div class="bg-slate-600 text-white p-3 rounded-xl"><i data-lucide="settings" class="w-5 h-5"></i></div>
+                    <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Settings</h2></div>
+                </a>
+            </div>
+            
+            <button onclick="handleLogout()" class="text-[10px] font-bold text-red-300 hover:text-red-500 uppercase tracking-widest flex items-center justify-center gap-2 mx-auto pt-4"><i data-lucide="log-out" class="w-4 h-4"></i> Sign Out</button>
+        </div>
+
+            <footer class="pt-10 pb-16 flex flex-col items-center gap-6 text-center">
+                  <p class="text-[9px] font-black uppercase tracking-[0.6em] text-slate-300">COMPANY GROUP</p>
+                  <p class="text-[9px] font-black uppercase tracking-[0.6em] text-slate-400">© 2026 ALL RIGHTS RESERVED.</p>
+            </footer>
+
+        <!-- PWA Install Banner -->
+        <div id="install-banner" class="fixed bottom-0 left-0 right-0 z-40 bg-[#0f172a] text-white shadow-2xl">
+            <div class="flex items-center justify-between gap-3 px-5 py-4 max-w-md mx-auto">
+                <div class="flex items-center gap-3">
+                    <img src="applogo.png" class="w-10 h-10 object-cover rounded-xl flex-shrink-0" alt="">
+                    <div class="text-left">
+                        <p class="text-xs font-black uppercase tracking-wider leading-tight">Install App</p>
+                        <p class="text-[10px] text-emerald-300 font-bold leading-tight mt-0.5">Add COMPANY to your home screen</p>
+                    </div>
+                </div>
+                <div class="flex items-center flex-shrink-0">
+                    <button id="install-btn" onclick="triggerInstall()" class="bg-[#10b981] hover:bg-[#059669] text-white font-black text-[10px] uppercase tracking-wider px-5 py-2.5 rounded-xl min-h-[44px] transition-colors">Install</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- iOS Install Guide Modal -->
+        <div id="ios-install-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-end">
+            <div class="bg-white rounded-t-3xl p-6 w-full shadow-2xl">
+                <div class="flex items-center gap-3 mb-4">
+                    <img src="applogo.png" class="w-12 h-12 object-contain" alt="">
+                    <div>
+                        <h3 class="font-black text-slate-800 text-sm uppercase tracking-wider">Install COMPANY</h3>
+                        <p class="text-[10px] text-slate-500 font-bold">Add to your iPhone home screen</p>
+                    </div>
+                </div>
+                <ol class="text-xs text-slate-700 font-bold space-y-3 mb-5">
+                    <li class="flex items-start gap-3">
+                        <span class="bg-[#10b981] text-white rounded-full w-6 h-6 flex items-center justify-center font-black text-[10px] flex-shrink-0 mt-0.5">1</span>
+                        <span>Tap the <strong>Share</strong> button <strong>(□↑)</strong> at the bottom of Safari</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="bg-[#10b981] text-white rounded-full w-6 h-6 flex items-center justify-center font-black text-[10px] flex-shrink-0 mt-0.5">2</span>
+                        <span>Scroll down and tap <strong>Add to Home Screen</strong></span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="bg-[#10b981] text-white rounded-full w-6 h-6 flex items-center justify-center font-black text-[10px] flex-shrink-0 mt-0.5">3</span>
+                        <span>Tap <strong>Add</strong> to confirm</span>
+                    </li>
+                </ol>
+                <button onclick="document.getElementById('ios-install-modal').classList.add('hidden')" class="w-full bg-[#0f172a] text-white font-black text-xs uppercase tracking-wider p-4 rounded-2xl min-h-[52px]">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
+        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        function esc(s) { if (s == null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+        let supabaseClient;
+        // If this tab has no active session, drop any stale auth token left in
+        // localStorage BEFORE the client initialises. A leftover token makes
+        // supabase-js fire a SIGNED_IN on load that used to deadlock the auth lock.
+        try { if (!sessionStorage.getItem('company_tab_session')) localStorage.removeItem('sb-YOUR_PROJECT_REF-auth-token'); } catch {}
+        // supabase-js v2 serialises auth calls through an exclusive Web Lock
+        // (navigator.locks); a reentrant acquire deadlocks it and freezes
+        // signInWithPassword() on "Processing..." forever. We use one per-tab
+        // session, so a pass-through lock is safe and makes deadlocks impossible.
+        const passThroughLock = async (_n, _t, fn) => await fn();
+        try { supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, lock: passThroughLock } }); }
+        catch (err) { console.error("Supabase init failed"); setTimeout(() => document.getElementById('app-loader').classList.add('fade-out'), 2000); }
+        
+        const ADMIN_EMAILS = ['admin1@example.com', 'admin2@example.com', 'admin3@example.com'];
+        let isLoginMode = true; let isResetMode = false; let inactivityTimeout; const INACTIVITY_LIMIT = 10 * 60 * 1000;
+        window.currentAuthInitials = "SYSTEM"; window.currentAuthEmail = "Unknown";
+
+        function getCachedSession() {
+            try {
+                const raw = localStorage.getItem('sb-YOUR_PROJECT_REF-auth-token');
+                if (!raw) return null;
+                const p = JSON.parse(raw);
+                // Valid if not expired (expires_at is unix seconds)
+                if (p && p.expires_at && Date.now() / 1000 < p.expires_at) return p.user || p;
+                return null;
+            } catch { return null; }
+        }
+
+        function applyInitials(email) {
+            window.currentAuthEmail = email;
+            const em = email.toLowerCase();
+            window.currentAuthInitials = em.split('@')[0].toUpperCase().substring(0, 3);
+        }
+
+        async function initPortal() {
+            const backupTimer = setTimeout(() => { document.getElementById('app-loader').classList.add('fade-out'); if(document.getElementById('dashboard-view').classList.contains('hidden')) showAuth(); }, 4000);
+            try {
+                const isReload = window.performance && performance.getEntriesByType("navigation").length > 0 && performance.getEntriesByType("navigation")[0].type === "reload";
+                if (isReload) { await handleLogout(); return; }
+
+                // Fast path: use cached session from localStorage — no network wait
+                const tabActive = sessionStorage.getItem('company_tab_session');
+                const cached = getCachedSession();
+                if (cached && tabActive && cached.email) {
+                    applyInitials(cached.email);
+                    await enterPortal(cached.email); startInactivityTimer();
+                    clearTimeout(backupTimer);
+                    document.getElementById('app-loader').classList.add('fade-out');
+                    supabaseClient.auth.getSession(); // refresh silently in background
+                    return;
+                }
+
+                // Slow path: first load or no cache
+                const { data } = await supabaseClient.auth.getSession(); const session = data?.session;
+                
+                if (window.location.hash && window.location.hash.includes('type=recovery')) { showUpdatePasswordView(); }
+                else if (session && tabActive) {
+                    applyInitials(session.user.email);
+                    await enterPortal(session.user.email); startInactivityTimer();
+                } else { if (session) supabaseClient.auth.signOut(); showAuth(); }
+            } catch (err) { console.error("Auth logic error"); showAuth(); }
+            finally { clearTimeout(backupTimer); document.getElementById('app-loader').classList.add('fade-out'); }
+        }
+
+        if (supabaseClient) {
+            // No Supabase auth calls inside this callback — they can deadlock the auth
+            // lock. Login is handled directly in handleAuth(); page load in initPortal().
+            supabaseClient.auth.onAuthStateChange((event) => {
+                if (event === 'PASSWORD_RECOVERY') { showUpdatePasswordView(); return; }
+                if (event === 'SIGNED_OUT') { stopInactivityTimer(); sessionStorage.removeItem('company_tab_session'); showAuth(); }
+            });
+        }
+
+        function startInactivityTimer() { clearTimeout(inactivityTimeout); document.onclick = resetInactivityTimer; document.onkeypress = resetInactivityTimer; document.onmousemove = resetInactivityTimer; document.ontouchstart = resetInactivityTimer; inactivityTimeout = setTimeout(handleLogout, INACTIVITY_LIMIT); }
+        function resetInactivityTimer() { clearTimeout(inactivityTimeout); inactivityTimeout = setTimeout(handleLogout, INACTIVITY_LIMIT); }
+        function stopInactivityTimer() { clearTimeout(inactivityTimeout); document.onclick = null; document.onkeypress = null; document.onmousemove = null; document.ontouchstart = null; }
+
+        async function loadPendingDots() {
+            // Always await getSession() first — ensures the Supabase client has a valid
+            // auth token before we fire any queries (critical on first login).
+            let email;
+            try {
+                const { data } = await supabaseClient.auth.getSession();
+                if (!data?.session?.user?.email) return;
+                email = data.session.user.email;
+                applyInitials(email);
+            } catch { return; }
+
+            const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
+            // logs table uses staff_id FK — resolve from staff table once for non-admins
+            let staffId = null;
+            if (!isAdmin) {
+                try {
+                    const { data: sArr } = await supabaseClient.from('staff').select('id').eq('email', email).limit(1);
+                    staffId = Array.isArray(sArr) && sArr.length > 0 ? sArr[0].id : null;
+                } catch {}
+            }
+            const modules = [
+                { id: 'card-po',        table: 'po_logs',      emailCol: 'creator_email' },
+                { id: 'card-cashclaim', table: 'cash_claims',  emailCol: 'claimant_email' },
+                { id: 'card-staffclaim',table: 'staff_claims', emailCol: 'staff_email' },
+                { id: 'card-leave',     table: 'logs',         staffIdCol: 'staff_id' },
+            ];
+            await Promise.all(modules.map(async (mod) => {
+                try {
+                    let q = supabaseClient.from(mod.table).select('id', { count: 'exact', head: true }).eq('status', 'Pending');
+                    if (!isAdmin) {
+                        if (mod.staffIdCol) {
+                            if (!staffId) return;
+                            q = q.eq(mod.staffIdCol, staffId);
+                        } else {
+                            q = q.eq(mod.emailCol, email);
+                        }
+                    }
+                    const { count } = await q;
+                    if (count > 0) {
+                        const card = document.getElementById(mod.id);
+                        if (card && !card.querySelector('.pending-dot')) {
+                            const dot = document.createElement('span');
+                            dot.className = 'pending-dot absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full';
+                            card.appendChild(dot);
+                        }
+                    }
+                } catch(e) { /* silent */ }
+            }));
+        }
+        function showDashboard() { hideAllViews(); document.getElementById('dashboard-view').classList.remove('hidden'); setTimeout(loadPendingDots, 200); setTimeout(loadPendingDots, 3000); }
+        function showAuth() { hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); if(isResetMode) toggleResetMode(); }
+        function showUpdatePasswordView() { hideAllViews(); document.getElementById('update-password-view').classList.remove('hidden'); }
+        function showPending() { hideAllViews(); document.getElementById('pending-view').classList.remove('hidden'); lucide.createIcons(); }
+        function hideAllViews() { document.getElementById('auth-view').classList.add('hidden'); document.getElementById('dashboard-view').classList.add('hidden'); document.getElementById('update-password-view').classList.add('hidden'); document.getElementById('pending-view').classList.add('hidden'); }
+
+        // ── Approval gate ──────────────────────────────────────────────────────
+        // A user may only enter the portal if they are an admin or listed in the
+        // `staff` table. Everyone else is held on a "pending approval" screen until
+        // an admin approves them in Settings. Fails closed (no access) on error.
+        async function gateAccess(email) {
+            if (!email) return 'pending';
+            if (ADMIN_EMAILS.includes(email.toLowerCase())) return 'approved';
+            try {
+                const { data, error } = await supabaseClient.from('staff').select('id').eq('email', email).limit(1);
+                if (error) return 'pending';
+                return (Array.isArray(data) && data.length > 0) ? 'approved' : 'pending';
+            } catch { return 'pending'; }
+        }
+
+        async function enterPortal(email) {
+            const status = await gateAccess(email);
+            if (status === 'approved') { showDashboard(); }
+            else { showPending(); registerPendingUser(email); }
+        }
+
+        // Record a not-yet-approved user once, and email the admins to approve them.
+        async function registerPendingUser(email) {
+            if (!email) return;
+            try {
+                const { data: inserted } = await supabaseClient
+                    .from('pending_users')
+                    .upsert({ email, name: email.split('@')[0], status: 'Pending' }, { onConflict: 'email', ignoreDuplicates: true })
+                    .select();
+                if (Array.isArray(inserted) && inserted.length > 0) notifyAdminsOfSignup(email);
+            } catch {}
+        }
+
+        function notifyAdminsOfSignup(email) {
+            try {
+                fetch('/api/send-email', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        from: 'COMPANY Portal <onboarding@resend.dev>',
+                        to: ADMIN_EMAILS,
+                        subject: 'New COMPANY Portal sign-up — approval needed',
+                        html: `<div style="font-family:sans-serif;max-width:500px;color:#111827"><div style="background:#1E3A5F;padding:22px 28px;border-radius:8px 8px 0 0"><h2 style="margin:0;color:#fff;font-size:17px">COMPANY PORTAL</h2><p style="margin:6px 0 0;color:#93C5FD;font-size:12px">New sign-up pending approval</p></div><div style="padding:22px 28px;border:1px solid #E5E7EB;border-top:none;border-radius:0 0 8px 8px"><p style="margin:0 0 10px">A new user has registered and is awaiting your approval:</p><p style="margin:0 0 14px;font-weight:bold;font-size:15px">${email}</p><p style="margin:0;color:#6B7280;font-size:12px">Open <b>Settings → Staff → Pending Approvals</b> to approve or reject this account.</p></div></div>`
+                    })
+                }).catch(() => {});
+            } catch {}
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('email').value; const password = document.getElementById('password').value; const btn = document.getElementById('submit-btn'); const errorMsg = document.getElementById('error-msg');
+            if (!email) { errorMsg.innerText = "Please enter your email."; errorMsg.classList.remove('hidden'); return; }
+            if (!isResetMode && !password) { errorMsg.innerText = "Please enter your password."; errorMsg.classList.remove('hidden'); return; }
+            if (!supabaseClient) { errorMsg.innerText = "Still loading — please wait a moment and try again."; errorMsg.classList.remove('hidden'); return; }
+            btn.innerHTML = '<span class="animate-pulse">Processing...</span>'; errorMsg.classList.add('hidden');
+            if (isResetMode) { const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: window.location.href }); if (error) { errorMsg.innerText = error.message; errorMsg.classList.remove('hidden'); btn.innerText = "Send Reset Link"; } else { alert("Reset link sent!"); toggleResetMode(); } return; }
+            if (isLoginMode) { sessionStorage.setItem('company_tab_session', 'true');
+                try {
+                    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('Login timed out — please try again.')), 15000));
+                    const { data, error } = await Promise.race([supabaseClient.auth.signInWithPassword({ email, password }), timeout]);
+                    if (error) { sessionStorage.removeItem('company_tab_session'); errorMsg.innerText = error.message; errorMsg.classList.remove('hidden'); btn.innerText = "Login"; }
+                    else { if (data?.session?.user?.email) applyInitials(data.session.user.email); await enterPortal(data?.session?.user?.email); startInactivityTimer(); btn.innerText = "Login"; }
+                } catch (e) { sessionStorage.removeItem('company_tab_session'); errorMsg.innerText = e.message || "Login failed. Please try again."; errorMsg.classList.remove('hidden'); btn.innerText = "Login"; }
+            } else { const { error } = await supabaseClient.auth.signUp({ email, password, options: { emailRedirectTo: window.location.href } }); if (error) { errorMsg.innerText = error.message; errorMsg.classList.remove('hidden'); btn.innerText = "Sign Up"; } else { alert("Account created! Check email."); toggleAuthMode(); btn.innerText = "Login"; } }
+        }
+
+        function toggleResetMode() { isResetMode = !isResetMode; isLoginMode = true; updateAuthUI(); }
+        function toggleAuthMode() { if (isResetMode) { toggleResetMode(); return; } isLoginMode = !isLoginMode; updateAuthUI(); }
+        function updateAuthUI() { const title = document.getElementById('auth-title'); const subtitle = document.getElementById('auth-subtitle'); const btn = document.getElementById('submit-btn'); const toggle = document.getElementById('toggle-btn'); const passwordInput = document.getElementById('password'); const forgotLink = document.getElementById('forgot-link-box'); document.getElementById('error-msg').classList.add('hidden'); if (isResetMode) { title.innerText = "Reset Password"; subtitle.innerText = "Enter email to reset."; passwordInput.classList.add('hidden-force'); forgotLink.classList.add('hidden-force'); btn.innerText = "Send Link"; toggle.innerText = "Back"; } else if (isLoginMode) { title.innerText = "Welcome"; subtitle.innerText = "Please login to access."; passwordInput.classList.remove('hidden-force'); forgotLink.classList.remove('hidden-force'); btn.innerText = "Login"; toggle.innerText = "Create Account"; } else { title.innerText = "Register"; subtitle.innerText = "Enter details."; passwordInput.classList.remove('hidden-force'); forgotLink.classList.add('hidden-force'); btn.innerText = "Sign Up"; toggle.innerText = "Back to Login"; } }
+
+        async function handlePasswordUpdate() { const newPass = document.getElementById('new-password').value; if(!newPass) return alert("Enter password"); const { error } = await supabaseClient.auth.updateUser({ password: newPass }); if (!error) { alert("Updated!"); sessionStorage.setItem('company_tab_session', 'true'); window.location.href = window.location.pathname; } else { alert(error.message); } }
+        async function handleLogout() { stopInactivityTimer(); sessionStorage.removeItem('company_tab_session'); if (supabaseClient) await supabaseClient.auth.signOut(); showAuth(); }
+        document.getElementById('password').addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAuth(); });
+        lucide.createIcons();
+        // This script sits at the end of <body> (DOM already parsed) and Supabase loaded synchronously above,
+        // so start the session check immediately instead of waiting on window.onload (images/fonts/CDN).
+        initPortal();
+    </script>
+
+    <script>
+        // ============================================================
+        // PWA Install Banner
+        // ============================================================
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+
+        let deferredInstallPrompt = null;
+        let promptFired = false;
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+        function showInstallBanner() {
+            if (isStandalone) return;
+            if (!localStorage.getItem('company_install_dismissed')) {
+                document.getElementById('install-banner').classList.add('banner-visible');
+            }
+        }
+
+        function hideBanner() {
+            document.getElementById('install-banner').classList.remove('banner-visible');
+        }
+
+        function markInstalled() {
+            const btn = document.getElementById('install-btn');
+            if (!btn) return;
+            btn.textContent = 'INSTALLED';
+            btn.disabled = true;
+            btn.classList.remove('bg-[#10b981]', 'hover:bg-[#059669]');
+            btn.classList.add('bg-slate-500', 'cursor-default');
+        }
+
+        // Capture the native install prompt when available (for the Install button)
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            promptFired = true;
+            showInstallBanner();
+        });
+        setTimeout(showInstallBanner, 1500);
+
+        // Update button when app gets installed in this session
+        window.addEventListener('appinstalled', markInstalled);
+
+        // Decide whether to show INSTALLED.
+        async function refreshInstallState() {
+            if (isStandalone) { markInstalled(); return; }
+            if (isIOS) return;
+            if (navigator.getInstalledRelatedApps) {
+                try {
+                    const apps = await navigator.getInstalledRelatedApps();
+                    if (apps && apps.length) { markInstalled(); return; }
+                } catch (e) {}
+            }
+            // Chrome fires beforeinstallprompt only when NOT yet installed.
+            if (!promptFired) markInstalled();
+        }
+        setTimeout(refreshInstallState, 2500);
+
+        function triggerInstall() {
+            if (isIOS) {
+                hideBanner();
+                document.getElementById('ios-install-modal').classList.remove('hidden');
+                return;
+            }
+            if (deferredInstallPrompt) {
+                deferredInstallPrompt.prompt();
+                deferredInstallPrompt.userChoice.then(() => {
+                    deferredInstallPrompt = null;
+                    hideBanner();
+                });
+            }
+        }
+    </script>
+</body>
+</html>

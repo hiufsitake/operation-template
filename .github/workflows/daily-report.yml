@@ -1,0 +1,23 @@
+name: Daily Activity Report
+
+on:
+  schedule:
+    # 11:00 AM UTC = 7:00 PM Malaysia (UTC+8)
+    - cron: '0 11 * * *'
+  workflow_dispatch:
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install puppeteer-core
+      - name: Send daily activity report
+        env:
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          CHROME_PATH: /usr/bin/google-chrome
+        run: node scripts/generate-report.js daily

@@ -1,0 +1,19 @@
+# Files in the repo root that should NOT be served as public static assets.
+# Keeps the deployed site clean & fast, and prevents exposing source/history.
+.git
+.github
+.wrangler
+node_modules
+scripts
+.gitignore
+.assetsignore
+wrangler.jsonc
+CLAUDE.md
+README.md
+*.log
+# Worker source — deployed as the Worker itself, must NOT also be served as a
+# static file (would expose internal proxy/auth logic). Keys are in env, not here.
+src
+SETUP.md
+SECRETS.md
+*.md

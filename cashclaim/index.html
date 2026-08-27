@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="applogo.png">
+    <link rel="manifest" href="manifest.json">
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="ilogocc.PNG" type="image/PNG"> 
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/vendor/supabase-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script type="text/javascript" src="/vendor/emailjs.min.js"></script>
+
+    <title>Company | Cash Claim</title>
+
+    <script>
+        document.documentElement.style.display = 'none';
+        const GUARD_URL = 'https://YOUR_PROJECT_REF.supabase.co';
+        const GUARD_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const guardClient = supabase.createClient(GUARD_URL, GUARD_KEY);
+
+        async function checkSession() {
+            const { data: { session } } = await guardClient.auth.getSession();
+            if (!session) { window.location.href = "../index.html"; } 
+            else { const __e = (session.user.email || ''); const __A = ['admin1@example.com','admin2@example.com','admin3@example.com']; if (__A.includes(__e.toLowerCase())) { document.documentElement.style.display = ''; } else { try { const __r = await guardClient.from('staff').select('id').eq('email', __e).limit(1); if (__r.data && __r.data.length) { document.documentElement.style.display = ''; } else { window.location.href = '../index.html'; } } catch (e) { window.location.href = '../index.html'; } } }
+        }
+        checkSession();
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .input-box { border: 2px solid #f1f5f9; padding: 1rem; border-radius: 1.25rem; background: #f8fafc; font-weight: 700; width: 100%; outline: none; transition: all 0.2s; }
+        .input-box:focus { border-color: #3b82f6; background: white; }
+        .tab-active { background: #3b82f6; color: white; box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3); }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-approved { background: #dbeafe; color: #1e40af; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .status-draft { background: #e0e7ff; color: #3730a3; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen pb-24 text-slate-900 font-medium">
+
+    <nav class="bg-[#0f172a] text-white p-5 sticky top-0 z-50 shadow-xl border-b-2 border-blue-600">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="../index.html" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-all"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+                <h1 class="font-black italic text-xl uppercase tracking-tighter leading-none">COMPANY <span class="text-blue-500 uppercase text-xs">Cash Claim</span></h1>
+            </div>
+            <div class="flex bg-slate-800 p-1 rounded-xl gap-1 overflow-x-auto">
+                <button onclick="switchTab('create')" id="nav-create" class="px-3 py-2 rounded-lg text-[9px] font-bold tab-active uppercase transition-all">Create</button>
+                <button onclick="switchTab('review')" id="nav-review" class="px-3 py-2 rounded-lg text-[9px] font-bold text-slate-400 uppercase transition-all">Review</button>
+                <button onclick="switchTab('history')" id="nav-history" class="px-3 py-2 rounded-lg text-[9px] font-bold text-slate-400 uppercase transition-all">Archive</button>
+                <button onclick="switchTab('admin')" id="nav-admin" class="px-3 py-2 rounded-lg text-[9px] font-bold text-slate-400 uppercase transition-all">Admin</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto p-4 mt-6">
+        <div id="auth-lock-screen" class="hidden p-10 text-center bg-white rounded-[2.5rem] border shadow-sm space-y-4">
+            <i data-lucide="shield-off" class="w-12 h-12 mx-auto text-red-400"></i>
+            <h3 class="font-black text-lg uppercase italic text-slate-800">Access Restricted</h3>
+            <p class="text-xs text-slate-500">This section is restricted to authorized administrators only.</p>
+        </div>
+
+        <div id="tab-create">
+            <form id="claim-form" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <section class="bg-white p-6 rounded-[2rem] shadow-sm border space-y-3">
+                        <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400 italic">Entity</h2>
+                        <select id="issuing-company" class="input-box text-blue-600 uppercase italic">
+                            <option value="SOLUTIONS">COMPANY A SDN. BHD.</option>
+                            <option value="OPTIMIZATION">COMPANY B SDN. BHD.</option>
+                            <option value="ENERGY">COMPANY C SDN. BHD.</option>
+                        </select>
+                        <input type="text" id="claim-no" class="input-box bg-slate-100 text-slate-500 font-black" readonly>
+                        <input type="date" id="claim-date" class="input-box" required>
+                    </section>
+                    <section class="bg-white p-6 rounded-[2rem] shadow-sm border space-y-3">
+                        <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400 italic">Claimant</h2>
+                        <input type="text" id="claimant-name" placeholder="Full Name" class="input-box" required>
+                        <input type="email" id="claimant-email" placeholder="Email Address (Optional)" class="input-box">
+                        <input type="text" id="claimant-nric" placeholder="NRIC No." class="input-box" required>
+                        <input type="text" id="claimant-phone" placeholder="H/P No." class="input-box" required>
+                    </section>
+                </div>
+
+                <section class="bg-white p-6 rounded-[2rem] shadow-sm border space-y-3">
+                    <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400 italic">Payment Details</h2>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <input type="text" id="payable-name" placeholder="Payable to (Name)" class="input-box" required>
+                        <input type="text" id="project-name" placeholder="Project / Reference" class="input-box" required>
+                    </div>
+                    <textarea id="bank-details" placeholder="Bank Name & Account No." class="input-box" rows="2" required></textarea>
+                </section>
+
+                <section class="bg-white p-6 rounded-[2rem] shadow-sm border space-y-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400 italic">Expenditure Items</h2>
+                        <button type="button" onclick="addItemRow()" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl font-black text-[10px] uppercase flex items-center gap-1 shadow-sm"><i data-lucide="plus-circle" class="w-3 h-3"></i> Add Item</button>
+                    </div>
+                    <div id="items-list" class="space-y-3"></div>
+                </section>
+
+                <div class="flex gap-3">
+                    <button type="button" onclick="previewPDF()" class="w-1/3 bg-blue-50 text-blue-600 border border-blue-100 font-black p-6 rounded-[2.5rem] shadow-sm uppercase tracking-widest text-[10px] italic flex flex-col md:flex-row items-center justify-center gap-2 hover:bg-blue-100 transition-all">
+                        <i data-lucide="eye" class="w-5 h-5"></i> Preview
+                    </button>
+                    <button type="submit" id="submit-btn" class="w-2/3 bg-slate-900 text-white font-black p-6 rounded-[2.5rem] shadow-xl uppercase tracking-widest text-xs italic flex flex-col md:flex-row items-center justify-center gap-3">
+                        <i data-lucide="send" class="w-5 h-5"></i> Submit Claim
+                    </button>
+                </div>
+
+                <button type="button" onclick="saveDraft()" class="w-full bg-indigo-50 text-indigo-600 border border-indigo-100 font-black p-4 rounded-[2.5rem] shadow-sm uppercase tracking-widest text-[10px] italic flex items-center justify-center gap-2 hover:bg-indigo-100 transition-all">
+                    <i data-lucide="file-edit" class="w-4 h-4"></i> Save as Draft
+                </button>
+
+                <button type="button" onclick="cancelEdit()" id="cancel-edit-btn" class="hidden w-full border-2 border-slate-200 text-slate-400 font-black p-4 rounded-[2.5rem] uppercase tracking-widest text-[10px] italic mt-2">
+                    Cancel Editing
+                </button>
+            </form>
+        </div>
+
+        <div id="tab-review" class="hidden space-y-4"><div id="review-list" class="space-y-3"></div></div>
+        <div id="tab-history" class="hidden space-y-4"><div id="history-list" class="space-y-3"></div></div>
+
+        <div id="tab-admin" class="hidden space-y-4">
+            <section class="bg-white p-8 rounded-[2.5rem] border shadow-sm space-y-8 text-center">
+                <i data-lucide="settings" class="w-12 h-12 mx-auto text-slate-400"></i>
+                <button onclick="exportClaimsCSV()" class="w-full bg-slate-900 text-white p-5 rounded-3xl font-black uppercase text-xs tracking-widest shadow-lg flex items-center justify-center gap-3"><i data-lucide="download" class="w-5 h-5"></i> Export All Claims (CSV)</button>
+                <hr class="border-slate-100">
+            </section>
+        </div>
+        <footer class="text-center py-4 mt-6">
+        <p class="text-[9px] font-black uppercase tracking-[0.6em] text-slate-400">© 2026 ALL RIGHTS RESERVED.</p>
+    </footer>
+</main>
+
+    <script>
+        const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
+        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const EMAIL_SERVICE = "YOUR_EMAILJS_SERVICE_ID", EMAIL_TEMPLATE = "YOUR_EMAILJS_TEMPLATE_ID", EMAIL_KEY = "YOUR_EMAILJS_PUBLIC_KEY";
+        const HQ_ADDR = "123 Company Street, City, State, Postcode, Country.";
+        const HQ_TEL = "+000-000 0000 (Head Office)";
+        const CO_DATA = {
+            'SOLUTIONS': { name: 'COMPANY A SDN. BHD.', reg: 'XXXXXXXXXXXX (XXXXXXX-X)', email: 'companya@example.com' },
+            'OPTIMIZATION': { name: 'COMPANY B SDN. BHD.', reg: 'XXXXXXXXXXXX (XXXXXXX-X)', email: 'companyb@example.com' },
+            'ENERGY': { name: 'COMPANY C SDN. BHD.', reg: 'XXXXXXXXXXXX (XXXXXXX-X)', email: 'companyc@example.com' }
+        };
+
+        const ADMIN_EMAILS = ['admin1@example.com', 'admin2@example.com', 'admin3@example.com'];
+        const APPROVER_MAP = { 'admin1@example.com': 'HFS', 'admin3@example.com': 'WKS', 'admin2@example.com': 'TFH' };
+        let currentClaims = [], isAuthorized = false, targetTab = 'create', editingId = null, currentApproverInitials = '';
+        const formatRM = (num) => num.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const createRow = (label, value) => `<tr><td style="padding: 8px 0; color: #64748b; font-size: 12px; font-weight: bold;">${label}</td><td style="padding: 8px 0; color: #0f172a; font-size: 14px; font-weight: bold; text-align: right;">${value}</td></tr>`;
+
+        let inactivityTimeout;
+        const TIMEOUT_DURATION = 900000; 
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimeout);
+            inactivityTimeout = setTimeout(async () => {
+                await supabaseClient.auth.signOut();
+                alert("Session expired due to inactivity.");
+                window.location.href = "../index.html";
+            }, TIMEOUT_DURATION);
+        }
+
+        ['mousemove', 'keypress', 'click', 'scroll', 'touchstart'].forEach(evt => {
+            document.addEventListener(evt, resetInactivityTimer);
+        });
+        resetInactivityTimer();
+
+        async function init() {
+            try { emailjs.init(EMAIL_KEY); } catch (e) { console.warn('EmailJS unavailable:', e); }
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session && ADMIN_EMAILS.includes(session.user.email)) isAuthorized = true;
+                if (session && session.user) currentApproverInitials = APPROVER_MAP[session.user.email] || '';
+            } catch (e) { console.warn('Session check failed:', e); }
+            addItemRow(); setAutoCCNumber(); lucide.createIcons();
+        }
+
+        async function setAutoCCNumber() {
+            if (editingId) return;
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+            const { count } = await supabaseClient.from('cash_claims').select('*', { count: 'exact', head: true }).gte('created_at', `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`);
+            document.getElementById('claim-no').value = `CC-${dateStr}-${String((count || 0) + 1).padStart(2, '0')}`;
+            document.getElementById('claim-date').value = now.toISOString().split('T')[0];
+        }
+
+        function switchTab(tab) {
+            const priv = ['review', 'admin'];
+            if(priv.includes(tab) && !isAuthorized) { targetTab = tab; document.querySelectorAll('main > div').forEach(d => d.classList.add('hidden')); document.getElementById('auth-lock-screen').classList.remove('hidden'); }
+            else { document.getElementById('auth-lock-screen').classList.add('hidden'); document.querySelectorAll('main > div').forEach(d => d.classList.toggle('hidden', d.id !== 'tab-' + tab)); if(tab === 'review' || tab === 'history') fetchRecords(); }
+            document.querySelectorAll('nav button').forEach(b => b.className = `px-3 py-2 rounded-lg text-[9px] font-bold uppercase transition-all ${b.id === 'nav-'+tab ? 'tab-active' : 'text-slate-400'}`);
+            lucide.createIcons();
+        }
+
+        function renderLists() {
+            document.getElementById('review-list').innerHTML = currentClaims.filter(p => p.status === 'Pending').map(cc => `
+                <div class="bg-white p-6 rounded-[20px] shadow-sm border border-slate-200 mb-4">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="space-y-1">
+                            <p class="text-[10px] font-bold text-blue-600 uppercase italic">${cc.company_name}</p>
+                            <h3 class="font-extrabold text-lg text-slate-900 tracking-tight">${cc.claim_number}</h3>
+                            <p class="text-[10px] font-semibold text-slate-400 uppercase">${cc.claimant_name}</p>
+                        </div>
+                        <div class="text-right">
+                             <p class="text-[10px] font-bold text-slate-400 uppercase">Amount</p>
+                             <p class="text-xl font-black text-slate-900 leading-none">RM ${formatRM(cc.total_amount)}</p>
+                             <button onclick="generatePDF('${cc.id}')" class="mt-2 bg-indigo-50 text-indigo-600 px-4 py-1.5 rounded-full font-bold text-[10px] uppercase flex items-center gap-1 ml-auto">
+                                <i data-lucide="eye" class="w-3 h-3"></i> View
+                             </button>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <textarea id="reason-${cc.id}" placeholder="Feedback (Optional)" class="w-full bg-slate-50 border border-slate-100 rounded-xl p-3 text-xs font-medium outline-none" rows="2"></textarea>
+                        <div class="flex gap-4 pt-2">
+                            <button onclick="handleStatusChange('${cc.id}', 'Approved')" class="flex-1 bg-[#3b82f6] text-white py-3 rounded-lg font-bold text-xs uppercase">Approve</button>
+                            <button onclick="handleStatusChange('${cc.id}', 'Rejected')" class="flex-1 bg-[#ef4444] text-white py-3 rounded-lg font-bold text-xs uppercase">Reject</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('') || '<div class="text-center p-10 text-slate-300 italic text-xs">Queue Clear</div>';
+
+            document.getElementById('history-list').innerHTML = currentClaims.map(cc => `
+                <div class="bg-white p-5 rounded-[2rem] border shadow-sm flex justify-between items-center group">
+                    <div><h3 class="font-black text-slate-800 text-sm tracking-tight">${cc.claim_number}</h3><p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">${cc.claimant_name} | RM ${formatRM(cc.total_amount)}</p></div>
+                    <div class="flex items-center gap-2">
+                        <div class="status-${cc.status.toLowerCase()} px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">${cc.status}</div>
+                        ${cc.status === 'Approved' ? `<button onclick="generatePDF('${cc.id}')" class="p-3 bg-blue-50 text-blue-600 rounded-xl"><i data-lucide="printer" class="w-4 h-4"></i></button>` : ''}
+                        ${(cc.status === 'Rejected' || cc.status === 'Draft') ? `<button onclick="loadClaimForEdit('${cc.id}')" class="p-3 bg-blue-50 text-blue-600 rounded-xl"><i data-lucide="edit-3" class="w-4 h-4"></i></button>` : ''}
+                        <button onclick="deleteClaim('${cc.id}')" class="p-3 bg-red-50 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        async function fetchRecords() {
+            const { data } = await supabaseClient.from('cash_claims').select('*').order('created_at', { ascending: false });
+            currentClaims = data || [];
+            renderLists();
+        }
+
+        function loadClaimForEdit(id) {
+            const cc = currentClaims.find(p => p.id === id);
+            if (!cc) return; editingId = id; switchTab('create');
+            document.getElementById('issuing-company').value = cc.company_key; document.getElementById('claim-no').value = cc.claim_number; document.getElementById('claim-date').value = cc.submission_date; document.getElementById('claimant-name').value = cc.claimant_name; 
+            document.getElementById('claimant-email').value = cc.claimant_email || '';
+            document.getElementById('claimant-nric').value = cc.claimant_nric; document.getElementById('claimant-phone').value = cc.claimant_phone; document.getElementById('payable-name').value = cc.payable_name; document.getElementById('project-name').value = cc.project; document.getElementById('bank-details').value = cc.bank_details;
+            const container = document.getElementById('items-list'); container.innerHTML = '';
+            cc.items.forEach(item => { addItemRow(); const rows = document.querySelectorAll('.item-row'); const lastRow = rows[rows.length - 1]; const inputs = lastRow.querySelectorAll('input'); inputs[0].value = item.desc; inputs[1].value = item.qty; inputs[2].value = item.price; });
+            document.getElementById('submit-btn').innerHTML = `<i data-lucide="save" class="w-5 h-5"></i> Update & Resubmit`; document.getElementById('cancel-edit-btn').classList.remove('hidden'); lucide.createIcons(); window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelEdit() { editingId = null; document.getElementById('claim-form').reset(); document.getElementById('items-list').innerHTML = ''; document.getElementById('submit-btn').innerHTML = `<i data-lucide="send" class="w-5 h-5"></i> Submit Claim`; document.getElementById('cancel-edit-btn').classList.add('hidden'); addItemRow(); setAutoCCNumber(); lucide.createIcons(); }
+
+        async function saveDraft() {
+            const items = []; let sub = 0;
+            document.querySelectorAll('.item-row').forEach(row => { const f = row.querySelectorAll('input'); const qty = parseFloat(f[1].value) || 0, pr = parseFloat(f[2].value) || 0; sub += (qty * pr); items.push({ desc: f[0].value, qty, price: pr }); });
+            const payload = {
+                claim_number: document.getElementById('claim-no').value,
+                company_key: document.getElementById('issuing-company').value,
+                company_name: CO_DATA[document.getElementById('issuing-company').value].name,
+                submission_date: document.getElementById('claim-date').value || new Date().toISOString().split('T')[0],
+                claimant_name: document.getElementById('claimant-name').value,
+                claimant_email: document.getElementById('claimant-email').value,
+                claimant_nric: document.getElementById('claimant-nric').value,
+                claimant_phone: document.getElementById('claimant-phone').value,
+                payable_name: document.getElementById('payable-name').value,
+                bank_details: document.getElementById('bank-details').value,
+                project: document.getElementById('project-name').value,
+                items: items, total_amount: sub, status: 'Draft'
+            };
+            let res;
+            if (editingId) res = await supabaseClient.from('cash_claims').update(payload).eq('id', editingId);
+            else res = await supabaseClient.from('cash_claims').insert(payload);
+            if (!res.error) { alert("Draft saved."); cancelEdit(); if(isAuthorized) fetchRecords(); }
+            else { alert("Error: " + res.error.message); }
+        }
+
+        async function handleStatusChange(id, newStatus) {
+            if (!currentApproverInitials) { alert("Your login is not mapped to an approver (HFS/WKS/TFH). Action denied."); return; }
+            const approver = currentApproverInitials;
+            const reasonInput = document.getElementById('reason-'+id).value.trim();
+            
+            // 1. Optimistic UI Update setup
+            const ccData = currentClaims.find(p => p.id === id);
+            const oldStatus = ccData ? ccData.status : null;
+            const oldApprover = ccData ? ccData.approved_by : null;
+
+            if (ccData) {
+                ccData.status = newStatus;
+                ccData.approved_by = approver;
+                renderLists(); 
+            }
+
+            // 2. Database Update with Error Checking
+            const { error } = await supabaseClient.from('cash_claims').update({ status: newStatus, approved_by: approver }).eq('id', id);
+            
+            if (error) {
+                alert("Database Error: Cannot save status.\n\nPlease go to your Supabase 'cash_claims' table and add the column: 'approved_by' (Type: text)\n\nSystem Error details: " + error.message);
+                
+                // Revert optimistic update because database failed
+                if (ccData) {
+                    ccData.status = oldStatus;
+                    ccData.approved_by = oldApprover;
+                    renderLists();
+                }
+                return; // STOP execution here. Do NOT send the email.
+            }
+
+            // 3. Send Email ONLY if the database save was successful
+            if(ccData) {
+                const color = newStatus === 'Approved' ? "#3b82f6" : "#ef4444";
+                emailjs.send(EMAIL_SERVICE, EMAIL_TEMPLATE, { 
+                    system_name: "COMPANY CASH CLAIM SYSTEM", 
+                    header_bg: color, 
+                    title: `Claim ${newStatus}`, 
+                    to_email: ccData.claimant_email,
+                    to_name: ccData.claimant_name,
+                    html_body: createRow("Claim No", ccData.claim_number) + createRow("Status", newStatus.toUpperCase()) + createRow("Action By", approver) + createRow("Total", "RM " + formatRM(ccData.total_amount)), 
+                    remark_text: reasonInput || (newStatus === 'Approved' ? "Your claim is approved." : "Rejected for review.") 
+                });
+            }
+        }
+
+        async function generatePDF(id) {
+            const data = currentClaims.find(p => p.id === id);
+            const { jsPDF } = window.jspdf; const doc = new jsPDF(); const info = CO_DATA[data.company_key];
+            doc.setFont("helvetica", "bold").setFontSize(14).text(info.name, 14, 25);
+            doc.setFontSize(8).setFont("helvetica", "normal").text(`Company Reg. No.: ${info.reg}`, 14, 30);
+            const wrappedAddr = doc.splitTextToSize(HQ_ADDR, 100); 
+            doc.text(wrappedAddr, 14, 34);
+            const addrHeight = wrappedAddr.length * 4;
+            doc.text(`Phone: ${HQ_TEL} | Email: ${info.email} | Web: www.example.com`, 14, 34 + addrHeight);
+            doc.setFont("helvetica", "bold").text("Attn: The Finance Manager", 14, 42 + addrHeight);
+            doc.text(`CASH CLAIM: ${data.claim_number}`, 130, 25);
+            doc.text(`Date: ${new Date(data.submission_date).toLocaleDateString('en-GB')}`, 130, 30);
+            doc.autoTable({ startY: 50 + addrHeight, body: [['Claimant', data.claimant_name, 'Payable to', data.payable_name], ['NRIC', data.claimant_nric, 'Project', data.project], ['Phone', data.claimant_phone || '-', 'Email', data.claimant_email || '-'], [{ content: 'Bank Info', styles: { fontStyle: 'bold' } }, { content: data.bank_details, colSpan: 3 }]], theme: 'plain', styles: { fontSize: 9, cellPadding: 1.5 }, columnStyles: { 0: { fontStyle: 'bold', width: 25 }, 2: { fontStyle: 'bold', width: 25 } } });
+            doc.autoTable({ startY: doc.lastAutoTable.finalY + 5, head: [['No.', 'Description', 'Qty', 'Unit Price (RM)', 'Total RM']], body: data.items.map((i, idx) => [idx+1, i.desc, i.qty, formatRM(i.price), formatRM(i.qty * i.price)]), theme: 'grid', headStyles: { fillColor: [15, 23, 42] }, styles: { fontSize: 8 }, columnStyles: { 3: { halign: 'right' }, 4: { halign: 'right' } } });
+            const finalY = doc.lastAutoTable.finalY;
+            doc.setFont("helvetica", "bold").text(`TOTAL AMOUNT: RM ${formatRM(data.total_amount)}`, 196, finalY + 10, { align: 'right' });
+            if (data.status === 'Pending') { doc.setTextColor(220, 38, 38); doc.setFontSize(14); doc.text("DRAFT - FOR REVIEW ONLY", 196, finalY + 20, { align: 'right' }); doc.setTextColor(0, 0, 0); }
+            const printDate = new Date().toLocaleString('en-GB');
+            doc.setFontSize(9).setFont("helvetica", "italic").text(`This Cash Claim is digitally approved by ${data.approved_by || 'DRAFT'} on ${printDate}. No signature required.`, 14, finalY + 30);
+            doc.save(`${data.claim_number}.pdf`);
+        }
+
+        async function previewPDF() {
+            const company_key = document.getElementById('issuing-company').value;
+            const info = CO_DATA[company_key];
+            const claim_number = document.getElementById('claim-no').value || 'DRAFT';
+            const submission_date = document.getElementById('claim-date').value || '-';
+            const claimant_name = document.getElementById('claimant-name').value || 'Claimant Name';
+            const claimant_email = document.getElementById('claimant-email').value || '-';
+            const claimant_nric = document.getElementById('claimant-nric').value || '-';
+            const claimant_phone = document.getElementById('claimant-phone').value || '-';
+            const payable_name = document.getElementById('payable-name').value || '-';
+            const project_name = document.getElementById('project-name').value || '-';
+            const bank_details = document.getElementById('bank-details').value || '-';
+
+            const items = [];
+            let total = 0;
+            document.querySelectorAll('.item-row').forEach(row => {
+                const f = row.querySelectorAll('input');
+                const desc = f[0].value || '';
+                const qty = parseFloat(f[1].value) || 0;
+                const price = parseFloat(f[2].value) || 0;
+                if (desc || qty > 0) {
+                    total += (qty * price);
+                    items.push({ desc, qty, price });
+                }
+            });
+
+            if (items.length === 0) return alert('Please add at least one item to preview.');
+
+            const { jsPDF } = window.jspdf; 
+            const doc = new jsPDF(); 
+
+            doc.setFont("helvetica", "bold").setFontSize(14).text(info.name, 14, 25);
+            doc.setFontSize(8).setFont("helvetica", "normal").text(`Company Reg. No.: ${info.reg}`, 14, 30);
+            const wrappedAddr = doc.splitTextToSize(HQ_ADDR, 100); 
+            doc.text(wrappedAddr, 14, 34);
+            const addrHeight = wrappedAddr.length * 4;
+            doc.text(`Phone: ${HQ_TEL} | Email: ${info.email} | Web: www.example.com`, 14, 34 + addrHeight);
+            doc.setFont("helvetica", "bold").text("Attn: The Finance Manager", 14, 42 + addrHeight);
+            
+            doc.text(`CASH CLAIM: ${claim_number}`, 130, 25);
+            let displayDate = submission_date !== '-' ? new Date(submission_date).toLocaleDateString('en-GB') : '-';
+            doc.text(`Date: ${displayDate}`, 130, 30);
+            
+            doc.autoTable({
+                startY: 50 + addrHeight,
+                body: [
+                    ['Claimant', claimant_name, 'Payable to', payable_name],
+                    ['NRIC', claimant_nric, 'Project', project_name],
+                    ['Phone', claimant_phone, 'Email', claimant_email],
+                    [{ content: 'Bank Info', styles: { fontStyle: 'bold' } }, { content: bank_details, colSpan: 3 }]
+                ],
+                theme: 'plain',
+                styles: { fontSize: 9, cellPadding: 1.5 },
+                columnStyles: { 0: { fontStyle: 'bold', width: 25 }, 2: { fontStyle: 'bold', width: 25 } }
+            });
+            
+            doc.autoTable({ 
+                startY: doc.lastAutoTable.finalY + 5, 
+                head: [['No.', 'Description', 'Qty', 'Unit Price (RM)', 'Total RM']], 
+                body: items.map((i, idx) => [idx+1, i.desc, i.qty, formatRM(i.price), formatRM(i.qty * i.price)]), 
+                theme: 'grid', 
+                headStyles: { fillColor: [15, 23, 42] }, 
+                styles: { fontSize: 8 }, 
+                columnStyles: { 3: { halign: 'right' }, 4: { halign: 'right' } } 
+            });
+            
+            const finalY = doc.lastAutoTable.finalY;
+            doc.setFont("helvetica", "bold").text(`TOTAL AMOUNT: RM ${formatRM(total)}`, 196, finalY + 10, { align: 'right' });
+            
+            // Preview Watermark
+            doc.setTextColor(59, 130, 246); // Blue for Cash Claim
+            doc.setFontSize(14); 
+            doc.text("PREVIEW - NOT SUBMITTED", 196, finalY + 20, { align: 'right' }); 
+            doc.setTextColor(0, 0, 0);
+            
+            const printDate = new Date().toLocaleString('en-GB');
+            doc.setFontSize(9).setFont("helvetica", "italic").text(`This Cash Claim is digitally approved by DRAFT on ${printDate}. No signature required.`, 14, finalY + 30);
+            
+            window.open(URL.createObjectURL(doc.output("blob")));
+        }
+
+        
+        async function deleteClaim(id) { 
+            if (!isAuthorized) { alert("Action restricted to Administrators only."); return; }
+            if(confirm("Delete record?")) { await supabaseClient.from('cash_claims').delete().eq('id', id); fetchRecords(); } 
+        }
+
+        async function exportClaimsCSV() { const { data } = await supabaseClient.from('cash_claims').select('*').order('created_at', { ascending: false }); const headers = ['Claim No', 'Date', 'Claimant', 'Payable To', 'Amount (RM)', 'Status']; const csvRows = [headers.join(',')]; data.forEach(cc => csvRows.push([cc.claim_number, cc.submission_date, `"${cc.claimant_name}"`, `"${cc.payable_name}"`, cc.total_amount.toFixed(2), cc.status].join(','))); const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `COMPANY_Cash_Claims.csv`; link.click(); }
+
+        function addItemRow() {
+            const container = document.getElementById('items-list'); const div = document.createElement('div');
+            div.className = 'item-row grid grid-cols-12 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100 items-center';
+            div.innerHTML = `<input type="text" placeholder="Description" class="col-span-8 bg-transparent font-bold text-[11px] outline-none" required><input type="number" placeholder="Qty" class="col-span-1 bg-transparent font-bold text-[11px] outline-none text-center" required><input type="number" step="0.01" placeholder="Price" class="col-span-2 bg-transparent font-bold text-[11px] outline-none text-right" required><button type="button" onclick="this.parentElement.remove()" class="col-span-1 text-red-300 hover:text-red-600 flex justify-center"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+            container.appendChild(div); lucide.createIcons();
+        }
+
+        document.getElementById('claim-form').onsubmit = async function(e) {
+            e.preventDefault(); const items = []; let sub = 0;
+            document.querySelectorAll('.item-row').forEach(row => { const f = row.querySelectorAll('input'); const qty = parseFloat(f[1].value), pr = parseFloat(f[2].value); sub += (qty * pr); items.push({ desc: f[0].value, qty, price: pr }); });
+            const payload = { 
+                claim_number: document.getElementById('claim-no').value, company_key: document.getElementById('issuing-company').value, 
+                company_name: CO_DATA[document.getElementById('issuing-company').value].name, submission_date: document.getElementById('claim-date').value, 
+                claimant_name: document.getElementById('claimant-name').value, claimant_email: document.getElementById('claimant-email').value,
+                claimant_nric: document.getElementById('claimant-nric').value, claimant_phone: document.getElementById('claimant-phone').value, 
+                payable_name: document.getElementById('payable-name').value, bank_details: document.getElementById('bank-details').value, 
+                project: document.getElementById('project-name').value, items: items, total_amount: sub, status: 'Pending' 
+            };
+            let res;
+            if (editingId) res = await supabaseClient.from('cash_claims').update(payload).eq('id', editingId);
+            else res = await supabaseClient.from('cash_claims').insert(payload);
+            if(!res.error) {
+                try { await emailjs.send(EMAIL_SERVICE, EMAIL_TEMPLATE, { to_email: "admin1@example.com", to_name: "COMPANY Admin", system_name: "COMPANY CASH CLAIM SYSTEM", header_bg: "#0f172a", title: editingId ? "Claim Resubmitted" : "New Claim Request", html_body: createRow("Claim No", payload.claim_number) + createRow("Claimant", payload.claimant_name) + createRow("Total", "RM " + formatRM(payload.total_amount)), remark_text: "Please review via Management Portal." }); } catch(e) { console.warn("Notification email failed:", e); }
+                alert(editingId ? "Claim Updated" : "Claim Submitted");
+                cancelEdit();
+                if(isAuthorized) fetchRecords();
+            } else { alert("Error: " + res.error.message); }
+        };
+
+        init();
+    </script>
+</body>
+</html>
