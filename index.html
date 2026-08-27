@@ -4,7 +4,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#171717">
     <link rel="apple-touch-icon" href="applogo.png">
     <link rel="manifest" href="manifest.json">
     
@@ -33,10 +33,10 @@
         #app-loader { position: fixed; inset: 0; background-color: #ffffff; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.15s ease-out, visibility 0.15s; }
         #app-loader.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
 
-        .input-box { border: 2px solid #f1f5f9; padding: 1rem; border-radius: 1.25rem; background: #f8fafc; font-weight: 700; width: 100%; outline: none; transition: all 0.2s; }
-        .input-box:focus { border-color: #10b981; background: white; }
-        .nav-card { position: relative; transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.18s ease, border-color 0.18s ease; border: 2px solid #f8fafc; background: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); will-change: transform; }
-        .nav-card:hover { border-color: #10b981; transform: translateY(-3px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .input-box { border: 2px solid #f4f4f4; padding: 1rem; border-radius: 1.25rem; background: #fafafa; font-weight: 700; width: 100%; outline: none; transition: all 0.2s; }
+        .input-box:focus { border-color: #808080; background: white; }
+        .nav-card { position: relative; transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.18s ease, border-color 0.18s ease; border: 2px solid #fafafa; background: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); will-change: transform; }
+        .nav-card:hover { border-color: #808080; transform: translateY(-3px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
         .nav-card:active { transform: scale(0.97); transition-duration: 0.08s; }
         .hidden-force { display: none !important; }
         #install-banner {
@@ -57,7 +57,7 @@
     <div class="w-full max-w-md space-y-12 text-center">
         <div class="flex flex-col items-center">
             <img src="logo.jpg" alt="Company Logo" class="w-64 md:w-80 h-auto object-contain mb-4">
-            <div class="h-1 w-12 bg-emerald-500 rounded-full mb-2"></div>
+            <div class="h-1 w-12 bg-slate-500 rounded-full mb-2"></div>
             <p class="text-[11px] font-black uppercase tracking-[0.5em] text-slate-400">Operations Portal</p>
         </div>
 
@@ -69,13 +69,13 @@
             <div class="space-y-4">
                 <input type="email" id="email" placeholder="Email Address" class="input-box" required>
                 <input type="password" id="password" placeholder="Password" class="input-box" required>
-                <div id="forgot-link-box" class="text-right"><button onclick="toggleResetMode()" class="text-[10px] font-bold text-slate-400 hover:text-emerald-500 uppercase tracking-widest">Forgot Password?</button></div>
+                <div id="forgot-link-box" class="text-right"><button onclick="toggleResetMode()" class="text-[10px] font-bold text-slate-400 hover:text-slate-500 uppercase tracking-widest">Forgot Password?</button></div>
             </div>
             <div class="flex flex-col gap-3">
-                <button onclick="handleAuth()" id="submit-btn" class="w-full bg-slate-900 text-white font-black p-5 rounded-[2rem] shadow-xl uppercase tracking-widest text-xs hover:bg-emerald-600 transition-all">Login</button>
-                <button onclick="toggleAuthMode()" id="toggle-btn" class="w-full bg-white border-2 border-slate-200 text-slate-900 font-black p-5 rounded-[2rem] uppercase tracking-widest text-[10px] hover:border-emerald-500 hover:text-emerald-500 transition-all shadow-sm">Create New Account</button>
+                <button onclick="handleAuth()" id="submit-btn" class="w-full bg-slate-900 text-white font-black p-5 rounded-[2rem] shadow-xl uppercase tracking-widest text-xs hover:bg-slate-600 transition-all">Login</button>
+                <button onclick="toggleAuthMode()" id="toggle-btn" class="w-full bg-white border-2 border-slate-200 text-slate-900 font-black p-5 rounded-[2rem] uppercase tracking-widest text-[10px] hover:border-slate-500 hover:text-slate-500 transition-all shadow-sm">Create New Account</button>
             </div>
-            <p id="error-msg" class="text-red-500 text-xs font-bold hidden bg-red-50 p-3 rounded-xl"></p>
+            <p id="error-msg" class="text-slate-500 text-xs font-bold hidden bg-slate-50 p-3 rounded-xl"></p>
         </div>
 
         <div id="update-password-view" class="hidden space-y-6">
@@ -86,13 +86,13 @@
             <div class="space-y-4">
                 <input type="password" id="new-password" placeholder="Enter New Password" class="input-box" required>
             </div>
-            <button onclick="handlePasswordUpdate()" id="update-btn" class="w-full bg-emerald-500 text-white font-black p-5 rounded-[2rem] shadow-xl uppercase tracking-widest text-xs hover:bg-emerald-600 transition-all">Update Password</button>
-            <p id="update-msg" class="text-red-500 text-xs font-bold hidden bg-red-50 p-3 rounded-xl"></p>
+            <button onclick="handlePasswordUpdate()" id="update-btn" class="w-full bg-slate-500 text-white font-black p-5 rounded-[2rem] shadow-xl uppercase tracking-widest text-xs hover:bg-slate-600 transition-all">Update Password</button>
+            <p id="update-msg" class="text-slate-500 text-xs font-bold hidden bg-slate-50 p-3 rounded-xl"></p>
         </div>
 
         <div id="pending-view" class="hidden">
             <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-200 text-center space-y-5 max-w-md mx-auto">
-                <div class="bg-amber-100 text-amber-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"><i data-lucide="clock" class="w-8 h-8"></i></div>
+                <div class="bg-slate-100 text-slate-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"><i data-lucide="clock" class="w-8 h-8"></i></div>
                 <h2 class="font-black uppercase italic text-slate-800 text-lg tracking-tight">Account Pending Approval</h2>
                 <p class="text-slate-500 text-xs font-bold leading-relaxed">Your account has been created and is waiting for an administrator to approve it. You'll be able to access the portal as soon as you're approved.</p>
                 <p class="text-slate-400 text-[10px] font-bold">An admin has been notified of your sign-up.</p>
@@ -103,19 +103,19 @@
         <div id="dashboard-view" class="hidden space-y-6">
             <div class="grid grid-cols-2 gap-4">
                 <a href="project/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
-                    <div class="bg-orange-500 text-white p-3 rounded-xl"><i data-lucide="folder-kanban" class="w-5 h-5"></i></div>
+                    <div class="bg-slate-500 text-white p-3 rounded-xl"><i data-lucide="folder-kanban" class="w-5 h-5"></i></div>
                     <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Project Management</h2></div>
                 </a>
                 <a id="card-po" href="po/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
-                    <div class="bg-emerald-500 text-white p-3 rounded-xl"><i data-lucide="shopping-cart" class="w-5 h-5"></i></div>
+                    <div class="bg-slate-500 text-white p-3 rounded-xl"><i data-lucide="shopping-cart" class="w-5 h-5"></i></div>
                     <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">PO System</h2></div>
                 </a>
                 <a id="card-cashclaim" href="cashclaim/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
-                    <div class="bg-blue-500 text-white p-3 rounded-xl"><i data-lucide="wallet" class="w-5 h-5"></i></div>
+                    <div class="bg-slate-500 text-white p-3 rounded-xl"><i data-lucide="wallet" class="w-5 h-5"></i></div>
                     <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Cash Claim</h2></div>
                 </a>
                 <a id="card-staffclaim" href="staffclaim/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
-                    <div class="bg-purple-600 text-white p-3 rounded-xl"><i data-lucide="file-signature" class="w-5 h-5"></i></div>
+                    <div class="bg-slate-600 text-white p-3 rounded-xl"><i data-lucide="file-signature" class="w-5 h-5"></i></div>
                     <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Staff Claim</h2></div>
                 </a>
                 <a id="card-leave" href="leave/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
@@ -123,20 +123,20 @@
                     <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Leave System</h2></div>
                 </a>
                 <a href="receiptsender/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
-                    <div class="bg-yellow-500 text-white p-3 rounded-xl"><i data-lucide="receipt" class="w-5 h-5"></i></div>
+                    <div class="bg-slate-500 text-white p-3 rounded-xl"><i data-lucide="receipt" class="w-5 h-5"></i></div>
                     <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Receipt Sender</h2></div>
                 </a>
                 <a href="customers/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
-                    <div class="bg-emerald-600 text-white p-3 rounded-xl"><i data-lucide="database" class="w-5 h-5"></i></div>
+                    <div class="bg-slate-600 text-white p-3 rounded-xl"><i data-lucide="database" class="w-5 h-5"></i></div>
                     <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Customer Database</h2></div>
                 </a>
                 <a href="vehicle/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
-                    <div class="bg-red-500 text-white p-3 rounded-xl"><i data-lucide="truck" class="w-5 h-5"></i></div>
+                    <div class="bg-slate-500 text-white p-3 rounded-xl"><i data-lucide="truck" class="w-5 h-5"></i></div>
                     <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Vehicle Management</h2></div>
                 </a>
                 
                 <a href="pcm/index.html" class="nav-card p-4 rounded-[2rem] flex flex-col items-center gap-3 text-center">
-                    <div class="bg-[#78350f] text-white p-3 rounded-xl"><i data-lucide="banknote" class="w-5 h-5"></i></div>
+                    <div class="bg-[#454545] text-white p-3 rounded-xl"><i data-lucide="banknote" class="w-5 h-5"></i></div>
                     <div><h2 class="font-black uppercase italic text-slate-800 text-[10px] leading-tight">Project Costing (PCM)</h2></div>
                 </a>
 
@@ -146,7 +146,7 @@
                 </a>
             </div>
             
-            <button onclick="handleLogout()" class="text-[10px] font-bold text-red-300 hover:text-red-500 uppercase tracking-widest flex items-center justify-center gap-2 mx-auto pt-4"><i data-lucide="log-out" class="w-4 h-4"></i> Sign Out</button>
+            <button onclick="handleLogout()" class="text-[10px] font-bold text-slate-300 hover:text-slate-500 uppercase tracking-widest flex items-center justify-center gap-2 mx-auto pt-4"><i data-lucide="log-out" class="w-4 h-4"></i> Sign Out</button>
         </div>
 
             <footer class="pt-10 pb-16 flex flex-col items-center gap-6 text-center">
@@ -155,17 +155,17 @@
             </footer>
 
         <!-- PWA Install Banner -->
-        <div id="install-banner" class="fixed bottom-0 left-0 right-0 z-40 bg-[#0f172a] text-white shadow-2xl">
+        <div id="install-banner" class="fixed bottom-0 left-0 right-0 z-40 bg-[#171717] text-white shadow-2xl">
             <div class="flex items-center justify-between gap-3 px-5 py-4 max-w-md mx-auto">
                 <div class="flex items-center gap-3">
                     <img src="applogo.png" class="w-10 h-10 object-cover rounded-xl flex-shrink-0" alt="">
                     <div class="text-left">
                         <p class="text-xs font-black uppercase tracking-wider leading-tight">Install App</p>
-                        <p class="text-[10px] text-emerald-300 font-bold leading-tight mt-0.5">Add COMPANY to your home screen</p>
+                        <p class="text-[10px] text-slate-300 font-bold leading-tight mt-0.5">Add COMPANY to your home screen</p>
                     </div>
                 </div>
                 <div class="flex items-center flex-shrink-0">
-                    <button id="install-btn" onclick="triggerInstall()" class="bg-[#10b981] hover:bg-[#059669] text-white font-black text-[10px] uppercase tracking-wider px-5 py-2.5 rounded-xl min-h-[44px] transition-colors">Install</button>
+                    <button id="install-btn" onclick="triggerInstall()" class="bg-[#808080] hover:bg-[#666666] text-white font-black text-[10px] uppercase tracking-wider px-5 py-2.5 rounded-xl min-h-[44px] transition-colors">Install</button>
                 </div>
             </div>
         </div>
@@ -182,19 +182,19 @@
                 </div>
                 <ol class="text-xs text-slate-700 font-bold space-y-3 mb-5">
                     <li class="flex items-start gap-3">
-                        <span class="bg-[#10b981] text-white rounded-full w-6 h-6 flex items-center justify-center font-black text-[10px] flex-shrink-0 mt-0.5">1</span>
+                        <span class="bg-[#808080] text-white rounded-full w-6 h-6 flex items-center justify-center font-black text-[10px] flex-shrink-0 mt-0.5">1</span>
                         <span>Tap the <strong>Share</strong> button <strong>(□↑)</strong> at the bottom of Safari</span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="bg-[#10b981] text-white rounded-full w-6 h-6 flex items-center justify-center font-black text-[10px] flex-shrink-0 mt-0.5">2</span>
+                        <span class="bg-[#808080] text-white rounded-full w-6 h-6 flex items-center justify-center font-black text-[10px] flex-shrink-0 mt-0.5">2</span>
                         <span>Scroll down and tap <strong>Add to Home Screen</strong></span>
                     </li>
                     <li class="flex items-start gap-3">
-                        <span class="bg-[#10b981] text-white rounded-full w-6 h-6 flex items-center justify-center font-black text-[10px] flex-shrink-0 mt-0.5">3</span>
+                        <span class="bg-[#808080] text-white rounded-full w-6 h-6 flex items-center justify-center font-black text-[10px] flex-shrink-0 mt-0.5">3</span>
                         <span>Tap <strong>Add</strong> to confirm</span>
                     </li>
                 </ol>
-                <button onclick="document.getElementById('ios-install-modal').classList.add('hidden')" class="w-full bg-[#0f172a] text-white font-black text-xs uppercase tracking-wider p-4 rounded-2xl min-h-[52px]">Got it</button>
+                <button onclick="document.getElementById('ios-install-modal').classList.add('hidden')" class="w-full bg-[#171717] text-white font-black text-xs uppercase tracking-wider p-4 rounded-2xl min-h-[52px]">Got it</button>
             </div>
         </div>
     </div>
@@ -240,33 +240,9 @@
         }
 
         async function initPortal() {
-            const backupTimer = setTimeout(() => { document.getElementById('app-loader').classList.add('fade-out'); if(document.getElementById('dashboard-view').classList.contains('hidden')) showAuth(); }, 4000);
-            try {
-                const isReload = window.performance && performance.getEntriesByType("navigation").length > 0 && performance.getEntriesByType("navigation")[0].type === "reload";
-                if (isReload) { await handleLogout(); return; }
-
-                // Fast path: use cached session from localStorage — no network wait
-                const tabActive = sessionStorage.getItem('company_tab_session');
-                const cached = getCachedSession();
-                if (cached && tabActive && cached.email) {
-                    applyInitials(cached.email);
-                    await enterPortal(cached.email); startInactivityTimer();
-                    clearTimeout(backupTimer);
-                    document.getElementById('app-loader').classList.add('fade-out');
-                    supabaseClient.auth.getSession(); // refresh silently in background
-                    return;
-                }
-
-                // Slow path: first load or no cache
-                const { data } = await supabaseClient.auth.getSession(); const session = data?.session;
-                
-                if (window.location.hash && window.location.hash.includes('type=recovery')) { showUpdatePasswordView(); }
-                else if (session && tabActive) {
-                    applyInitials(session.user.email);
-                    await enterPortal(session.user.email); startInactivityTimer();
-                } else { if (session) supabaseClient.auth.signOut(); showAuth(); }
-            } catch (err) { console.error("Auth logic error"); showAuth(); }
-            finally { clearTimeout(backupTimer); document.getElementById('app-loader').classList.add('fade-out'); }
+            // Demo mode: no login required — every visitor goes straight to the dashboard.
+            document.getElementById('app-loader').classList.add('fade-out');
+            showDashboard();
         }
 
         if (supabaseClient) {
@@ -324,7 +300,7 @@
                         const card = document.getElementById(mod.id);
                         if (card && !card.querySelector('.pending-dot')) {
                             const dot = document.createElement('span');
-                            dot.className = 'pending-dot absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full';
+                            dot.className = 'pending-dot absolute top-2 right-2 w-2.5 h-2.5 bg-slate-500 rounded-full';
                             card.appendChild(dot);
                         }
                     }
@@ -377,7 +353,7 @@
                         from: 'COMPANY Portal <onboarding@resend.dev>',
                         to: ADMIN_EMAILS,
                         subject: 'New COMPANY Portal sign-up — approval needed',
-                        html: `<div style="font-family:sans-serif;max-width:500px;color:#111827"><div style="background:#1E3A5F;padding:22px 28px;border-radius:8px 8px 0 0"><h2 style="margin:0;color:#fff;font-size:17px">COMPANY PORTAL</h2><p style="margin:6px 0 0;color:#93C5FD;font-size:12px">New sign-up pending approval</p></div><div style="padding:22px 28px;border:1px solid #E5E7EB;border-top:none;border-radius:0 0 8px 8px"><p style="margin:0 0 10px">A new user has registered and is awaiting your approval:</p><p style="margin:0 0 14px;font-weight:bold;font-size:15px">${email}</p><p style="margin:0;color:#6B7280;font-size:12px">Open <b>Settings → Staff → Pending Approvals</b> to approve or reject this account.</p></div></div>`
+                        html: `<div style="font-family:sans-serif;max-width:500px;color:#181818"><div style="background:#363636;padding:22px 28px;border-radius:8px 8px 0 0"><h2 style="margin:0;color:#ffffff;font-size:17px">COMPANY PORTAL</h2><p style="margin:6px 0 0;color:#bcbcbc;font-size:12px">New sign-up pending approval</p></div><div style="padding:22px 28px;border:1px solid #e7e7e7;border-top:none;border-radius:0 0 8px 8px"><p style="margin:0 0 10px">A new user has registered and is awaiting your approval:</p><p style="margin:0 0 14px;font-weight:bold;font-size:15px">${email}</p><p style="margin:0;color:#727272;font-size:12px">Open <b>Settings → Staff → Pending Approvals</b> to approve or reject this account.</p></div></div>`
                     })
                 }).catch(() => {});
             } catch {}
@@ -405,7 +381,7 @@
         function updateAuthUI() { const title = document.getElementById('auth-title'); const subtitle = document.getElementById('auth-subtitle'); const btn = document.getElementById('submit-btn'); const toggle = document.getElementById('toggle-btn'); const passwordInput = document.getElementById('password'); const forgotLink = document.getElementById('forgot-link-box'); document.getElementById('error-msg').classList.add('hidden'); if (isResetMode) { title.innerText = "Reset Password"; subtitle.innerText = "Enter email to reset."; passwordInput.classList.add('hidden-force'); forgotLink.classList.add('hidden-force'); btn.innerText = "Send Link"; toggle.innerText = "Back"; } else if (isLoginMode) { title.innerText = "Welcome"; subtitle.innerText = "Please login to access."; passwordInput.classList.remove('hidden-force'); forgotLink.classList.remove('hidden-force'); btn.innerText = "Login"; toggle.innerText = "Create Account"; } else { title.innerText = "Register"; subtitle.innerText = "Enter details."; passwordInput.classList.remove('hidden-force'); forgotLink.classList.add('hidden-force'); btn.innerText = "Sign Up"; toggle.innerText = "Back to Login"; } }
 
         async function handlePasswordUpdate() { const newPass = document.getElementById('new-password').value; if(!newPass) return alert("Enter password"); const { error } = await supabaseClient.auth.updateUser({ password: newPass }); if (!error) { alert("Updated!"); sessionStorage.setItem('company_tab_session', 'true'); window.location.href = window.location.pathname; } else { alert(error.message); } }
-        async function handleLogout() { stopInactivityTimer(); sessionStorage.removeItem('company_tab_session'); if (supabaseClient) await supabaseClient.auth.signOut(); showAuth(); }
+        async function handleLogout() { stopInactivityTimer(); sessionStorage.removeItem('company_tab_session'); if (supabaseClient) await supabaseClient.auth.signOut(); showDashboard(); }
         document.getElementById('password').addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAuth(); });
         lucide.createIcons();
         // This script sits at the end of <body> (DOM already parsed) and Supabase loaded synchronously above,
@@ -442,7 +418,7 @@
             if (!btn) return;
             btn.textContent = 'INSTALLED';
             btn.disabled = true;
-            btn.classList.remove('bg-[#10b981]', 'hover:bg-[#059669]');
+            btn.classList.remove('bg-[#808080]', 'hover:bg-[#666666]');
             btn.classList.add('bg-slate-500', 'cursor-default');
         }
 
