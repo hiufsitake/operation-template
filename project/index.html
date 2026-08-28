@@ -4,7 +4,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#171717">
+    <meta name="theme-color" content="#0f172a">
     <link rel="apple-touch-icon" href="../applogo.png">
     <link rel="manifest" href="../manifest.json">
     
@@ -37,35 +37,35 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .input-box { border: 2px solid #f4f4f4; padding: 1rem; border-radius: 1.25rem; background: #fafafa; font-weight: 700; width: 100%; outline: none; transition: all 0.2s; }
-        .input-box:focus { border-color: #909090; background: white; } 
+        .input-box { border: 2px solid #f1f5f9; padding: 1rem; border-radius: 1.25rem; background: #f8fafc; font-weight: 700; width: 100%; outline: none; transition: all 0.2s; }
+        .input-box:focus { border-color: #f97316; background: white; } 
         
-        .tab-active { background: #909090; color: white; box-shadow: 0 10px 15px -3px rgba(144, 144, 144, 0.3); }
+        .tab-active { background: #f97316; color: white; box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3); }
         
-        .badge-ongoing { background-color: #777777; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 70px; text-align: center; }
-        .badge-pending { background-color: #c5c5c5; color: #494949; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 70px; text-align: center; }
-        .badge-done { background-color: #808080; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 70px; text-align: center; }
+        .badge-ongoing { background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 70px; text-align: center; }
+        .badge-pending { background-color: #facc15; color: #713f12; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 70px; text-align: center; }
+        .badge-done { background-color: #10b981; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 70px; text-align: center; }
         
-        .badge-100 { background-color: #808080; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 60px; text-align: center; }
-        .badge-incomplete { background-color: #777777; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 60px; text-align: center; }
+        .badge-100 { background-color: #10b981; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 60px; text-align: center; }
+        .badge-incomplete { background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 60px; text-align: center; }
 
-        .filter-input { width: 100%; background: #ffffff; border: 1px solid #d3d3d3; color: #171717; padding: 4px 8px; border-radius: 6px; font-size: 10px; outline: none; }
-        .filter-input:focus { border-color: #909090; }
-        .filter-input::placeholder { color: #a1a1a1; }
+        .filter-input { width: 100%; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; padding: 4px 8px; border-radius: 6px; font-size: 10px; outline: none; }
+        .filter-input:focus { border-color: #f97316; }
+        .filter-input::placeholder { color: #94a3b8; }
         
         /* Inline input styling for Remarks */
-        .inline-input { width: 100%; background: transparent; border: 1px solid transparent; color: #727272; padding: 4px 8px; border-radius: 6px; font-size: 12px; outline: none; transition: all 0.2s; }
-        .inline-input:focus { background: white; border-color: #909090; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-        .inline-input:hover:not(:focus) { border-color: #e7e7e7; background: #fafafa; }
+        .inline-input { width: 100%; background: transparent; border: 1px solid transparent; color: #64748b; padding: 4px 8px; border-radius: 6px; font-size: 12px; outline: none; transition: all 0.2s; }
+        .inline-input:focus { background: white; border-color: #f97316; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .inline-input:hover:not(:focus) { border-color: #e2e8f0; background: #f8fafc; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-24 text-slate-900 font-medium">
 
-    <nav class="bg-[#171717] text-white p-5 sticky top-0 z-50 shadow-xl border-b-2 border-slate-500">
+    <nav class="bg-[#0f172a] text-white p-5 sticky top-0 z-50 shadow-xl border-b-2 border-orange-500">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <a href="../index.html" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-all"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
-                <h1 class="font-black italic text-xl uppercase tracking-tighter leading-none">COMPANY <span class="text-slate-500 uppercase text-xs">PM</span></h1>
+                <h1 class="font-black italic text-xl uppercase tracking-tighter leading-none">COMPANY <span class="text-orange-500 uppercase text-xs">PM</span></h1>
             </div>
             <div class="flex bg-slate-800 p-1 rounded-xl gap-1 overflow-x-auto">
                 <button onclick="switchTab('list')" id="nav-list" class="px-3 py-2 rounded-lg text-[9px] font-bold tab-active uppercase transition-all">Projects</button>
@@ -78,7 +78,7 @@
     <main class="max-w-7xl mx-auto p-4 mt-6">
         
         <div id="auth-lock-screen" class="hidden p-10 text-center bg-white rounded-[2.5rem] border shadow-sm space-y-4 max-w-md mx-auto">
-            <i data-lucide="shield-off" class="w-12 h-12 mx-auto text-slate-400"></i>
+            <i data-lucide="shield-off" class="w-12 h-12 mx-auto text-red-400"></i>
             <h3 class="font-black text-lg uppercase italic text-slate-800">Access Restricted</h3>
             <p class="text-xs text-slate-500">This section is restricted to authorized administrators only.</p>
         </div>
@@ -86,18 +86,14 @@
         <div id="tab-list">
              <div class="flex justify-center mb-6">
                 <div class="bg-white p-1 rounded-2xl shadow-sm border inline-flex gap-1 overflow-x-auto">
-                    <button onclick="filterCompany('SOLUTIONS')" id="filter-SOLUTIONS" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-slate-500 text-white shadow-md transition-all whitespace-nowrap">Solutions</button>
-                    <button onclick="filterCompany('OPA')" id="filter-OPA" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all whitespace-nowrap">OPA</button>
-                    <button onclick="filterCompany('ADVISORY')" id="filter-ADVISORY" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all whitespace-nowrap">Advisory</button>
-                    <button onclick="filterCompany('OPTIMIZATION')" id="filter-OPTIMIZATION" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all whitespace-nowrap">Optimization</button>
-                    <button onclick="filterCompany('ENERGY')" id="filter-ENERGY" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all whitespace-nowrap">Energy</button>
+                    <button onclick="filterCompany('SOLUTIONS')" id="filter-SOLUTIONS" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-slate-500 text-white shadow-md transition-all whitespace-nowrap">&lt;Company Name&gt;</button>
                 </div>
             </div>
 
             <div id="standard-table-container" class="bg-white rounded-[2rem] shadow-sm border overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-500 text-white">
+                        <thead class="bg-orange-500 text-white">
                             <tr>
                                 <th class="p-4 text-[10px] font-black uppercase tracking-widest w-16">Year</th>
                                 <th class="p-4 text-[10px] font-black uppercase tracking-widest w-20">Project No.</th>
@@ -150,7 +146,7 @@
             <div id="opa-table-container" class="hidden bg-white rounded-[2rem] shadow-sm border overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-500 text-white">
+                        <thead class="bg-orange-500 text-white">
                             <tr>
                                 <th class="p-4 text-[10px] font-black uppercase tracking-widest w-16">Year</th>
                                 <th class="p-4 text-[10px] font-black uppercase tracking-widest w-20">Project No.</th>
@@ -182,7 +178,7 @@
 
         <div id="tab-add" class="hidden">
             <div class="max-w-2xl mx-auto mb-4">
-                <button onclick="switchTab('list')" class="flex items-center gap-2 text-slate-400 hover:text-slate-500 transition-colors text-xs font-bold uppercase tracking-widest">
+                <button onclick="switchTab('list')" class="flex items-center gap-2 text-slate-400 hover:text-orange-500 transition-colors text-xs font-bold uppercase tracking-widest">
                     <i data-lucide="arrow-left-circle" class="w-4 h-4"></i> Back to List
                 </button>
             </div>
@@ -192,12 +188,8 @@
                     <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400">Project Details</h2>
                     
                     <div class="grid grid-cols-2 gap-4">
-                        <select id="p-company" class="input-box text-slate-600 uppercase italic col-span-2">
-                            <option value="SOLUTIONS">COMPANY A SDN. BHD. (General)</option>
-                            <option value="ADVISORY">COMPANY A SDN. BHD. (Advisory)</option>
-                            <option value="OPTIMIZATION">COMPANY B SDN. BHD.</option>
-                            <option value="ENERGY">COMPANY C SDN. BHD.</option>
-                            <option value="OPA">Occupational Permit Application (OPA)</option>
+                        <select id="p-company" class="input-box text-orange-600 uppercase italic col-span-2">
+                            <option value="SOLUTIONS">&lt;Company Name&gt; Sdn. Bhd.</option>
                         </select>
                         <input type="number" id="p-year" placeholder="Year" class="input-box" required>
                         <input type="text" id="p-no" placeholder="Project No" class="input-box" required>
@@ -209,8 +201,8 @@
                     <div class="grid grid-cols-2 gap-4">
                         <input type="number" step="0.01" id="p-value" placeholder="Value (RM)" class="input-box" required>
                         <select id="p-po" class="input-box font-bold">
-                            <option value="true" class="text-slate-600">Has PO: YES</option>
-                            <option value="false" class="text-slate-500">Has PO: NO</option>
+                            <option value="true" class="text-emerald-600">Has PO: YES</option>
+                            <option value="false" class="text-red-500">Has PO: NO</option>
                         </select>
                     </div>
 
@@ -246,7 +238,7 @@
                             <i data-lucide="save" class="w-5 h-5"></i> Save Project
                         </button>
                         
-                        <button type="button" onclick="deleteProject()" id="delete-btn" class="hidden w-full bg-slate-50 text-slate-500 font-black p-4 rounded-[2rem] uppercase tracking-widest text-[10px] italic flex items-center justify-center gap-2 border border-slate-100">
+                        <button type="button" onclick="deleteProject()" id="delete-btn" class="hidden w-full bg-red-50 text-red-500 font-black p-4 rounded-[2rem] uppercase tracking-widest text-[10px] italic flex items-center justify-center gap-2 border border-red-100">
                             <i data-lucide="trash-2" class="w-4 h-4"></i> Delete Project
                         </button>
 
@@ -262,15 +254,12 @@
             <section class="bg-white p-6 rounded-[2.5rem] border shadow-sm">
                 <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                     <div class="flex items-center gap-2">
-                        <div class="bg-slate-500 text-white p-2 rounded-lg"><i data-lucide="bar-chart-2" class="w-5 h-5"></i></div>
+                        <div class="bg-orange-500 text-white p-2 rounded-lg"><i data-lucide="bar-chart-2" class="w-5 h-5"></i></div>
                         <h2 class="font-black uppercase text-sm tracking-widest text-slate-800">Financial Overview</h2>
                     </div>
                     <div class="flex gap-2">
                         <select id="adm-comp" onchange="renderAdminStats()" class="bg-slate-100 p-2 rounded-xl text-xs font-bold outline-none uppercase text-slate-600">
-                            <option value="SOLUTIONS">Solutions</option>
-                            <option value="ADVISORY">Advisory</option>
-                            <option value="OPTIMIZATION">Optimization</option>
-                            <option value="ENERGY">Energy</option>
+                            <option value="SOLUTIONS">&lt;Company Name&gt;</option>
                         </select>
                         <select id="adm-year" onchange="renderAdminStats()" class="bg-slate-100 p-2 rounded-xl text-xs font-bold outline-none uppercase text-slate-600">
                             <option value="ALL">All Years</option>
@@ -279,27 +268,27 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-slate-50 p-5 rounded-3xl border border-slate-100">
+                    <div class="bg-orange-50 p-5 rounded-3xl border border-orange-100">
                         <p class="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Total Projects</p>
                         <p id="stat-count" class="text-xl font-black text-slate-800">0</p>
                     </div>
-                    <div class="bg-slate-50 p-5 rounded-3xl border border-slate-100">
-                        <p class="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Total Value</p>
-                        <p id="stat-total-val" class="text-xl font-black text-slate-700">RM 0.00</p>
+                    <div class="bg-orange-50 p-5 rounded-3xl border border-orange-100">
+                        <p class="text-[9px] font-black uppercase text-orange-400 tracking-widest mb-1">Total Value</p>
+                        <p id="stat-total-val" class="text-xl font-black text-orange-700">RM 0.00</p>
                     </div>
-                    <div class="bg-slate-50 p-5 rounded-3xl border border-slate-100">
-                        <p class="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Total Invoiced</p>
-                        <p id="stat-inv" class="text-xl font-black text-slate-700">RM 0.00</p>
+                    <div class="bg-orange-50 p-5 rounded-3xl border border-orange-100">
+                        <p class="text-[9px] font-black uppercase text-blue-400 tracking-widest mb-1">Total Invoiced</p>
+                        <p id="stat-inv" class="text-xl font-black text-blue-700">RM 0.00</p>
                     </div>
-                    <div class="bg-slate-50 p-5 rounded-3xl border border-slate-100">
-                        <p class="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Total Received</p>
-                        <p id="stat-pay" class="text-xl font-black text-slate-700">RM 0.00</p>
+                    <div class="bg-orange-50 p-5 rounded-3xl border border-orange-100">
+                        <p class="text-[9px] font-black uppercase text-emerald-400 tracking-widest mb-1">Total Received</p>
+                        <p id="stat-pay" class="text-xl font-black text-emerald-700">RM 0.00</p>
                     </div>
                 </div>
             </section>
 
             <section class="bg-white p-8 rounded-[2.5rem] border shadow-sm space-y-8 text-center">
-                <i data-lucide="database" class="w-12 h-12 mx-auto text-slate-500"></i>
+                <i data-lucide="database" class="w-12 h-12 mx-auto text-orange-500"></i>
                 <button onclick="exportToCSV()" class="w-full bg-slate-900 text-white p-5 rounded-3xl font-black uppercase text-xs tracking-[0.2em] shadow-lg flex items-center justify-center gap-3">
                     <i data-lucide="download" class="w-5 h-5"></i> Export Database (CSV)
                 </button>
@@ -424,7 +413,7 @@
 
             CO_KEYS.forEach(k => {
                 const btn = document.getElementById('filter-' + k);
-                if (k === key) btn.className = "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-slate-500 text-white shadow-md transition-all whitespace-nowrap";
+                if (k === key) btn.className = "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-orange-500 text-white shadow-md transition-all whitespace-nowrap";
                 else btn.className = "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all whitespace-nowrap";
             });
         }
@@ -522,8 +511,8 @@
 
         const opaStyles = {
             'Pending': 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100',
-            'In Progress': 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100',
-            'Done': 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+            'In Progress': 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100',
+            'Done': 'bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100'
         };
 
         function generateOpaDropdown(id, field, value) {
@@ -575,11 +564,11 @@
                 let opaHtml = '';
                 opaProjects.forEach(p => {
                     const prog = p.opa_progress || 0;
-                    let progBadge = `<span class="bg-slate-500 text-white px-3 py-1.5 rounded-lg font-black text-[10px] inline-block min-w-[50px] text-center shadow-sm">${prog}%</span>`;
+                    let progBadge = `<span class="bg-orange-500 text-white px-3 py-1.5 rounded-lg font-black text-[10px] inline-block min-w-[50px] text-center shadow-sm">${prog}%</span>`;
                     opaHtml += `
                         <tr data-id="${p.id}" class="hover:bg-slate-50 border-b border-slate-100 transition-colors duration-500">
                             <td class="p-4 text-xs font-bold text-slate-400">${p.year}</td>
-                            <td class="p-4 text-xs font-black text-slate-600">${p.project_no}</td>
+                            <td class="p-4 text-xs font-black text-orange-600">${p.project_no}</td>
                             <td class="p-4 text-xs font-bold text-slate-800 uppercase">${p.client_name}</td>
                             <td class="p-4 text-center">${progBadge}</td>
                             <td class="p-2">${generateOpaDropdown(p.id, 'land_title', p.land_title)}</td>
@@ -595,7 +584,7 @@
                                 <input type="text" class="inline-input" value="${p.remark || ''}" onchange="updateInlineRemark('${p.id}', this.value)" placeholder="+ Add Remark">
                             </td>
                             <td class="p-4 text-center">
-                                <button onclick="editProject('${p.id}')" class="text-slate-300 hover:text-slate-500"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                                <button onclick="editProject('${p.id}')" class="text-slate-300 hover:text-orange-500"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
                             </td>
                         </tr>`;
                 });
@@ -606,7 +595,7 @@
                 const targetRow = document.querySelector(`tr[data-id="${scrollToProjectId}"]`);
                 if (targetRow) {
                     targetRow.scrollIntoView({ behavior: 'instant', block: 'center' });
-                    targetRow.style.background = '#f8f8f8';
+                    targetRow.style.background = '#fff7ed';
                     setTimeout(() => { targetRow.style.background = ''; }, 1800);
                 }
                 scrollToProjectId = null;
@@ -680,12 +669,12 @@
                     let invBadge = !invVal ? '<span class="text-slate-300">-</span>' : (invVal === '100' ? `<span class="badge-100">100%</span>` : `<span class="badge-incomplete">${invVal}%</span>`);
                     const payVal = String(p.payment_status || '').replace('%','');
                     let payBadge = !payVal ? '<span class="text-slate-300">-</span>' : (payVal === invVal ? `<span class="badge-100">${payVal}%</span>` : `<span class="badge-incomplete">${payVal}%</span>`);
-                    const poBadge = p.has_po ? '<span class="text-slate-600 font-black text-xs">YES</span>' : '<span class="text-slate-500 font-black text-xs">NO</span>';
+                    const poBadge = p.has_po ? '<span class="text-emerald-600 font-black text-xs">YES</span>' : '<span class="text-red-500 font-black text-xs">NO</span>';
 
                     html += `
                         <tr data-id="${p.id}" class="hover:bg-slate-50 border-b border-slate-100 transition-colors duration-500">
                             <td class="p-4 text-xs font-bold text-slate-400">${p.year}</td>
-                            <td class="p-4 text-xs font-black text-slate-600">${p.project_no}</td>
+                            <td class="p-4 text-xs font-black text-orange-600">${p.project_no}</td>
                             <td class="p-4 text-xs font-bold text-slate-800 uppercase">${p.client_name}</td>
                             <td class="p-4 text-xs text-slate-500 leading-tight uppercase">${p.description}</td>
                             <td class="p-4 text-xs font-bold text-slate-800 text-right">${parseFloat(p.value).toLocaleString('en-MY', {minimumFractionDigits:2})}</td>
@@ -697,7 +686,7 @@
                                 <input type="text" class="inline-input" value="${p.remark || ''}" onchange="updateInlineRemark('${p.id}', this.value)" placeholder="+ Add Remark">
                             </td>
                             <td class="p-4 text-center">
-                                <button onclick="editProject('${p.id}')" class="text-slate-300 hover:text-slate-500"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                                <button onclick="editProject('${p.id}')" class="text-slate-300 hover:text-orange-500"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
                             </td>
                         </tr>`;
                 });
@@ -708,7 +697,7 @@
                 const targetRow = document.querySelector(`tr[data-id="${scrollToProjectId}"]`);
                 if (targetRow) {
                     targetRow.scrollIntoView({ behavior: 'instant', block: 'center' });
-                    targetRow.style.background = '#f8f8f8';
+                    targetRow.style.background = '#fff7ed';
                     setTimeout(() => { targetRow.style.background = ''; }, 1800);
                 }
                 scrollToProjectId = null;

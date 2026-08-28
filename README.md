@@ -71,10 +71,10 @@ Row Level Security (RLS) should be enabled on all tables. Admin-only operations 
 
 ## Auth
 
-Authentication is handled via Supabase Auth. All pages include an auth guard that redirects unauthenticated users to the login page. Certain operations (approvals, deletions, exports) are restricted to admin emails defined in each module.
+Authentication is handled via Supabase Auth. **This template repo runs in demo mode** — the login/auth guard is disabled everywhere so every page is open to any visitor; re-enable it (see `CLAUDE.md`) before using this for real data. Certain operations (approvals, deletions, exports) are restricted to admin emails defined in each module once auth is re-enabled.
 
 ---
 
-## CI/CD
+## Hosting
 
-A GitHub Actions workflow (`.github/workflows/prevent-supabase-pause.yml`) pings the Supabase project every 6 hours to prevent the free-tier database from pausing due to inactivity.
+This template ships with no GitHub Actions workflows or Cloudflare dependency — it's a static site served directly via GitHub Pages (Settings → Pages → Deploy from a branch). Add your own CI/CD if you need one.

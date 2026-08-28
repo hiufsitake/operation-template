@@ -4,7 +4,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#171717">
+    <meta name="theme-color" content="#0f172a">
     <link rel="icon" href="../ilogo.PNG" type="image/PNG"> 
     
     <meta charset="UTF-8">
@@ -19,35 +19,35 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
         
-        .input-box { border: 2px solid #f4f4f4; padding: 1rem; border-radius: 1.25rem; background: #fafafa; font-weight: 700; width: 100%; outline: none; transition: all 0.2s; font-size: 0.875rem; color: #171717; }
-        .input-box:focus { border-color: #454545; background: white; }
+        .input-box { border: 2px solid #f1f5f9; padding: 1rem; border-radius: 1.25rem; background: #f8fafc; font-weight: 700; width: 100%; outline: none; transition: all 0.2s; font-size: 0.875rem; color: #0f172a; }
+        .input-box:focus { border-color: #78350f; background: white; }
         
-        .tab-active { background: #454545; color: white; box-shadow: 0 10px 15px -3px rgba(69, 69, 69, 0.3); }
+        .tab-active { background: #78350f; color: white; box-shadow: 0 10px 15px -3px rgba(120, 53, 15, 0.3); }
 
-        .modal-overlay { backdrop-filter: blur(4px); background-color: rgba(23, 23, 23, 0.8); z-index: 100;}
-        .margin-safe { color: #666666; background: #ebebeb; }
-        .margin-warn { color: #878787; background: #f1f1f1; }
-        .margin-danger { color: #5c5c5c; background: #eaeaea; }
+        .modal-overlay { backdrop-filter: blur(4px); background-color: rgba(15, 23, 42, 0.8); z-index: 100;}
+        .margin-safe { color: #059669; background: #d1fae5; }
+        .margin-warn { color: #d97706; background: #fef3c7; }
+        .margin-danger { color: #dc2626; background: #fee2e2; }
         
-        .filter-input { width: 100%; background: #ffffff; border: 1px solid #d3d3d3; color: #171717; padding: 6px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; outline: none; }
-        .filter-input:focus { border-color: #454545; }
-        .filter-input::placeholder { color: #a1a1a1; }
+        .filter-input { width: 100%; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; padding: 6px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; outline: none; }
+        .filter-input:focus { border-color: #78350f; }
+        .filter-input::placeholder { color: #94a3b8; }
         
-        .badge-ongoing { background-color: #777777; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 70px; text-align: center; }
-        .badge-pending { background-color: #c5c5c5; color: #494949; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 70px; text-align: center; }
-        .badge-done { background-color: #808080; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 70px; text-align: center; }
+        .badge-ongoing { background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 70px; text-align: center; }
+        .badge-pending { background-color: #facc15; color: #713f12; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 70px; text-align: center; }
+        .badge-done { background-color: #10b981; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 900; font-size: 10px; display: inline-block; min-width: 70px; text-align: center; }
 
         .dropzone { transition: all 0.3s ease; }
         
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #d3d3d3; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         /* Universal Drag and Drop Effects */
         .drag-over {
-            border-color: var(--drag-theme, #454545) !important;
-            background-color: var(--drag-bg, rgba(69, 69, 69, 0.1)) !important;
+            border-color: var(--drag-theme, #78350f) !important;
+            background-color: var(--drag-bg, rgba(120, 53, 15, 0.1)) !important;
         }
         .file-drop-zone * {
             pointer-events: none;
@@ -56,13 +56,13 @@
 </head>
 <body class="bg-slate-50 min-h-screen pb-24 text-slate-900 font-medium">
 
-    <nav class="bg-[#171717] text-white p-5 sticky top-0 z-50 shadow-xl border-b-2 border-[#454545]">
+    <nav class="bg-[#0f172a] text-white p-5 sticky top-0 z-50 shadow-xl border-b-2 border-[#78350f]">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <a href="../index.html" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-all">
                     <i data-lucide="arrow-left" class="w-5 h-5"></i>
                 </a>
-               <h1 class="font-black italic text-xl uppercase tracking-tighter leading-none">COMPANY <span class="text-[#454545] uppercase text-xs">PCM</span></h1>
+               <h1 class="font-black italic text-xl uppercase tracking-tighter leading-none">COMPANY <span class="text-[#78350f] uppercase text-xs">PCM</span></h1>
             </div>
             <div class="flex bg-slate-800 p-1 rounded-xl gap-1 overflow-x-auto">
                 <button onclick="switchTab('main')" id="nav-main" class="px-3 py-2 rounded-lg text-[9px] font-bold tab-active uppercase transition-all">PCM</button>
@@ -74,14 +74,14 @@
     <main class="max-w-7xl mx-auto p-4 mt-6 space-y-6">
         
         <div id="auth-lock-screen" class="hidden max-w-md mx-auto p-10 text-center bg-white rounded-[2.5rem] border shadow-sm space-y-4">
-            <i data-lucide="shield-off" class="w-12 h-12 mx-auto text-slate-400"></i>
+            <i data-lucide="shield-off" class="w-12 h-12 mx-auto text-red-400"></i>
             <h3 class="font-black text-lg uppercase italic text-slate-800">Access Restricted</h3>
             <p class="text-xs text-slate-500">This section is restricted to authorized administrators only.</p>
         </div>
 
         <div id="tab-admin" class="hidden max-w-md mx-auto space-y-4">
             <section class="bg-white p-8 rounded-[2.5rem] border shadow-sm space-y-8 text-center">
-                <i data-lucide="database" class="w-12 h-12 mx-auto text-[#454545]"></i>
+                <i data-lucide="database" class="w-12 h-12 mx-auto text-[#78350f]"></i>
                 <h3 class="font-black text-lg uppercase italic text-slate-800">Admin Controls</h3>
                 <button onclick="exportToCSV()" class="w-full bg-slate-900 text-white p-5 rounded-3xl font-black uppercase text-xs tracking-[0.2em] shadow-lg flex items-center justify-center gap-3">
                     <i data-lucide="download" class="w-5 h-5"></i> Export Database (CSV)
@@ -94,11 +94,7 @@
             <div class="flex justify-center -mt-2">
                 <div class="bg-white p-1 rounded-2xl shadow-sm border border-slate-200 inline-flex gap-1 overflow-x-auto">
                     <button onclick="filterCompany('All')" id="filter-All" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-slate-900 text-white shadow-md transition-all whitespace-nowrap">All</button>
-                    <button onclick="filterCompany('SOLUTIONS')" id="filter-SOLUTIONS" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all whitespace-nowrap">Solutions</button>
-                    <button onclick="filterCompany('OPA')" id="filter-OPA" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all whitespace-nowrap">OPA</button>
-                    <button onclick="filterCompany('ADVISORY')" id="filter-ADVISORY" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all whitespace-nowrap">Advisory</button>
-                    <button onclick="filterCompany('OPTIMIZATION')" id="filter-OPTIMIZATION" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all whitespace-nowrap">Optimization</button>
-                    <button onclick="filterCompany('ENERGY')" id="filter-ENERGY" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all whitespace-nowrap">Energy</button>
+                    <button onclick="filterCompany('SOLUTIONS')" id="filter-SOLUTIONS" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all whitespace-nowrap">&lt;Company Name&gt;</button>
                 </div>
             </div>
 
@@ -113,7 +109,7 @@
                 </div>
                 <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-200 min-w-0 flex flex-col justify-center">
                     <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 truncate">Accumulated Cost</p>
-                    <p id="stat-cost" class="text-lg md:text-xl lg:text-2xl font-black text-slate-600 tracking-tighter truncate">RM 0</p>
+                    <p id="stat-cost" class="text-lg md:text-xl lg:text-2xl font-black text-red-600 tracking-tighter truncate">RM 0</p>
                 </div>
                 <div class="bg-slate-900 p-6 rounded-[2.5rem] shadow-xl text-white min-w-0 flex flex-col justify-center">
                     <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 truncate">Avg Profit Margin</p>
@@ -121,15 +117,15 @@
                 </div>
             </div>
 
-            <section id="at-risk-section" class="hidden bg-slate-50 border border-slate-200 rounded-[2.5rem] p-5">
+            <section id="at-risk-section" class="hidden bg-red-50 border border-red-200 rounded-[2.5rem] p-5">
                 <div class="flex items-start gap-3">
-                    <i data-lucide="alert-triangle" class="w-5 h-5 text-slate-500 mt-0.5 shrink-0"></i>
+                    <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500 mt-0.5 shrink-0"></i>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center justify-between mb-1">
-                            <h3 class="font-black uppercase text-[11px] tracking-widest text-slate-700">Projects At Risk</h3>
-                            <span id="at-risk-count" class="text-[9px] font-black uppercase tracking-widest text-slate-700 bg-slate-200/60 px-2 py-0.5 rounded-full"></span>
+                            <h3 class="font-black uppercase text-[11px] tracking-widest text-red-700">Projects At Risk</h3>
+                            <span id="at-risk-count" class="text-[9px] font-black uppercase tracking-widest text-red-700 bg-red-200/60 px-2 py-0.5 rounded-full"></span>
                         </div>
-                        <p class="text-[9px] text-slate-600/70 mb-3 font-medium uppercase tracking-widest">Ongoing projects with margin below 15% or cost absorption above 80%</p>
+                        <p class="text-[9px] text-red-600/70 mb-3 font-medium uppercase tracking-widest">Ongoing projects with margin below 15% or cost absorption above 80%</p>
                         <div id="at-risk-list" class="space-y-1.5"></div>
                     </div>
                 </div>
@@ -158,10 +154,10 @@
             </section>
 
             <div id="add-costing-section">
-                <section id="ai-scan-container" class="mb-6 bg-slate-900 p-6 rounded-[2.5rem] shadow-xl border-t-4 border-[#454545] text-white">
+                <section id="ai-scan-container" class="mb-6 bg-slate-900 p-6 rounded-[2.5rem] shadow-xl border-t-4 border-[#78350f] text-white">
                     <div class="flex justify-between items-center mb-4">
                         <div>
-                            <h2 class="font-black uppercase text-[10px] tracking-widest text-[#454545] italic">Smart Document Scanner</h2>
+                            <h2 class="font-black uppercase text-[10px] tracking-widest text-[#78350f] italic">Smart Document Scanner</h2>
                             <p class="text-[14px] font-bold">Auto-Extract PV / Receipt</p>
                         </div>
                         <button onclick="addManualStagedCost()" class="bg-slate-800 text-slate-300 hover:text-white border border-slate-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2">
@@ -169,15 +165,15 @@
                         </button>
                     </div>
                     <div class="flex gap-3">
-                        <label id="drop-zone" for="pv-upload" class="file-drop-zone flex-1 bg-white/5 border-2 border-dashed border-slate-500 hover:border-[#454545] hover:bg-[#454545]/10 py-8 px-4 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all min-h-[140px]" style="--drag-theme: #454545; --drag-bg: rgba(69, 69, 69, 0.1);">
-                            <i data-lucide="camera" class="w-8 h-8 mb-3 text-[#454545]"></i>
+                        <label id="drop-zone" for="pv-upload" class="file-drop-zone flex-1 bg-white/5 border-2 border-dashed border-slate-500 hover:border-[#78350f] hover:bg-[#78350f]/10 py-8 px-4 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all min-h-[140px]" style="--drag-theme: #78350f; --drag-bg: rgba(120, 53, 15, 0.1);">
+                            <i data-lucide="camera" class="w-8 h-8 mb-3 text-[#78350f]"></i>
                             <span class="text-[11px] font-black uppercase tracking-widest text-center text-slate-300">Scan Document (Drop PDF/Img Here)<br><span class="text-[9px] font-medium text-slate-400 normal-case mt-1 inline-block">or click to browse your files</span></span>
                             <input type="file" id="pv-upload" accept="image/*,.pdf" class="hidden" multiple onchange="handleAIProcessing(this)">
                         </label>
                         
-                        <div id="ai-status" class="hidden flex-1 bg-[#454545]/10 border-2 border-[#454545]/20 py-8 px-4 rounded-2xl flex flex-col items-center justify-center gap-3">
-                            <div class="w-6 h-6 border-2 border-[#454545] border-t-transparent rounded-full animate-spin"></div>
-                            <span id="ai-status-text" class="text-[10px] font-black uppercase tracking-widest text-[#454545] text-center">Reading Document...</span>
+                        <div id="ai-status" class="hidden flex-1 bg-[#78350f]/10 border-2 border-[#78350f]/20 py-8 px-4 rounded-2xl flex flex-col items-center justify-center gap-3">
+                            <div class="w-6 h-6 border-2 border-[#78350f] border-t-transparent rounded-full animate-spin"></div>
+                            <span id="ai-status-text" class="text-[10px] font-black uppercase tracking-widest text-[#78350f] text-center">Reading Document...</span>
                         </div>
                     </div>
                 </section>
@@ -185,14 +181,14 @@
                 <div id="staged-costs-container" class="hidden bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-200 mt-2">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-black text-slate-800 uppercase tracking-widest text-[11px]">Staged Costings</h3>
-                        <button onclick="clearStagedCosts()" class="text-slate-400 hover:text-slate-500 bg-slate-100 p-2 rounded-lg"><i data-lucide="x" class="w-4 h-4"></i></button>
+                        <button onclick="clearStagedCosts()" class="text-slate-400 hover:text-red-500 bg-slate-100 p-2 rounded-lg"><i data-lucide="x" class="w-4 h-4"></i></button>
                     </div>
                     <div id="staged-costs-list" class="space-y-2 max-h-[60vh] overflow-y-auto"></div>
                     <div class="pt-6 flex gap-3 border-t border-slate-100 mt-4">
                         <button type="button" onclick="addManualStagedCost()" class="bg-slate-100 text-slate-600 font-black p-4 rounded-[2rem] shadow-sm uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 hover:bg-slate-200 transition-all px-8">
                             <i data-lucide="plus" class="w-4 h-4"></i> Add Row
                         </button>
-                        <button type="button" onclick="saveAllStagedCosts()" id="btn-save-staged" class="flex-1 bg-[#454545] text-white font-black p-4 rounded-[2rem] shadow-xl uppercase tracking-widest text-[10px] flex justify-center items-center gap-2 hover:bg-[#333333] transition-all">
+                        <button type="button" onclick="saveAllStagedCosts()" id="btn-save-staged" class="flex-1 bg-[#78350f] text-white font-black p-4 rounded-[2rem] shadow-xl uppercase tracking-widest text-[10px] flex justify-center items-center gap-2 hover:bg-[#5a270b] transition-all">
                             <i data-lucide="save" class="w-4 h-4"></i> Save All Costings
                         </button>
                     </div>
@@ -208,7 +204,7 @@
                                 <th class="p-5 text-[10px] font-black uppercase tracking-widest">Project No.</th>
                                 <th class="p-5 text-[10px] font-black uppercase tracking-widest min-w-[200px]">Client / Description</th>
                                 <th class="p-5 text-[10px] font-black uppercase tracking-widest text-right">Value (RM)</th>
-                                <th class="p-5 text-[10px] font-black uppercase tracking-widest text-right text-[#454545]">Cost (RM)</th>
+                                <th class="p-5 text-[10px] font-black uppercase tracking-widest text-right text-[#78350f]">Cost (RM)</th>
                                 <th class="p-5 text-[10px] font-black uppercase tracking-widest text-right">P/L (RM)</th>
                                 <th class="p-5 text-[10px] font-black uppercase tracking-widest text-center">Margin</th>
                                 <th class="p-5 text-[10px] font-black uppercase tracking-widest text-center">Status</th>
@@ -257,7 +253,7 @@
                     <div class="flex items-center gap-3 mb-1">
                         <span id="mod-year" class="bg-slate-800 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest"></span>
                         <h2 id="mod-no" class="font-black text-2xl uppercase tracking-tight"></h2>
-                        <span id="mod-status" class="bg-[#454545]/20 text-[#454545] border border-[#454545]/30 px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest"></span>
+                        <span id="mod-status" class="bg-[#78350f]/20 text-[#78350f] border border-[#78350f]/30 px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest"></span>
                     </div>
                     <p id="mod-client" class="text-sm font-bold text-slate-300"></p>
                     <p id="mod-desc" class="text-xs text-slate-400 mt-1 max-w-lg whitespace-normal"></p>
@@ -298,10 +294,10 @@
                         </thead>
                         <tbody id="costing-table-body" class="divide-y divide-slate-100 text-xs font-bold text-slate-800">
                             </tbody>
-                        <tfoot class="bg-slate-50 border-t-2 border-slate-200 sticky bottom-0 z-10 shadow-[0_-1px_2px_rgba(0, 0, 0,0.05)]">
+                        <tfoot class="bg-slate-50 border-t-2 border-slate-200 sticky bottom-0 z-10 shadow-[0_-1px_2px_rgba(0,0,0,0.05)]">
                             <tr>
                                 <td colspan="4" class="p-4 text-right font-black uppercase text-[10px] text-slate-500 tracking-widest">Total Costing</td>
-                                <td id="mod-total-cost" class="p-4 text-right font-black text-[#454545] text-base">RM 0.00</td>
+                                <td id="mod-total-cost" class="p-4 text-right font-black text-[#78350f] text-base">RM 0.00</td>
                                 <td></td>
                             </tr>
                         </tfoot>
@@ -413,39 +409,39 @@
             `;
 
             stagedCostings.forEach((c, index) => {
-                let dupStyle = c.isDuplicate ? 'bg-slate-50' : 'hover:bg-slate-50';
+                let dupStyle = c.isDuplicate ? 'bg-red-50' : 'hover:bg-slate-50';
                 
                 html += `
                     <tr class="${dupStyle} transition-colors">
                         <td class="p-2">
-                            <input type="text" value="${esc(c.company)}" readonly class="w-full min-w-[120px] bg-transparent border border-transparent rounded p-2 text-[10px] uppercase font-black text-[#454545] outline-none cursor-default truncate">
+                            <input type="text" value="${esc(c.company)}" readonly class="w-full min-w-[120px] bg-transparent border border-transparent rounded p-2 text-[10px] uppercase font-black text-[#78350f] outline-none cursor-default truncate">
                         </td>
                         <td class="p-2">
-                            <input type="text" value="${esc(c.project_no)}" onchange="updateStaged(${index}, 'project_no', this.value)" list="project-list-options" class="w-full min-w-[90px] bg-white border border-slate-200 rounded p-2 text-xs uppercase focus:border-[#454545] outline-none" placeholder="PRJ...">
+                            <input type="text" value="${esc(c.project_no)}" onchange="updateStaged(${index}, 'project_no', this.value)" list="project-list-options" class="w-full min-w-[90px] bg-white border border-slate-200 rounded p-2 text-xs uppercase focus:border-[#78350f] outline-none" placeholder="PRJ...">
                         </td>
                         <td class="p-2">
-                            <input type="text" value="${esc(c.pv_number)}" onchange="updateStaged(${index}, 'pv_number', this.value)" class="w-full min-w-[110px] bg-white border ${c.isDuplicate ? 'border-slate-400 text-slate-600 focus:border-slate-600' : 'border-slate-200 focus:border-[#454545]'} rounded p-2 text-xs uppercase outline-none" placeholder="PV...">
+                            <input type="text" value="${esc(c.pv_number)}" onchange="updateStaged(${index}, 'pv_number', this.value)" class="w-full min-w-[110px] bg-white border ${c.isDuplicate ? 'border-red-400 text-red-600 focus:border-red-600' : 'border-slate-200 focus:border-[#78350f]'} rounded p-2 text-xs uppercase outline-none" placeholder="PV...">
                         </td>
                         <td class="p-2">
-                            <input type="text" value="${esc(c.supplier)}" onchange="updateStaged(${index}, 'supplier', this.value)" class="w-full min-w-[140px] bg-white border border-slate-200 rounded p-2 text-xs uppercase focus:border-[#454545] outline-none" placeholder="Supplier">
+                            <input type="text" value="${esc(c.supplier)}" onchange="updateStaged(${index}, 'supplier', this.value)" class="w-full min-w-[140px] bg-white border border-slate-200 rounded p-2 text-xs uppercase focus:border-[#78350f] outline-none" placeholder="Supplier">
                         </td>
                         <td class="p-2">
-                            <input type="text" value="${esc(c.amount)}" onfocus="this.value = this.value.replace(/,/g, '')" onblur="let v = this.value.replace(/,/g, ''); if(!isNaN(v) && v!=='') { this.value = parseFloat(v).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); } updateStaged(${index}, 'amount', this.value);" class="w-full min-w-[90px] bg-white border border-slate-200 rounded p-2 text-xs font-black text-[#454545] focus:border-[#454545] outline-none" placeholder="0.00">
+                            <input type="text" value="${esc(c.amount)}" onfocus="this.value = this.value.replace(/,/g, '')" onblur="let v = this.value.replace(/,/g, ''); if(!isNaN(v) && v!=='') { this.value = parseFloat(v).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); } updateStaged(${index}, 'amount', this.value);" class="w-full min-w-[90px] bg-white border border-slate-200 rounded p-2 text-xs font-black text-[#78350f] focus:border-[#78350f] outline-none" placeholder="0.00">
                         </td>
                         <td class="p-2">
-                            <input type="date" value="${esc(c.date)}" onchange="updateStaged(${index}, 'date', this.value)" class="w-full min-w-[110px] bg-white border border-slate-200 rounded p-2 text-[10px] uppercase focus:border-[#454545] outline-none">
+                            <input type="date" value="${esc(c.date)}" onchange="updateStaged(${index}, 'date', this.value)" class="w-full min-w-[110px] bg-white border border-slate-200 rounded p-2 text-[10px] uppercase focus:border-[#78350f] outline-none">
                         </td>
                         <td class="p-2">
-                            <input type="text" value="${esc(c.description)}" onchange="updateStaged(${index}, 'description', this.value)" class="w-full min-w-[160px] bg-white border border-slate-200 rounded p-2 text-[10px] focus:border-[#454545] outline-none" placeholder="Details...">
+                            <input type="text" value="${esc(c.description)}" onchange="updateStaged(${index}, 'description', this.value)" class="w-full min-w-[160px] bg-white border border-slate-200 rounded p-2 text-[10px] focus:border-[#78350f] outline-none" placeholder="Details...">
                         </td>
                         <td class="p-2 text-center">
-                            <button onclick="removeStagedCost(${index})" class="text-slate-300 hover:text-slate-500 bg-white border border-slate-200 p-2 rounded-lg shadow-sm transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <button onclick="removeStagedCost(${index})" class="text-slate-300 hover:text-red-500 bg-white border border-slate-200 p-2 rounded-lg shadow-sm transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </td>
                     </tr>
                 `;
                 
                 if(c.isDuplicate) {
-                     html += `<tr class="bg-slate-50/50"><td colspan="8" class="p-1 pb-2 text-right"><p class="text-[9px] text-slate-600 font-black uppercase tracking-widest pr-4"><i data-lucide="alert-triangle" class="w-3 h-3 inline pb-0.5"></i> Warning: PV Number exists in database</p></td></tr>`;
+                     html += `<tr class="bg-red-50/50"><td colspan="8" class="p-1 pb-2 text-right"><p class="text-[9px] text-red-600 font-black uppercase tracking-widest pr-4"><i data-lucide="alert-triangle" class="w-3 h-3 inline pb-0.5"></i> Warning: PV Number exists in database</p></td></tr>`;
                 }
             });
 
@@ -652,10 +648,10 @@
         function costCell(value, cost) {
             const absorption = value > 0 ? (cost / value) * 100 : 0;
             const barWidth = Math.min(100, absorption);
-            const barColor = absorption < 50 ? 'bg-slate-500' : absorption < 80 ? 'bg-slate-500' : 'bg-slate-500';
+            const barColor = absorption < 50 ? 'bg-emerald-500' : absorption < 80 ? 'bg-amber-500' : 'bg-red-500';
             return `
                 <div class="flex flex-col items-end gap-1">
-                    <span class="font-black text-[#454545]">${formatRM(cost)}</span>
+                    <span class="font-black text-[#78350f]">${formatRM(cost)}</span>
                     <div class="w-24 h-1 bg-slate-100 rounded-full overflow-hidden">
                         <div class="h-full ${barColor} rounded-full" style="width: ${barWidth}%"></div>
                     </div>
@@ -706,8 +702,8 @@
                     <td class="p-3 px-6 font-black uppercase text-slate-900 tracking-widest text-[11px]">COMPANY ${name}</td>
                     <td class="p-3 text-center font-black text-slate-700">${g.projects}</td>
                     <td class="p-3 text-right font-black text-slate-800">${formatRM(g.value)}</td>
-                    <td class="p-3 text-right font-black text-[#454545]">${formatRM(g.cost)}</td>
-                    <td class="p-3 text-right font-black ${pl >= 0 ? 'text-slate-600' : 'text-slate-500'}">${formatRM(pl)}</td>
+                    <td class="p-3 text-right font-black text-[#78350f]">${formatRM(g.cost)}</td>
+                    <td class="p-3 text-right font-black ${pl >= 0 ? 'text-emerald-600' : 'text-red-500'}">${formatRM(pl)}</td>
                     <td class="p-3 text-center">
                         <span class="px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${marginClass}">${margin.toFixed(1)}%</span>
                     </td>
@@ -724,8 +720,8 @@
                     <td class="p-3 px-6 font-black uppercase tracking-widest text-[11px]">Group Total</td>
                     <td class="p-3 text-center font-black">${totalProjects}</td>
                     <td class="p-3 text-right font-black">${formatRM(totalValue)}</td>
-                    <td class="p-3 text-right font-black text-slate-400">${formatRM(totalCost)}</td>
-                    <td class="p-3 text-right font-black ${totalPL >= 0 ? 'text-slate-400' : 'text-slate-400'}">${formatRM(totalPL)}</td>
+                    <td class="p-3 text-right font-black text-amber-400">${formatRM(totalCost)}</td>
+                    <td class="p-3 text-right font-black ${totalPL >= 0 ? 'text-emerald-400' : 'text-red-400'}">${formatRM(totalPL)}</td>
                     <td class="p-3 text-center font-black">${totalMargin.toFixed(1)}%</td>
                 `;
                 tbody.appendChild(tr);
@@ -765,12 +761,12 @@
                 if (parseFloat(metrics.margin) < 15) reasons.push(`margin ${metrics.margin}%`);
                 if (absorption > 80) reasons.push(`${absorption.toFixed(0)}% cost absorbed`);
                 return `
-                    <div onclick="openProjectDetails('${esc(p.project_no)}')" class="bg-white rounded-xl border border-slate-100 px-4 py-2.5 flex justify-between items-center cursor-pointer hover:border-slate-300 transition-colors">
+                    <div onclick="openProjectDetails('${esc(p.project_no)}')" class="bg-white rounded-xl border border-red-100 px-4 py-2.5 flex justify-between items-center cursor-pointer hover:border-red-300 transition-colors">
                         <div class="min-w-0 flex-1">
                             <p class="font-black text-[12px] text-slate-900 uppercase tracking-tight truncate">${esc(p.project_no)} <span class="text-slate-400 font-bold normal-case ml-2 text-[10px]">${esc(p.client_name || p.client || '')}</span></p>
-                            <p class="text-[10px] text-slate-600 font-bold mt-0.5 uppercase tracking-widest">${reasons.join(' &middot; ')}</p>
+                            <p class="text-[10px] text-red-600 font-bold mt-0.5 uppercase tracking-widest">${reasons.join(' &middot; ')}</p>
                         </div>
-                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 shrink-0 ml-3"></i>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-red-400 shrink-0 ml-3"></i>
                     </div>
                 `;
             }).join('');
@@ -856,7 +852,7 @@
                         </td>
                         <td class="p-5 text-right font-black text-slate-800">${formatRM(metrics.value)}</td>
                         <td class="p-5 text-right">${costCell(metrics.value, metrics.totalCost)}</td>
-                        <td class="p-5 text-right font-black ${metrics.pl >= 0 ? 'text-slate-900' : 'text-slate-500'}">${formatRM(metrics.pl)}</td>
+                        <td class="p-5 text-right font-black ${metrics.pl >= 0 ? 'text-slate-900' : 'text-red-500'}">${formatRM(metrics.pl)}</td>
                         <td class="p-5 text-center">
                             <span class="px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${metrics.marginClass}">${metrics.margin}%</span>
                         </td>
@@ -900,7 +896,7 @@
             
             const marginEl = document.getElementById('mod-margin');
             marginEl.innerText = metrics.margin + '%';
-            marginEl.className = `text-2xl font-black ${metrics.margin < 0 ? 'text-slate-500' : (metrics.margin <= 20 ? 'text-slate-400' : 'text-slate-400')}`;
+            marginEl.className = `text-2xl font-black ${metrics.margin < 0 ? 'text-red-500' : (metrics.margin <= 20 ? 'text-yellow-400' : 'text-green-400')}`;
 
             renderCostingTable(projectNo);
             document.getElementById('project-modal').style.display = 'flex';
@@ -919,17 +915,17 @@
                     total += (Number(c.amount) || 0);
                     const row = document.createElement('tr');
                     
-                    const actionCol = `<button onclick="deleteCostWithPin(${c.id})" class="text-slate-300 hover:text-slate-600 transition-colors" title="Delete (Requires PIN if locked)"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                    const actionCol = `<button onclick="deleteCostWithPin(${c.id})" class="text-red-300 hover:text-red-600 transition-colors" title="Delete (Requires PIN if locked)"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
 
                     row.innerHTML = `
                         <td class="p-4 text-[10px] text-slate-500">${esc(c.date)}</td>
-                        <td class="p-4 font-black uppercase tracking-widest text-[10px] text-[#454545]">${esc(c.company) || '-'}</td>
+                        <td class="p-4 font-black uppercase tracking-widest text-[10px] text-[#78350f]">${esc(c.company) || '-'}</td>
                         <td class="p-4 font-black uppercase tracking-widest text-[11px] text-slate-700">${esc(c.pv_number)}</td>
                         <td class="p-4">
                             <p class="text-sm text-slate-900 uppercase">${esc(c.supplier)}</p>
                             <p class="text-[10px] text-slate-500 font-medium whitespace-normal">${esc(c.description)}</p>
                         </td>
-                        <td class="p-4 text-right text-slate-600 font-black">${formatRM(c.amount)}</td>
+                        <td class="p-4 text-right text-red-600 font-black">${formatRM(c.amount)}</td>
                         <td class="p-4 text-center">${actionCol}</td>
                     `;
                     tbody.appendChild(row);
@@ -960,7 +956,7 @@
                 const metrics = calculateMetrics(getPrimaryProjectRow(currentActiveProjectNo));
                 const marginEl = document.getElementById('mod-margin');
                 marginEl.innerText = metrics.margin + '%';
-                marginEl.className = `text-2xl font-black ${metrics.margin < 0 ? 'text-slate-500' : (metrics.margin <= 20 ? 'text-slate-400' : 'text-slate-400')}`;
+                marginEl.className = `text-2xl font-black ${metrics.margin < 0 ? 'text-red-500' : (metrics.margin <= 20 ? 'text-yellow-400' : 'text-green-400')}`;
             }
             renderDashboard();
 

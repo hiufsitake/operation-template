@@ -4,7 +4,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#171717">
+    <meta name="theme-color" content="#0f172a">
     <link rel="apple-touch-icon" href="applogo.png">
     <link rel="manifest" href="manifest.json">
     
@@ -40,24 +40,24 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .tab-active { background: #606060; color: white; box-shadow: 0 10px 15px -3px rgba(96, 96, 96, 0.3); }
-        .btn-active-half { border-color: #606060 !important; background-color: #f5f5f5 !important; color: #424242 !important; border-width: 2px !important; }
-        .status-pending { background: #f1f1f1; color: #535353; }
-        .status-approved { background: #f0f0f0; color: #484848; }
-        .status-rejected { background: #eaeaea; color: #414141; }
-        .policy-notice { background: #f5f5f5; border-left: 4px solid #606060; }
-        .balance-card { background: linear-gradient(135deg, #171717 0%, #282828 100%); }
+        .tab-active { background: #2563eb; color: white; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); }
+        .btn-active-half { border-color: #2563eb !important; background-color: #eff6ff !important; color: #1e40af !important; border-width: 2px !important; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-approved { background: #dcfce7; color: #166534; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .policy-notice { background: #eff6ff; border-left: 4px solid #2563eb; }
+        .balance-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-24 text-slate-900 font-medium">
 
-    <nav class="bg-[#171717] text-white p-5 sticky top-0 z-50 shadow-xl border-b-2 border-slate-600">
+    <nav class="bg-[#0f172a] text-white p-5 sticky top-0 z-50 shadow-xl border-b-2 border-blue-600">
         <div class="max-w-2xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <a href="../index.html" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-all">
                     <i data-lucide="arrow-left" class="w-5 h-5"></i>
                 </a>
-                <h1 class="font-black italic text-xl uppercase tracking-tighter leading-none">COMPANY <span class="text-slate-500 text-2xl uppercase">LEAVE</span></h1>
+                <h1 class="font-black italic text-xl uppercase tracking-tighter leading-none">COMPANY <span class="text-blue-500 text-2xl uppercase">LEAVE</span></h1>
             </div>
             <div class="flex bg-slate-800 p-1 rounded-xl gap-1 overflow-x-auto">
                 <button onclick="switchTab('apply')" id="nav-apply" class="px-3 py-2 rounded-lg text-[9px] font-bold tab-active uppercase">Apply</button>
@@ -72,16 +72,16 @@
     <main class="max-w-xl mx-auto p-4 space-y-6">
         
         <div id="auth-lock-screen" class="hidden p-10 text-center bg-white rounded-[2.5rem] border shadow-sm space-y-4">
-            <i data-lucide="shield-alert" class="w-12 h-12 mx-auto text-slate-500"></i>
+            <i data-lucide="shield-alert" class="w-12 h-12 mx-auto text-blue-500"></i>
             <h3 class="font-black text-lg uppercase italic text-slate-800">GM Authorization Required</h3>
-            <input type="password" id="master-pin-input" class="border-2 border-slate-100 p-4 rounded-2xl w-32 text-center text-2xl font-black bg-slate-50 focus:border-slate-500 outline-none" placeholder="****">
-            <button onclick="checkMasterAuth()" class="block mx-auto bg-slate-600 text-white px-10 py-4 rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg">Unlock</button>
+            <input type="password" id="master-pin-input" class="border-2 border-slate-100 p-4 rounded-2xl w-32 text-center text-2xl font-black bg-slate-50 focus:border-blue-500 outline-none" placeholder="****">
+            <button onclick="checkMasterAuth()" class="block mx-auto bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg">Unlock</button>
             <p class="text-[10px] text-slate-400">Press ENTER to unlock</p>
         </div>
 
         <div id="tab-apply" class="space-y-6">
             <section class="policy-notice p-5 rounded-2xl shadow-sm space-y-3">
-                <div class="flex items-center gap-2 text-slate-700">
+                <div class="flex items-center gap-2 text-blue-700">
                     <i data-lucide="bell" class="w-4 h-4"></i>
                     <h2 class="text-[11px] font-black uppercase tracking-widest">Applicant Reminders</h2>
                 </div>
@@ -100,7 +100,7 @@
                     </div>
                     <div class="text-right">
                         <p class="text-[8px] font-black opacity-40 uppercase">In Approval Queue</p>
-                        <p id="prev-pending" class="text-xl font-bold text-slate-400">0.0d</p>
+                        <p id="prev-pending" class="text-xl font-bold text-yellow-400">0.0d</p>
                     </div>
                 </div>
             </section>
@@ -109,7 +109,7 @@
                 <form id="leave-form" class="space-y-5">
                     <div class="space-y-1">
                         <label class="text-[9px] font-black text-slate-400 uppercase ml-2 tracking-widest">Select Name</label>
-                        <select id="leave-staff-select" onchange="updateBalancePreview()" class="w-full border-2 border-slate-50 p-4 rounded-2xl bg-slate-50 font-bold outline-none focus:border-slate-500" required></select>
+                        <select id="leave-staff-select" onchange="updateBalancePreview()" class="w-full border-2 border-slate-50 p-4 rounded-2xl bg-slate-50 font-bold outline-none focus:border-blue-500" required></select>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-2xl">
@@ -128,7 +128,7 @@
                         </button>
                     </div>
 
-                    <select id="leave-type" class="w-full border-2 border-slate-50 p-4 rounded-2xl bg-slate-50 font-bold text-slate-600 outline-none">
+                    <select id="leave-type" class="w-full border-2 border-slate-50 p-4 rounded-2xl bg-slate-50 font-bold text-blue-600 outline-none">
                         <option value="Annual">Annual Leave</option>
                         <option value="Sick">Sick Leave</option>
                         <option value="Hospitalization">Hospitalization</option>
@@ -148,11 +148,11 @@
                     </div>
 
                     <div class="space-y-1">
-                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2 italic">Reason / Remark <span class="text-slate-500">*</span></label>
-                        <textarea id="leave-remark" rows="2" class="w-full border-2 border-slate-100 p-4 rounded-2xl bg-slate-50 font-medium text-sm outline-none focus:border-slate-500 focus:bg-white transition-all" placeholder="Reason for leave is mandatory..." required></textarea>
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2 italic">Reason / Remark <span class="text-red-500">*</span></label>
+                        <textarea id="leave-remark" rows="2" class="w-full border-2 border-slate-100 p-4 rounded-2xl bg-slate-50 font-medium text-sm outline-none focus:border-blue-500 focus:bg-white transition-all" placeholder="Reason for leave is mandatory..." required></textarea>
                     </div>
 
-                    <button type="submit" class="w-full bg-slate-600 text-white font-black p-5 rounded-[1.5rem] shadow-xl active:scale-95 transition-all uppercase tracking-widest text-xs italic">Submit Application</button>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-black p-5 rounded-[1.5rem] shadow-xl active:scale-95 transition-all uppercase tracking-widest text-xs italic">Submit Application</button>
                 </form>
             </section>
         </div>
@@ -183,7 +183,7 @@
             <section class="bg-white p-6 rounded-[2.5rem] border shadow-sm space-y-6">
                 <div>
                     <h2 class="font-black text-slate-400 uppercase text-[9px] tracking-widest mb-3">Master Reports</h2>
-                    <button onclick="exportAllDataCSV()" class="w-full bg-slate-600 text-white p-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg flex items-center justify-center gap-3">
+                    <button onclick="exportAllDataCSV()" class="w-full bg-emerald-600 text-white p-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg flex items-center justify-center gap-3">
                         <i data-lucide="file-spreadsheet" class="w-5 h-5"></i> Export Report (CSV)
                     </button>
                 </div>
@@ -194,7 +194,7 @@
                         <button onclick="updateMasterPin()" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-sm">Update PIN</button>
                     </div>
                 </div>
-                <button onclick="logoutGM()" class="w-full border-2 border-slate-50 text-slate-400 p-3 rounded-xl font-black uppercase text-[8px] tracking-widest">Lock Session</button>
+                <button onclick="logoutGM()" class="w-full border-2 border-red-50 text-red-400 p-3 rounded-xl font-black uppercase text-[8px] tracking-widest">Lock Session</button>
             </section>
         </div>
 
@@ -241,7 +241,7 @@
             }
         })();
 
-        const createRow = (label, value) => `<tr><td style="padding: 8px 0; color: #727272; font-size: 12px; font-weight: bold; text-transform: uppercase;">${label}</td><td style="padding: 8px 0; color: #171717; font-size: 14px; font-weight: bold; text-align: right;">${value}</td></tr><tr><td colspan="2" style="border-bottom: 1px solid #f4f4f4;"></td></tr>`;
+        const createRow = (label, value) => `<tr><td style="padding: 8px 0; color: #64748b; font-size: 12px; font-weight: bold; text-transform: uppercase;">${label}</td><td style="padding: 8px 0; color: #0f172a; font-size: 14px; font-weight: bold; text-align: right;">${value}</td></tr><tr><td colspan="2" style="border-bottom: 1px solid #f1f5f9;"></td></tr>`;
 
         async function fetchData() {
             const { data: sData } = await supabaseClient.from('staff').select('*');
@@ -323,7 +323,7 @@
                         </div>
                         <div class="status-${l.status.toLowerCase()} px-3 py-1 rounded-full font-black uppercase text-[7px] tracking-widest">${l.status}</div>
                     </div>
-                    <p class="text-slate-600 font-black uppercase text-[8px] italic">${l.type}</p>
+                    <p class="text-blue-600 font-black uppercase text-[8px] italic">${l.type}</p>
                     <div class="bg-slate-50 p-3 rounded-xl border border-dashed text-[9px] text-slate-500 italic font-bold">" ${l.remark || 'No remark'} "</div>
                 </div>`;
             }).join('') || `<div class="p-10 text-center text-slate-300 italic text-xs">No records.</div>`;
@@ -340,14 +340,14 @@
                 <div class="bg-white p-6 rounded-[2.5rem] border shadow-sm space-y-4">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="text-[10px] font-bold text-slate-600 uppercase tracking-widest italic">${l.type}</p>
+                            <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest italic">${l.type}</p>
                             <h3 class="font-black text-lg text-slate-900 uppercase">${s?.name}</h3>
                             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${l.start_date} -> ${l.end_date}${timeStr}</p>
                         </div>
                         <div class="text-right">
                              <p class="text-[8px] font-black text-slate-300 uppercase italic">Duration</p>
                              <p class="font-black text-2xl text-slate-900 leading-none">${l.days}d</p>
-                             <p class="text-[9px] ${l.days > earned ? 'text-slate-500' : 'text-slate-600'} font-bold uppercase mt-1">Bal: ${earned.toFixed(1)}d</p>
+                             <p class="text-[9px] ${l.days > earned ? 'text-red-500' : 'text-emerald-600'} font-bold uppercase mt-1">Bal: ${earned.toFixed(1)}d</p>
                         </div>
                     </div>
                     
@@ -361,8 +361,8 @@
                     </select>
 
                     <div class="flex gap-4 pt-2">
-                        <button onclick="handleStatus('${l.id}', 'Approved')" class="flex-1 bg-[#808080] hover:bg-slate-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-sm transition-all">Approve</button>
-                        <button onclick="handleStatus('${l.id}', 'Rejected')" class="flex-1 bg-[#777777] hover:bg-slate-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-sm transition-all">Reject</button>
+                        <button onclick="handleStatus('${l.id}', 'Approved')" class="flex-1 bg-[#10b981] hover:bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-sm transition-all">Approve</button>
+                        <button onclick="handleStatus('${l.id}', 'Rejected')" class="flex-1 bg-[#ef4444] hover:bg-red-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-sm transition-all">Reject</button>
                     </div>
                 </div>`;
             }).join('') || `<div class="p-10 text-center text-slate-300 italic text-xs">Queue Clear</div>`;
@@ -371,8 +371,8 @@
                 const c = getBalances(s, 0), pr = getBalances(s, 1);
                 let cf = (pr.cycleStart >= new Date('2025-01-01')) ? Math.max(0, Math.min(pr.annual - pr.usedAnnual, 5)) : 0;
                 return `<div class="bg-white p-4 rounded-2xl border flex justify-between items-center mb-2 shadow-sm">
-                    <div><h3 class="font-bold text-slate-800 text-sm">${s.name}</h3><p class="text-[8px] font-bold text-slate-500 uppercase italic">Join: ${new Date(s.join_date).toLocaleDateString('en-GB')}</p></div>
-                    <div class="flex items-center gap-4"><div class="text-right text-lg font-black text-slate-900">${(c.accrued + cf - c.usedAnnual).toFixed(1)}d</div><button onclick="deleteStaff(${s.id})" class="text-slate-100 hover:text-slate-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>
+                    <div><h3 class="font-bold text-slate-800 text-sm">${s.name}</h3><p class="text-[8px] font-bold text-blue-500 uppercase italic">Join: ${new Date(s.join_date).toLocaleDateString('en-GB')}</p></div>
+                    <div class="flex items-center gap-4"><div class="text-right text-lg font-black text-slate-900">${(c.accrued + cf - c.usedAnnual).toFixed(1)}d</div><button onclick="deleteStaff(${s.id})" class="text-red-100 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>
                 </div>`;
             }).join('');
             lucide.createIcons();
@@ -469,7 +469,7 @@
 
             emailjs.send(EMAIL_SERVICE, EMAIL_TEMPLATE, {
                 system_name: "COMPANY LEAVE SYSTEM",
-                header_bg: "#606060",
+                header_bg: "#2563eb",
                 title: "New Leave Application",
                 html_body: 
                     createRow("Applicant", staffName) +
@@ -503,7 +503,7 @@
             // 3. Success -> Send Email & Update UI
             const log = db.logs.find(l => l.id == logId);
             const staff = db.staff.find(s => s.id == log.staff_id);
-            const color = status === 'Approved' ? '#808080' : '#5c5c5c';
+            const color = status === 'Approved' ? '#10b981' : '#dc2626';
             
             emailjs.send(EMAIL_SERVICE, EMAIL_TEMPLATE, {
                 system_name: "COMPANY LEAVE SYSTEM",

@@ -8,15 +8,11 @@ It deliberately contains **no actual secret values**. It is stored under
 
 ## 1. Truly secret — server / CI only (NEVER in the repo)
 
-These are stored as **GitHub Actions Secrets**
-(Repo → Settings → Secrets and variables → Actions). They are encrypted,
-never printed in logs, and only available to workflows.
-
-| Secret name | Used by | Purpose |
-|---|---|---|
-| `CLOUDFLARE_API_TOKEN` | `.github/workflows/deploy.yml` | Auto-deploy to Cloudflare on push to `main` |
-| `SUPABASE_SERVICE_KEY` | report / recurring-claim workflows | Full-access DB key (bypasses RLS) — server only |
-| `SUPABASE_KEY` | `prevent-supabase-pause.yml` | Anon key used to ping the DB |
+This template ships with **no GitHub Actions workflows** — it's hosted as a
+static site via GitHub Pages, which needs no secrets or deploy scripts. If
+you later add automation (a real deploy pipeline, scheduled DB jobs, report
+emails, etc.), store those secrets as **GitHub Actions Secrets**
+(Repo → Settings → Secrets and variables → Actions) — never in the repo.
 
 **Rotate:** generate a new value in the provider dashboard, then update the
 secret in GitHub. No code change needed.

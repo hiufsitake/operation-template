@@ -151,8 +151,8 @@ const HQ_TEL  = "+000-000 0000 (Head Office)";
 ## Auth Flow
 
 - Supabase Email auth (no OAuth)
-- All pages guard with `supabaseClient.auth.getSession()` — unauthenticated users redirected to login
-- Tab session tracked via `sessionStorage.company_tab_session` (logs out when tab closes)
+- **Demo mode: disabled.** This template repo removed every page's auth guard so it's freely explorable without a Supabase account — `index.html` skips straight to the dashboard and every module page skips its session check. To re-enable real auth, restore the `supabaseClient.auth.getSession()` guard at the top of each module (redirect to `../index.html` when there's no session) and put back `index.html`'s original login/session flow.
+- Tab session tracked via `sessionStorage.company_tab_session` (logs out when tab closes) — inactive while demo mode is on
 - Password reset via `resetPasswordForEmail`
 - `window.confirm()` / `window.alert()` are **avoided** on iOS PWA — use the custom toast/modal system instead
 
@@ -176,7 +176,7 @@ wrangler deploy        # from repo root
 - All modules are standalone `index.html` files; shared logic is copy-pasted (not imported)
 - `items` columns in claims/PO tables are `jsonb` arrays of line-item objects
 - Vehicle photos stored in Supabase Storage bucket named `vehicles` (public)
-- GitHub Actions workflow `.github/workflows/prevent-supabase-pause.yml` pings Supabase every 6 hours to prevent free-tier pause
+- This template ships with no GitHub Actions workflows — it's hosted as a static site via GitHub Pages. Add your own automation (deploy pipeline, scheduled DB pings, report emails) if you need it.
 
 ---
 

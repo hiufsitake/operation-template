@@ -60,13 +60,13 @@ const esc = s => String(s ?? '—').replace(/&/g,'&amp;').replace(/</g,'&lt;').r
 
 function statusHtml(status) {
   const s = String(status || '');
-  const color = s === 'Approved'         ? '#6a6a6a'
-              : s === 'Rejected'         ? '#5c5c5c'
-              : s === 'Pending'          ? '#a7a7a7'
-              : s === 'APPROVED & SENT'  ? '#878787'
-              : s === 'ONGOING'          ? '#606060'
-              : s === 'DONE'             ? '#727272'
-              : '#727272';
+  const color = s === 'Approved'         ? '#0D9488'
+              : s === 'Rejected'         ? '#DC2626'
+              : s === 'Pending'          ? '#F59E0B'
+              : s === 'APPROVED & SENT'  ? '#D97706'
+              : s === 'ONGOING'          ? '#2563EB'
+              : s === 'DONE'             ? '#6B7280'
+              : '#6B7280';
   return `<span style="color:${color};font-weight:700">${esc(s)}</span>`;
 }
 
@@ -74,7 +74,7 @@ function tbl(headers, rows) {
   if (!rows || !rows.length) return '<p class="empty">No records.</p>';
   const ths = headers.map(h => `<th>${esc(h)}</th>`).join('');
   const trs = rows.map((row, ri) => {
-    const bg = ri % 2 === 0 ? '#ffffff' : '#fafafa';
+    const bg = ri % 2 === 0 ? '#ffffff' : '#F9FAFB';
     return `<tr style="background:${bg}">${row.map(cell => `<td>${cell ?? '—'}</td>`).join('')}</tr>`;
   }).join('');
   return `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
@@ -155,8 +155,8 @@ function buildPcmSummary(allProjects, allCosts) {
     const g      = groups[k];
     const pl     = g.value - g.cost;
     const margin = g.value > 0 ? ((pl / g.value) * 100).toFixed(1) : '0.0';
-    const plCol  = pl < 0 ? '#5c5c5c' : '#6a6a6a';
-    const mCol   = pl < 0 ? '#5c5c5c' : Number(margin) <= 20 ? '#878787' : '#6a6a6a';
+    const plCol  = pl < 0 ? '#DC2626' : '#0D9488';
+    const mCol   = pl < 0 ? '#DC2626' : Number(margin) <= 20 ? '#D97706' : '#0D9488';
     return [
       `<strong>${esc(k)}</strong>`,
       String(g.count),
@@ -177,7 +177,7 @@ function buildPcmSummary(allProjects, allCosts) {
     `<strong>${totCount}</strong>`,
     `<strong>${rm(totVal)}</strong>`,
     `<strong>${rm(totCost)}</strong>`,
-    `<strong style="color:${totPl < 0 ? '#5c5c5c' : '#6a6a6a'}">${rm(totPl)}</strong>`,
+    `<strong style="color:${totPl < 0 ? '#DC2626' : '#0D9488'}">${rm(totPl)}</strong>`,
     `<strong>${totM}%</strong>`,
   ]);
 
@@ -189,29 +189,29 @@ function buildPcmSummary(allProjects, allCosts) {
 
 const CSS = `
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Segoe UI',Arial,sans-serif; font-size:10px; color:#181818; background:#ffffff; }
-.hdr { background:#363636; padding:22px 32px 20px; display:flex; justify-content:space-between; align-items:flex-end; }
-.hdr-l h1 { color:#ffffff; font-size:18px; font-weight:800; letter-spacing:0.3px; }
-.hdr-l p  { color:#bcbcbc; font-size:9.5px; margin-top:5px; }
-.hdr-r { color:#bcbcbc; font-size:9px; text-align:right; line-height:1.7; }
+body { font-family:'Segoe UI',Arial,sans-serif; font-size:10px; color:#111827; background:#fff; }
+.hdr { background:#1E3A5F; padding:22px 32px 20px; display:flex; justify-content:space-between; align-items:flex-end; }
+.hdr-l h1 { color:#fff; font-size:18px; font-weight:800; letter-spacing:0.3px; }
+.hdr-l p  { color:#93C5FD; font-size:9.5px; margin-top:5px; }
+.hdr-r { color:#93C5FD; font-size:9px; text-align:right; line-height:1.7; }
 .body { padding:20px 32px 0; }
 .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px; }
-.card { border:1px solid #e7e7e7; border-top:3px solid #6a6a6a; border-radius:5px; padding:12px 14px; }
-.card-val { color:#6a6a6a; font-size:17px; font-weight:800; }
-.card-lbl { color:#727272; font-size:8.5px; margin-top:4px; }
-.card-sub { color:#404040; font-size:9.5px; font-weight:600; margin-top:3px; }
-.sec-hdr { background:#363636; color:#ffffff; padding:7px 12px; margin:16px 0 0; border-radius:3px;
+.card { border:1px solid #E5E7EB; border-top:3px solid #0D9488; border-radius:5px; padding:12px 14px; }
+.card-val { color:#0D9488; font-size:17px; font-weight:800; }
+.card-lbl { color:#6B7280; font-size:8.5px; margin-top:4px; }
+.card-sub { color:#374151; font-size:9.5px; font-weight:600; margin-top:3px; }
+.sec-hdr { background:#1E3A5F; color:#fff; padding:7px 12px; margin:16px 0 0; border-radius:3px;
            display:flex; justify-content:space-between; align-items:center; page-break-inside:avoid; }
 .sec-hdr > span:first-child { font-size:10px; font-weight:700; letter-spacing:0.4px; }
 .sec-hdr > span:last-child  { font-size:8.5px; font-weight:400; opacity:0.75; }
-.sub-hdr { font-size:9px; font-weight:700; color:#363636; padding:9px 0 3px; }
-.stat-box { background:#fafafa; border:1px solid #e7e7e7; border-radius:4px; padding:7px 10px; margin:6px 0 8px; }
-.stat-line { font-size:8.5px; color:#404040; padding:2px 0; line-height:1.5; }
+.sub-hdr { font-size:9px; font-weight:700; color:#1E3A5F; padding:9px 0 3px; }
+.stat-box { background:#F9FAFB; border:1px solid #E5E7EB; border-radius:4px; padding:7px 10px; margin:6px 0 8px; }
+.stat-line { font-size:8.5px; color:#374151; padding:2px 0; line-height:1.5; }
 table { width:100%; border-collapse:collapse; margin:6px 0 10px; font-size:8.5px; }
-th { background:#6a6a6a; color:#ffffff; font-weight:700; padding:6px 8px; text-align:left; white-space:nowrap; }
-td { padding:5px 8px; color:#404040; border-bottom:1px solid #f4f4f4; vertical-align:top; }
-.empty { color:#a2a2a2; font-size:8.5px; font-style:italic; padding:6px 4px 10px; }
-.footer { text-align:center; color:#a2a2a2; font-size:7.5px; padding:18px 32px 16px; border-top:1px solid #e7e7e7; margin-top:20px; }
+th { background:#0D9488; color:#fff; font-weight:700; padding:6px 8px; text-align:left; white-space:nowrap; }
+td { padding:5px 8px; color:#374151; border-bottom:1px solid #F3F4F6; vertical-align:top; }
+.empty { color:#9CA3AF; font-size:8.5px; font-style:italic; padding:6px 4px 10px; }
+.footer { text-align:center; color:#9CA3AF; font-size:7.5px; padding:18px 32px 16px; border-top:1px solid #E5E7EB; margin-top:20px; }
 @media print { tr { page-break-inside:avoid; } }
 `;
 
@@ -233,48 +233,48 @@ function buildHtml(reportTitle, leftSub, rightLines, body) {
 
 const DAILY_CSS = `
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Segoe UI',Arial,sans-serif; font-size:8px; color:#181818; background:#ffffff; }
-.hdr { background:#171717; padding:12px 22px; display:flex; justify-content:space-between; align-items:center; }
-.hdr-l h1 { color:#ffffff; font-size:14px; font-weight:800; }
-.hdr-l p  { color:#a1a1a1; font-size:7.5px; margin-top:2px; }
-.hdr-r    { color:#a1a1a1; font-size:7px; text-align:right; line-height:1.8; }
+body { font-family:'Segoe UI',Arial,sans-serif; font-size:8px; color:#111827; background:#fff; }
+.hdr { background:#0f172a; padding:12px 22px; display:flex; justify-content:space-between; align-items:center; }
+.hdr-l h1 { color:#fff; font-size:14px; font-weight:800; }
+.hdr-l p  { color:#94a3b8; font-size:7.5px; margin-top:2px; }
+.hdr-r    { color:#94a3b8; font-size:7px; text-align:right; line-height:1.8; }
 .body     { padding:10px 22px 0; }
 .cards    { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-bottom:10px; }
-.card     { border:1px solid #e7e7e7; border-left:3px solid #6a6a6a; border-radius:4px; padding:7px 9px; }
-.card-val { font-size:13px; font-weight:800; color:#171717; }
-.card-val.warn { color:#878787; }
-.card-lbl { color:#a1a1a1; font-size:6.5px; margin-top:2px; text-transform:uppercase; letter-spacing:0.4px; }
-.card-sub { color:#535353; font-size:7px; font-weight:600; margin-top:2px; }
+.card     { border:1px solid #e2e8f0; border-left:3px solid #0d9488; border-radius:4px; padding:7px 9px; }
+.card-val { font-size:13px; font-weight:800; color:#0f172a; }
+.card-val.warn { color:#d97706; }
+.card-lbl { color:#94a3b8; font-size:6.5px; margin-top:2px; text-transform:uppercase; letter-spacing:0.4px; }
+.card-sub { color:#475569; font-size:7px; font-weight:600; margin-top:2px; }
 .two-col  { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:9px; }
-.sec-hdr  { background:#171717; color:#ffffff; padding:5px 9px; border-radius:3px 3px 0 0;
+.sec-hdr  { background:#0f172a; color:#fff; padding:5px 9px; border-radius:3px 3px 0 0;
             display:flex; justify-content:space-between; align-items:center; }
 .sec-hdr > span:first-child { font-size:7.5px; font-weight:700; letter-spacing:0.3px; }
-.sec-hdr > span.badge { font-size:6.5px; background:rgba(255, 255, 255,0.15); padding:1px 7px; border-radius:10px; }
+.sec-hdr > span.badge { font-size:6.5px; background:rgba(255,255,255,0.15); padding:1px 7px; border-radius:10px; }
 .sub-hdr  { display:none; }
 .stat-box { display:none; }
-table  { width:100%; border-collapse:collapse; font-size:7px; border:1px solid #e7e7e7; border-top:none; }
-th     { background:#fafafa; color:#727272; font-weight:700; padding:3px 7px; text-align:left;
+table  { width:100%; border-collapse:collapse; font-size:7px; border:1px solid #e2e8f0; border-top:none; }
+th     { background:#f8fafc; color:#64748b; font-weight:700; padding:3px 7px; text-align:left;
          white-space:nowrap; font-size:6.5px; text-transform:uppercase; letter-spacing:0.3px;
-         border-bottom:1px solid #e7e7e7; }
-td     { padding:3px 7px; color:#404040; border-bottom:1px solid #fafafa; vertical-align:middle; }
+         border-bottom:1px solid #e2e8f0; }
+td     { padding:3px 7px; color:#374151; border-bottom:1px solid #f8fafc; vertical-align:middle; }
 tr:last-child td { border-bottom:none; }
 tr:nth-child(even) td { background:#fafafa; }
 .tag   { display:inline-block; padding:1px 5px; border-radius:3px; font-size:6px; font-weight:700;
          text-transform:uppercase; letter-spacing:0.2px; }
-.tag-po    { background:#e8e8e8; color:#4f4f4f; }
-.tag-cash  { background:#f4f4f4; color:#575757; }
-.tag-staff { background:#eeeeee; color:#474747; }
-.tag-leave { background:#f0f0f0; color:#585858; }
-.ev-sub { color:#a1a1a1; font-style:italic; }
-.ev-app { color:#6a6a6a; font-weight:700; }
-.ev-rej { color:#5c5c5c; font-weight:700; }
-.c-ok   { color:#6a6a6a; font-weight:700; }
-.c-pend { color:#878787; font-weight:700; }
-.c-rej  { color:#5c5c5c; font-weight:700; }
-.c-sent { color:#626262; font-weight:700; }
-td.empty { color:#a1a1a1; font-style:italic; text-align:center; padding:8px; }
-.footer { text-align:center; color:#a1a1a1; font-size:6.5px; padding:8px 22px;
-          border-top:1px solid #e7e7e7; margin-top:8px; }
+.tag-po    { background:#dbeafe; color:#1d4ed8; }
+.tag-cash  { background:#fef9c3; color:#854d0e; }
+.tag-staff { background:#f3e8ff; color:#6b21a8; }
+.tag-leave { background:#dcfce7; color:#15803d; }
+.ev-sub { color:#94a3b8; font-style:italic; }
+.ev-app { color:#0d9488; font-weight:700; }
+.ev-rej { color:#dc2626; font-weight:700; }
+.c-ok   { color:#0d9488; font-weight:700; }
+.c-pend { color:#d97706; font-weight:700; }
+.c-rej  { color:#dc2626; font-weight:700; }
+.c-sent { color:#7c3aed; font-weight:700; }
+td.empty { color:#94a3b8; font-style:italic; text-align:center; padding:8px; }
+.footer { text-align:center; color:#94a3b8; font-size:6.5px; padding:8px 22px;
+          border-top:1px solid #e2e8f0; margin-top:8px; }
 @media print { * { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
 `;
 
@@ -742,14 +742,14 @@ async function send({ pdfPath, subject, filename }) {
       to: TO_EMAIL,
       subject,
       html: `
-        <div style="font-family:sans-serif;max-width:500px;color:#181818">
-          <div style="background:#363636;padding:22px 28px;border-radius:8px 8px 0 0">
-            <h2 style="margin:0;color:#ffffff;font-size:17px">COMPANY GROUP OF COMPANIES</h2>
-            <p style="margin:6px 0 0;color:#bcbcbc;font-size:12px">${subject}</p>
+        <div style="font-family:sans-serif;max-width:500px;color:#111827">
+          <div style="background:#1E3A5F;padding:22px 28px;border-radius:8px 8px 0 0">
+            <h2 style="margin:0;color:#fff;font-size:17px">COMPANY GROUP OF COMPANIES</h2>
+            <p style="margin:6px 0 0;color:#93C5FD;font-size:12px">${subject}</p>
           </div>
-          <div style="padding:22px 28px;border:1px solid #e7e7e7;border-top:none;border-radius:0 0 8px 8px">
+          <div style="padding:22px 28px;border:1px solid #E5E7EB;border-top:none;border-radius:0 0 8px 8px">
             <p style="margin:0 0 10px">Please find your ${typeLabel} attached.</p>
-            <p style="margin:0;color:#727272;font-size:11px">
+            <p style="margin:0;color:#6B7280;font-size:11px">
               Sent to ${TO_EMAIL}<br>Generated automatically by COMPANY Portal Agent
             </p>
           </div>

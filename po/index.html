@@ -4,7 +4,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#171717">
+    <meta name="theme-color" content="#0f172a">
     <link rel="apple-touch-icon" href="applogo.png">
     <link rel="manifest" href="manifest.json">
     
@@ -40,26 +40,26 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .input-box { border: 2px solid #f4f4f4; padding: 1rem; border-radius: 1.25rem; background: #fafafa; font-weight: 700; width: 100%; outline: none; transition: all 0.2s; }
-        .input-box:focus { border-color: #808080; background: white; }
-        .tab-active { background: #808080; color: white; box-shadow: 0 10px 15px -3px rgba(128, 128, 128, 0.3); }
-        .status-pending { background: #f1f1f1; color: #535353; }
-        .status-approved { background: #f0f0f0; color: #484848; }
-        .status-rejected { background: #eaeaea; color: #414141; }
-        .status-draft { background: #e8e8e8; color: #3f3f3f; }
+        .input-box { border: 2px solid #f1f5f9; padding: 1rem; border-radius: 1.25rem; background: #f8fafc; font-weight: 700; width: 100%; outline: none; transition: all 0.2s; }
+        .input-box:focus { border-color: #10b981; background: white; }
+        .tab-active { background: #10b981; color: white; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3); }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-approved { background: #dcfce7; color: #166534; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .status-draft { background: #e0e7ff; color: #3730a3; }
         .sst-hidden { display: none !important; }
         /* Drag and Drop Effects */
-        .drag-over { border-color: #808080 !important; background-color: rgba(128, 128, 128, 0.1) !important; }
+        .drag-over { border-color: #10b981 !important; background-color: rgba(16, 185, 129, 0.1) !important; }
         #drop-zone *, #sup-drop-zone * { pointer-events: none; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-24 text-slate-900 font-medium">
 
-    <nav class="bg-[#171717] text-white p-5 sticky top-0 z-50 shadow-xl border-b-2 border-slate-600">
+    <nav class="bg-[#0f172a] text-white p-5 sticky top-0 z-50 shadow-xl border-b-2 border-emerald-600">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <a href="../index.html" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-all"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
-                <h1 class="font-black italic text-xl uppercase tracking-tighter leading-none">COMPANY <span class="text-slate-500 uppercase text-xs">PO</span></h1>
+                <h1 class="font-black italic text-xl uppercase tracking-tighter leading-none">COMPANY <span class="text-emerald-500 uppercase text-xs">PO</span></h1>
             </div>
             <div class="flex bg-slate-800 p-1 rounded-xl gap-1 overflow-x-auto">
                 <button onclick="switchTab('create')" id="nav-create" class="px-3 py-2 rounded-lg text-[9px] font-bold tab-active uppercase transition-all">Create</button>
@@ -73,7 +73,7 @@
 
     <main class="max-w-4xl mx-auto p-4 mt-6">
         <div id="auth-lock-screen" class="hidden p-10 text-center bg-white rounded-[2.5rem] border shadow-sm space-y-4">
-            <i data-lucide="shield-off" class="w-12 h-12 mx-auto text-slate-400"></i>
+            <i data-lucide="shield-off" class="w-12 h-12 mx-auto text-red-400"></i>
             <h3 class="font-black text-lg uppercase italic text-slate-800">Access Restricted</h3>
             <p class="text-xs text-slate-500">This section is restricted to authorized administrators only.</p>
         </div>
@@ -83,10 +83,8 @@
             <form id="po-form" class="space-y-6">
                 <section class="bg-white p-6 rounded-[2.5rem] shadow-sm border space-y-4">
                     <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400">Issuing Company</h2>
-                    <select id="issuing-company" onchange="toggleSSTFields()" class="input-box text-slate-600 uppercase italic">
-                        <option value="SOLUTIONS">COMPANY A SDN. BHD.</option>
-                        <option value="OPTIMIZATION">COMPANY B SDN. BHD.</option>
-                        <option value="ENERGY">COMPANY C SDN. BHD.</option>
+                    <select id="issuing-company" onchange="toggleSSTFields()" class="input-box text-emerald-600 uppercase italic">
+                        <option value="SOLUTIONS">&lt;Company Name&gt; Sdn. Bhd.</option>
                     </select>
                 </section>
 
@@ -95,7 +93,7 @@
                         <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400">PO Details</h2>
                         <input type="text" id="po-no" class="input-box bg-slate-100 text-slate-500" readonly required>
                         <input type="date" id="po-date" class="input-box" readonly>
-                        <input type="text" id="project-no" placeholder="Project Number (Optional)" class="input-box border-slate-100">
+                        <input type="text" id="project-no" placeholder="Project Number (Optional)" class="input-box border-emerald-100">
                         <input type="text" id="creator-name" placeholder="Created By (Name)" class="input-box bg-slate-100 text-slate-500" readonly required>
                         <input type="email" id="creator-email" placeholder="Creator Email" class="input-box bg-slate-100 text-slate-500" readonly required>
                     </section>
@@ -109,13 +107,13 @@
                 <section class="bg-white p-6 rounded-[2.5rem] shadow-sm border space-y-4">
                     <div class="flex justify-between items-center mb-2">
                         <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400">Itemized List</h2>
-                        <button type="button" onclick="addItemRow()" class="bg-slate-50 text-slate-600 px-4 py-2 rounded-xl font-black text-[10px] uppercase flex items-center gap-1 shadow-sm"><i data-lucide="plus-circle" class="w-3 h-3"></i> Add Item</button>
+                        <button type="button" onclick="addItemRow()" class="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl font-black text-[10px] uppercase flex items-center gap-1 shadow-sm"><i data-lucide="plus-circle" class="w-3 h-3"></i> Add Item</button>
                     </div>
                     <div id="items-list" class="space-y-3"></div>
                 </section>
 
                 <div class="flex gap-3">
-                    <button type="button" onclick="previewPDF()" class="w-1/3 bg-slate-50 text-slate-600 border border-slate-100 font-black p-6 rounded-[2rem] shadow-sm uppercase tracking-widest text-[10px] italic flex flex-col md:flex-row items-center justify-center gap-2 hover:bg-slate-100 transition-all">
+                    <button type="button" onclick="previewPDF()" class="w-1/3 bg-blue-50 text-blue-600 border border-blue-100 font-black p-6 rounded-[2rem] shadow-sm uppercase tracking-widest text-[10px] italic flex flex-col md:flex-row items-center justify-center gap-2 hover:bg-blue-100 transition-all">
                         <i data-lucide="eye" class="w-5 h-5"></i> Preview
                     </button>
                     <button type="submit" id="submit-btn" class="w-2/3 bg-slate-900 text-white font-black p-6 rounded-[2rem] shadow-xl uppercase tracking-widest text-xs italic flex flex-col md:flex-row items-center justify-center gap-3">
@@ -123,7 +121,7 @@
                     </button>
                 </div>
 
-                <button type="button" onclick="saveDraft()" class="w-full bg-slate-50 text-slate-600 border border-slate-100 font-black p-4 rounded-[2rem] shadow-sm uppercase tracking-widest text-[10px] italic flex items-center justify-center gap-2 hover:bg-slate-100 transition-all">
+                <button type="button" onclick="saveDraft()" class="w-full bg-indigo-50 text-indigo-600 border border-indigo-100 font-black p-4 rounded-[2rem] shadow-sm uppercase tracking-widest text-[10px] italic flex items-center justify-center gap-2 hover:bg-indigo-100 transition-all">
                     <i data-lucide="file-edit" class="w-4 h-4"></i> Save as Draft
                 </button>
 
@@ -137,20 +135,20 @@
         <div id="tab-history" class="hidden space-y-4"><div id="history-list" class="space-y-3"></div></div>
 
         <div id="tab-suppliers" class="hidden space-y-6">
-            <section class="bg-slate-900 p-6 rounded-[2.5rem] shadow-xl border-t-4 border-slate-500 text-white">
+            <section class="bg-slate-900 p-6 rounded-[2.5rem] shadow-xl border-t-4 border-emerald-500 text-white">
                 <div class="flex justify-between items-center mb-4">
                     <div>
-                        <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400 italic">Bulk Import</h2>
+                        <h2 class="font-black uppercase text-[10px] tracking-widest text-emerald-400 italic">Bulk Import</h2>
                         <p class="text-[14px] font-bold">Upload Master List</p>
                     </div>
-                    <button onclick="openSupplierModal()" class="bg-slate-500 hover:bg-slate-400 text-[#171717] px-4 py-2 rounded-xl font-black text-[10px] uppercase flex items-center gap-2 transition-all shadow-sm">
+                    <button onclick="openSupplierModal()" class="bg-emerald-500 hover:bg-emerald-400 text-[#0f172a] px-4 py-2 rounded-xl font-black text-[10px] uppercase flex items-center gap-2 transition-all shadow-sm">
                         <i data-lucide="plus" class="w-4 h-4"></i> New Supplier
                     </button>
                 </div>
 
                 <div class="flex gap-3 mb-4">
-                    <label id="sup-drop-zone" for="supplier-excel-file" class="flex-1 bg-white/5 border-2 border-dashed border-slate-500 hover:border-slate-500 hover:bg-slate-500/10 p-8 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all min-h-[140px]">
-                        <i data-lucide="file-spreadsheet" class="w-8 h-8 mb-3 text-slate-500"></i>
+                    <label id="sup-drop-zone" for="supplier-excel-file" class="flex-1 bg-white/5 border-2 border-dashed border-slate-500 hover:border-emerald-500 hover:bg-emerald-500/10 p-8 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all min-h-[140px]">
+                        <i data-lucide="file-spreadsheet" class="w-8 h-8 mb-3 text-emerald-500"></i>
                         <span id="sup-excel-label" class="text-[11px] font-black uppercase tracking-widest text-center text-slate-300">Drag & Drop Excel/CSV File Here<br><span class="text-[9px] font-medium text-slate-400 normal-case mt-1 inline-block">or click to browse your files</span></span>
                         <input type="file" id="supplier-excel-file" accept=".xlsx, .xls, .csv" class="hidden" onchange="if(this.files[0]) { document.getElementById('sup-excel-label').innerText = this.files[0].name; loadSupplierExcel(this.files[0]); }">
                     </label>
@@ -158,10 +156,10 @@
 
                 <div class="flex justify-between items-center bg-slate-800 p-4 rounded-2xl">
                     <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Current Status:</span>
-                    <span id="sup-db-status-text" class="bg-slate-500/20 text-slate-400 px-3 py-1 rounded-lg text-[9px] font-black uppercase">Synced: 0 Suppliers</span>
+                    <span id="sup-db-status-text" class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-lg text-[9px] font-black uppercase">Synced: 0 Suppliers</span>
                 </div>
 
-                <button onclick="syncSuppliersToSupabase()" id="btn-upload-excel" class="w-full mt-4 bg-slate-500 text-[#171717] font-black p-4 rounded-2xl uppercase tracking-widest text-[10px] shadow-lg flex items-center justify-center gap-2 hover:bg-slate-400 transition-all">
+                <button onclick="syncSuppliersToSupabase()" id="btn-upload-excel" class="w-full mt-4 bg-emerald-500 text-[#0f172a] font-black p-4 rounded-2xl uppercase tracking-widest text-[10px] shadow-lg flex items-center justify-center gap-2 hover:bg-emerald-400 transition-all">
                     <i data-lucide="cloud-upload" class="w-4 h-4"></i> Overwrite & Sync Database
                 </button>
             </section>
@@ -171,7 +169,7 @@
                     <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400 italic">Supplier Directory</h2>
                     <div class="relative w-64">
                         <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
-                        <input type="text" id="sup-search-input" onkeyup="filterSuppliersTable()" placeholder="Search suppliers..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-bold outline-none focus:border-slate-500 transition-colors">
+                        <input type="text" id="sup-search-input" onkeyup="filterSuppliersTable()" placeholder="Search suppliers..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-bold outline-none focus:border-emerald-500 transition-colors">
                     </div>
                 </div>
                 <div class="overflow-x-auto rounded-xl border border-slate-100">
@@ -197,7 +195,7 @@
 
         <div id="tab-admin" class="hidden space-y-4">
             <section class="bg-white p-8 rounded-[2.5rem] border shadow-sm space-y-8 text-center">
-                <i data-lucide="database" class="w-12 h-12 mx-auto text-slate-500"></i>
+                <i data-lucide="database" class="w-12 h-12 mx-auto text-emerald-500"></i>
                 <button onclick="exportToCSV()" class="w-full bg-slate-900 text-white p-5 rounded-3xl font-black uppercase text-xs tracking-[0.2em] shadow-lg flex items-center justify-center gap-3">
                     <i data-lucide="download" class="w-5 h-5"></i> Export Database (CSV)
                 </button>
@@ -213,7 +211,7 @@
         <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="bg-slate-900 p-6 flex justify-between items-center text-white shrink-0">
                 <div>
-                    <h2 id="sup-modal-title" class="font-black italic uppercase tracking-widest text-slate-400 text-xs">Add Supplier</h2>
+                    <h2 id="sup-modal-title" class="font-black italic uppercase tracking-widest text-emerald-400 text-xs">Add Supplier</h2>
                 </div>
                 <button onclick="closeSupplierModal()" class="text-slate-400 hover:text-white transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
             </div>
@@ -249,7 +247,7 @@
 
             <div class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3 shrink-0">
                 <button onclick="closeSupplierModal()" class="flex-1 bg-white border-2 border-slate-200 text-slate-500 font-black py-4 rounded-2xl uppercase tracking-widest text-[10px] hover:border-slate-300 transition-all">Cancel</button>
-                <button onclick="saveSupplier()" id="sup-save-btn" class="flex-1 bg-slate-500 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[10px] shadow-lg hover:bg-slate-600 transition-all">Save Record</button>
+                <button onclick="saveSupplier()" id="sup-save-btn" class="flex-1 bg-emerald-500 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[10px] shadow-lg hover:bg-emerald-600 transition-all">Save Record</button>
             </div>
         </div>
     </div>
@@ -268,9 +266,7 @@
         const HQ_TEL = "+000-000 0000 (Head Office)";
         
         const CO_DATA = {
-            'SOLUTIONS': { name: 'COMPANY A SDN. BHD.', reg: 'XXXXXXXXXXXX (XXXXXXX-X)', email: 'companya@example.com', sst: true },
-            'OPTIMIZATION': { name: 'COMPANY B SDN. BHD.', reg: 'XXXXXXXXXXXX (XXXXXXX-X)', email: 'companyb@example.com', sst: true },
-            'ENERGY': { name: 'COMPANY C SDN. BHD.', reg: 'XXXXXXXXXXXX (XXXXXXX-X)', email: 'companyc@example.com', sst: true }
+            'SOLUTIONS': { name: '<Company Name> Sdn. Bhd.', reg: 'XXXXXXXXXXXX (XXXXXXX-X)', email: 'admin@example.com', sst: true }
         };
 
         const ADMIN_EMAILS = ['admin1@example.com', 'admin2@example.com', 'admin3@example.com'];
@@ -302,7 +298,7 @@
         const pdfSafe = (s) => String(s || '')
           .replace(/⌀/g, 'Ø').replace(/['']/g, "'").replace(/[""]/g, '"')
           .replace(/[–—]/g, '-').replace(/…/g, '...').replace(/[^\x00-\xFF]/g, '?');
-        const createRow = (label, value) => `<tr><td style="padding: 8px 0; color: #727272; font-size: 12px; font-weight: bold; text-transform: uppercase;">${label}</td><td style="padding: 8px 0; color: #171717; font-size: 14px; font-weight: bold; text-align: right;">${value}</td></tr><tr><td colspan="2" style="border-bottom: 1px solid #f4f4f4;"></td></tr>`;
+        const createRow = (label, value) => `<tr><td style="padding: 8px 0; color: #64748b; font-size: 12px; font-weight: bold; text-transform: uppercase;">${label}</td><td style="padding: 8px 0; color: #0f172a; font-size: 14px; font-weight: bold; text-align: right;">${value}</td></tr><tr><td colspan="2" style="border-bottom: 1px solid #f1f5f9;"></td></tr>`;
 
         async function fillCreatorData() {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -414,8 +410,8 @@
                     <td class="p-4 text-[10px] text-slate-500 whitespace-normal min-w-[150px] max-w-[200px]">${s.remark || '-'}</td>
                     <td class="p-4 text-center">
                         <div class="flex justify-center gap-2">
-                            <button onclick='editSupplier(${JSON.stringify(s).replace(/'/g, "&#39;")})' class="bg-slate-50 text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                            <button onclick="deleteSupplier(${s.id})" class="bg-slate-50 text-slate-500 hover:bg-slate-100 p-2 rounded-lg transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <button onclick='editSupplier(${JSON.stringify(s).replace(/'/g, "&#39;")})' class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 p-2 rounded-lg transition-all"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            <button onclick="deleteSupplier(${s.id})" class="bg-red-50 text-red-500 hover:bg-red-100 p-2 rounded-lg transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </td>
                 `;
@@ -442,25 +438,25 @@
             suppliersList = supData || [];
             
             document.getElementById('sup-db-status-text').innerText = `SYNCED: ${suppliersList.length} SUPPLIERS`;
-            document.getElementById('sup-db-status-text').className = "bg-slate-500/20 text-slate-400 px-3 py-1 rounded-lg text-[9px] font-black uppercase";
+            document.getElementById('sup-db-status-text').className = "bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-lg text-[9px] font-black uppercase";
             renderSuppliersTable();
 
             document.getElementById('review-list').innerHTML = currentPOs.filter(p => p.status === 'Pending').map(po => `
                 <div class="bg-white p-6 rounded-[2.5rem] border shadow-sm space-y-4">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="text-[8px] font-black text-slate-600 uppercase italic">${po.company_name}</p>
-                            <h3 class="font-black text-sm uppercase">${po.po_number} ${po.project_no && po.project_no !== '-' ? `<span class="text-slate-500 text-[10px] ml-1 tracking-widest">(${po.project_no})</span>` : ''}</h3>
+                            <p class="text-[8px] font-black text-emerald-600 uppercase italic">${po.company_name}</p>
+                            <h3 class="font-black text-sm uppercase">${po.po_number} ${po.project_no && po.project_no !== '-' ? `<span class="text-emerald-500 text-[10px] ml-1 tracking-widest">(${po.project_no})</span>` : ''}</h3>
                             <p class="text-[10px] font-bold text-slate-400 uppercase">${po.supplier_name}</p>
                         </div>
                         <div class="text-right">
                              <p class="text-[8px] font-black text-slate-300 uppercase italic">Amount</p><p class="font-black text-slate-900">RM ${formatRM(po.total_amount)}</p>
-                             <button onclick="generatePDF('${po.id}')" class="mt-2 bg-slate-50 text-slate-600 px-3 py-1 rounded-lg font-black text-[8px] uppercase flex items-center gap-1 mx-auto"><i data-lucide="eye" class="w-3 h-3"></i> View PO</button>
+                             <button onclick="generatePDF('${po.id}')" class="mt-2 bg-blue-50 text-blue-600 px-3 py-1 rounded-lg font-black text-[8px] uppercase flex items-center gap-1 mx-auto"><i data-lucide="eye" class="w-3 h-3"></i> View PO</button>
                         </div>
                     </div>
                     <div class="space-y-3">
                         <textarea id="reason-${po.id}" placeholder="Reason / Feedback (Optional)" class="w-full bg-slate-50 border-none rounded-xl p-3 text-[10px] font-bold outline-none" rows="2"></textarea>
-                        <div class="flex gap-2"><button onclick="handleStatusChange('${po.id}', 'Approved')" class="flex-1 bg-slate-600 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-lg">Approve</button><button onclick="handleStatusChange('${po.id}', 'Rejected')" class="flex-1 bg-slate-500 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-lg">Reject</button></div>
+                        <div class="flex gap-2"><button onclick="handleStatusChange('${po.id}', 'Approved')" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-lg">Approve</button><button onclick="handleStatusChange('${po.id}', 'Rejected')" class="flex-1 bg-red-500 text-white py-3 rounded-xl font-black text-[10px] uppercase shadow-lg">Reject</button></div>
                     </div>
                 </div>
             `).join('') || '<div class="text-center p-10 text-slate-300 italic text-xs">Queue Clear</div>';
@@ -473,7 +469,7 @@
                 let emailBtnHtml = '';
                 if (isApproved) {
                     if (hasEmail) {
-                        emailBtnHtml = `<button onclick="sendPOSupplier('${po.id}')" class="p-3 bg-slate-50 text-slate-500 rounded-xl hover:bg-slate-600 hover:text-white transition-all" title="Email Supplier via Resend"><i data-lucide="mail" class="w-4 h-4"></i></button>`;
+                        emailBtnHtml = `<button onclick="sendPOSupplier('${po.id}')" class="p-3 bg-blue-50 text-blue-500 rounded-xl hover:bg-blue-600 hover:text-white transition-all" title="Email Supplier via Resend"><i data-lucide="mail" class="w-4 h-4"></i></button>`;
                     } else {
                         emailBtnHtml = `<button disabled class="p-3 bg-slate-50 text-slate-300 rounded-xl cursor-not-allowed" title="No Email Found in Supplier Database"><i data-lucide="mail" class="w-4 h-4"></i></button>`;
                     }
@@ -486,15 +482,15 @@
                 return `
                 <div class="bg-white p-5 rounded-[2rem] border shadow-sm flex justify-between items-center group">
                     <div>
-                        <h3 class="font-black text-slate-800 text-sm tracking-tight">${po.po_number} ${po.project_no && po.project_no !== '-' ? `<span class="text-slate-500 text-[9px] ml-1">(${po.project_no})</span>` : ''}</h3>
+                        <h3 class="font-black text-slate-800 text-sm tracking-tight">${po.po_number} ${po.project_no && po.project_no !== '-' ? `<span class="text-emerald-500 text-[9px] ml-1">(${po.project_no})</span>` : ''}</h3>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">${po.supplier_name}</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <div class="status-${badgeClass} px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">${po.status}</div>
-                        ${isApproved ? `<button onclick="generatePDF('${po.id}')" class="p-3 bg-slate-50 text-slate-600 rounded-xl hover:bg-slate-600 hover:text-white transition-all"><i data-lucide="printer" class="w-4 h-4"></i></button>` : ''}
+                        ${isApproved ? `<button onclick="generatePDF('${po.id}')" class="p-3 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all"><i data-lucide="printer" class="w-4 h-4"></i></button>` : ''}
                         ${emailBtnHtml}
-                        ${(po.status === 'Rejected' || po.status === 'Draft') ? `<button onclick="loadPOForEdit('${po.id}')" class="p-3 bg-slate-50 text-slate-600 rounded-xl hover:bg-slate-600 hover:text-white transition-all"><i data-lucide="edit-3" class="w-4 h-4"></i></button>` : ''}
-                        <button onclick="deletePO('${po.id}')" class="p-3 bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-500 hover:text-white transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        ${(po.status === 'Rejected' || po.status === 'Draft') ? `<button onclick="loadPOForEdit('${po.id}')" class="p-3 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all"><i data-lucide="edit-3" class="w-4 h-4"></i></button>` : ''}
+                        <button onclick="deletePO('${po.id}')" class="p-3 bg-red-50 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                 </div>
             `}).join('');
@@ -555,7 +551,7 @@
             await supabaseClient.from('po_logs').update({ status: newStatus, approved_by: approver }).eq('id', id);
             const poData = currentPOs.find(p => p.id === id);
             if(poData) {
-                const color = newStatus === 'Approved' ? "#808080" : "#777777"; const defaultReason = newStatus === 'Approved' ? "Supplier can now be notified." : "This request has been declined.";
+                const color = newStatus === 'Approved' ? "#10b981" : "#ef4444"; const defaultReason = newStatus === 'Approved' ? "Supplier can now be notified." : "This request has been declined.";
                 const createdDate = new Date(poData.created_at).toLocaleDateString('en-GB') + ' ' + new Date(poData.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 const footerInfo = `This PO is created by ${poData.created_by || 'Unknown'} on ${createdDate}.`;
                 emailjs.send(EMAIL_SERVICE, EMAIL_TEMPLATE, { system_name: "COMPANY PO SYSTEM", header_bg: color, title: `PO ${newStatus}`, to_email: poData.creator_email, to_name: poData.created_by, html_body: createRow("PO Number", poData.po_number) + createRow("Status", newStatus.toUpperCase()) + createRow("Action By", approver) + createRow("Amount", "RM " + formatRM(poData.total_amount)), remark_text: (reasonInput || defaultReason) + "\n\n" + footerInfo });
@@ -572,7 +568,7 @@
             const wrappedAddr = doc.splitTextToSize(HQ_ADDR, 120); doc.text(wrappedAddr, 58, 28);
             const addrHeight = wrappedAddr.length * 4;
             doc.text(`Phone: ${HQ_TEL} | Email: ${info.email} | Web: www.example.com`, 58, 28 + addrHeight);
-            doc.setDrawColor(128, 128, 128).setLineWidth(0.5).line(14, 32 + addrHeight, 196, 32 + addrHeight);
+            doc.setDrawColor(16, 185, 129).setLineWidth(0.5).line(14, 32 + addrHeight, 196, 32 + addrHeight);
             const poY = 45 + addrHeight; doc.setFontSize(18).setFont("helvetica", "bold").text("PURCHASE ORDER", 14, poY);
             doc.setFontSize(10).text(`PO Number: ${data.po_number}`, 130, poY);
             doc.text(`Date: ${data.po_date}`, 130, poY + 6);
@@ -581,12 +577,12 @@
             doc.setFont("helvetica", "bold").text("Address:", 14, poY + 22); doc.setFont("helvetica", "normal").text(doc.splitTextToSize(data.supplier_address, 80), 35, poY + 22);
             const head = info.sst ? [['No.', 'Item Description', 'Qty', 'Unit', 'Price (RM)', 'SST%', 'SST RM', 'Total (RM)']] : [['No.', 'Description', 'Qty', 'Unit', 'Price (RM)', 'Total (RM)']];
             const body = data.items.map((i, idx) => { const amt = i.qty * i.price; const sstVal = amt * (i.sst/100); return info.sst ? [idx+1, pdfSafe(i.desc), i.qty, i.unit, formatRM(i.price), i.sst+"%", formatRM(sstVal), formatRM(amt+sstVal)] : [idx+1, pdfSafe(i.desc), i.qty, i.unit, formatRM(i.price), formatRM(amt)]; });
-            doc.autoTable({ startY: poY + 38, head, body, theme: 'grid', headStyles: { fillColor: [23, 23, 23] }, styles: { fontSize: 8 }, columnStyles: { 4: { halign: 'right' }, 6: { halign: 'right' }, 7: { halign: 'right' } } });
+            doc.autoTable({ startY: poY + 38, head, body, theme: 'grid', headStyles: { fillColor: [15, 23, 42] }, styles: { fontSize: 8 }, columnStyles: { 4: { halign: 'right' }, 6: { halign: 'right' }, 7: { halign: 'right' } } });
             const finalY = doc.lastAutoTable.finalY;
             doc.setFont("helvetica", "bold").setFontSize(11).text(`TOTAL (RM): ${formatRM(data.total_amount)}`, 196, finalY + 10, { align: 'right' });
-            if (data.status === 'Pending') { doc.setTextColor(92, 92, 92); doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.text("DRAFT - FOR REVIEW ONLY", 196, finalY + 20, { align: 'right' }); doc.setTextColor(0, 0, 0); }
+            if (data.status === 'Pending') { doc.setTextColor(220, 38, 38); doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.text("DRAFT - FOR REVIEW ONLY", 196, finalY + 20, { align: 'right' }); doc.setTextColor(0, 0, 0); }
             const creator = data.created_by || 'System'; const cDate = new Date(data.created_at); const cDateStr = cDate.toLocaleDateString('en-GB') + ' @ ' + String(cDate.getHours()).padStart(2,'0') + String(cDate.getMinutes()).padStart(2,'0') + 'hours';
-            doc.setFontSize(9).setFont("helvetica", "italic").setTextColor(0, 0, 0); doc.text(`This PO is created by ${creator} on ${cDateStr}.`, 14, finalY + 30);
+            doc.setFontSize(9).setFont("helvetica", "italic").setTextColor(0,0,0); doc.text(`This PO is created by ${creator} on ${cDateStr}.`, 14, finalY + 30);
             if (data.status === 'Approved' || data.status === 'APPROVED & SENT') { const now = new Date(); const aDateStr = now.toLocaleDateString('en-GB') + ' @ ' + String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0') + 'hours'; doc.text(`This PO is digitally approved by ${data.approved_by} on ${aDateStr}, no signature is required.`, 14, finalY + 35); }
             doc.save(`${data.po_number}.pdf`);
         }
@@ -599,7 +595,7 @@
             const wrappedAddr = doc.splitTextToSize(HQ_ADDR, 120); doc.text(wrappedAddr, 58, 28);
             const addrHeight = wrappedAddr.length * 4;
             doc.text(`Phone: ${HQ_TEL} | Email: ${info.email} | Web: www.example.com`, 58, 28 + addrHeight);
-            doc.setDrawColor(128, 128, 128).setLineWidth(0.5).line(14, 32 + addrHeight, 196, 32 + addrHeight);
+            doc.setDrawColor(16, 185, 129).setLineWidth(0.5).line(14, 32 + addrHeight, 196, 32 + addrHeight);
             const poY = 45 + addrHeight; doc.setFontSize(18).setFont("helvetica", "bold").text("PURCHASE ORDER", 14, poY);
             doc.setFontSize(10).text(`PO Number: ${data.po_number}`, 130, poY); 
             doc.text(`Date: ${data.po_date}`, 130, poY + 6);
@@ -608,12 +604,12 @@
             doc.setFont("helvetica", "bold").text("Address:", 14, poY + 22); doc.setFont("helvetica", "normal").text(doc.splitTextToSize(data.supplier_address, 80), 35, poY + 22);
             const head = info.sst ? [['No.', 'Item Description', 'Qty', 'Unit', 'Price (RM)', 'SST%', 'SST RM', 'Total (RM)']] : [['No.', 'Description', 'Qty', 'Unit', 'Price (RM)', 'Total (RM)']];
             const body = data.items.map((i, idx) => { const amt = i.qty * i.price; const sstVal = amt * (i.sst/100); return info.sst ? [idx+1, pdfSafe(i.desc), i.qty, i.unit, formatRM(i.price), i.sst+"%", formatRM(sstVal), formatRM(amt+sstVal)] : [idx+1, pdfSafe(i.desc), i.qty, i.unit, formatRM(i.price), formatRM(amt)]; });
-            doc.autoTable({ startY: poY + 38, head, body, theme: 'grid', headStyles: { fillColor: [23, 23, 23] }, styles: { fontSize: 8 }, columnStyles: { 4: { halign: 'right' }, 6: { halign: 'right' }, 7: { halign: 'right' } } });
+            doc.autoTable({ startY: poY + 38, head, body, theme: 'grid', headStyles: { fillColor: [15, 23, 42] }, styles: { fontSize: 8 }, columnStyles: { 4: { halign: 'right' }, 6: { halign: 'right' }, 7: { halign: 'right' } } });
             const finalY = doc.lastAutoTable.finalY;
             doc.setFont("helvetica", "bold").setFontSize(11).text(`TOTAL (RM): ${formatRM(data.total_amount)}`, 196, finalY + 10, { align: 'right' });
-            if (data.status === 'Pending') { doc.setTextColor(92, 92, 92); doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.text("DRAFT - FOR REVIEW ONLY", 196, finalY + 20, { align: 'right' }); doc.setTextColor(0, 0, 0); }
+            if (data.status === 'Pending') { doc.setTextColor(220, 38, 38); doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.text("DRAFT - FOR REVIEW ONLY", 196, finalY + 20, { align: 'right' }); doc.setTextColor(0, 0, 0); }
             const creator = data.created_by || 'System'; const cDate = new Date(data.created_at); const cDateStr = cDate.toLocaleDateString('en-GB') + ' @ ' + String(cDate.getHours()).padStart(2,'0') + String(cDate.getMinutes()).padStart(2,'0') + 'hours';
-            doc.setFontSize(9).setFont("helvetica", "italic").setTextColor(0, 0, 0); doc.text(`This PO is created by ${creator} on ${cDateStr}.`, 14, finalY + 30);
+            doc.setFontSize(9).setFont("helvetica", "italic").setTextColor(0,0,0); doc.text(`This PO is created by ${creator} on ${cDateStr}.`, 14, finalY + 30);
             if (data.status === 'Approved' || data.status === 'APPROVED & SENT') { const now = new Date(); const aDateStr = now.toLocaleDateString('en-GB') + ' @ ' + String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0') + 'hours'; doc.text(`This PO is digitally approved by ${data.approved_by} on ${aDateStr}, no signature is required.`, 14, finalY + 35); }
             
             return doc.output('datauristring').split(',')[1];
@@ -656,7 +652,7 @@
             const wrappedAddr = doc.splitTextToSize(HQ_ADDR, 120); doc.text(wrappedAddr, 58, 28);
             const addrHeight = wrappedAddr.length * 4;
             doc.text(`Phone: ${HQ_TEL} | Email: ${info.email} | Web: www.example.com`, 58, 28 + addrHeight);
-            doc.setDrawColor(128, 128, 128).setLineWidth(0.5).line(14, 32 + addrHeight, 196, 32 + addrHeight);
+            doc.setDrawColor(16, 185, 129).setLineWidth(0.5).line(14, 32 + addrHeight, 196, 32 + addrHeight);
             const poY = 45 + addrHeight; doc.setFontSize(18).setFont("helvetica", "bold").text("PURCHASE ORDER", 14, poY);
             doc.setFontSize(10).text(`PO Number: ${po_number}`, 130, poY); 
             doc.text(`Date: ${po_date}`, 130, poY + 6);
@@ -666,15 +662,15 @@
             
             const head = info.sst ? [['No.', 'Item Description', 'Qty', 'Unit', 'Price (RM)', 'SST%', 'SST RM', 'Total (RM)']] : [['No.', 'Description', 'Qty', 'Unit', 'Price (RM)', 'Total (RM)']];
             const body = items.map((i, idx) => { const amt = i.qty * i.price; const sstVal = amt * (i.sst/100); return info.sst ? [idx+1, pdfSafe(i.desc), i.qty, i.unit, formatRM(i.price), i.sst+"%", formatRM(sstVal), formatRM(amt+sstVal)] : [idx+1, pdfSafe(i.desc), i.qty, i.unit, formatRM(i.price), formatRM(amt)]; });
-            doc.autoTable({ startY: poY + 38, head, body, theme: 'grid', headStyles: { fillColor: [23, 23, 23] }, styles: { fontSize: 8 }, columnStyles: { 4: { halign: 'right' }, 6: { halign: 'right' }, 7: { halign: 'right' } } });
+            doc.autoTable({ startY: poY + 38, head, body, theme: 'grid', headStyles: { fillColor: [15, 23, 42] }, styles: { fontSize: 8 }, columnStyles: { 4: { halign: 'right' }, 6: { halign: 'right' }, 7: { halign: 'right' } } });
             
             const finalY = doc.lastAutoTable.finalY;
             doc.setFont("helvetica", "bold").setFontSize(11).text(`TOTAL (RM): ${formatRM(total_amount)}`, 196, finalY + 10, { align: 'right' });
             
-            doc.setTextColor(92, 92, 92); doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.text("PREVIEW - NOT SUBMITTED", 196, finalY + 20, { align: 'right' }); doc.setTextColor(0, 0, 0);
+            doc.setTextColor(220, 38, 38); doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.text("PREVIEW - NOT SUBMITTED", 196, finalY + 20, { align: 'right' }); doc.setTextColor(0, 0, 0);
             
             const creator = created_by || 'System'; const cDate = new Date(); const cDateStr = cDate.toLocaleDateString('en-GB') + ' @ ' + String(cDate.getHours()).padStart(2,'0') + String(cDate.getMinutes()).padStart(2,'0') + 'hours';
-            doc.setFontSize(9).setFont("helvetica", "italic").setTextColor(0, 0, 0); doc.text(`This PO is created by ${creator} on ${cDateStr}.`, 14, finalY + 30);
+            doc.setFontSize(9).setFont("helvetica", "italic").setTextColor(0,0,0); doc.text(`This PO is created by ${creator} on ${cDateStr}.`, 14, finalY + 30);
             
             window.open(URL.createObjectURL(doc.output("blob")));
         }
@@ -685,7 +681,7 @@
             if(confirm("Delete record?")) { await supabaseClient.from('po_logs').delete().eq('id', id); fetchRecords(); } 
         }
 
-        function addItemRow() { const container = document.getElementById('items-list'); const div = document.createElement('div'); div.className = 'item-row grid grid-cols-12 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-100 items-center'; div.innerHTML = `<input type="text" placeholder="Description" class="col-span-5 bg-transparent font-bold text-[11px] outline-none" required><input type="number" step="0.01" placeholder="Qty" class="col-span-1 bg-transparent font-bold text-[11px] outline-none text-center" required><input type="text" placeholder="Unit" class="col-span-1 bg-transparent font-bold text-[11px] outline-none text-center"><input type="number" step="0.01" placeholder="Price" class="col-span-2 bg-transparent font-bold text-[11px] outline-none text-center" required><input type="number" step="0.1" placeholder="%" class="col-span-1 bg-transparent font-bold text-[11px] outline-none text-center sst-col ${CO_DATA[document.getElementById('issuing-company').value].sst ? '' : 'sst-hidden'}"><button type="button" onclick="this.parentElement.remove()" class="col-span-2 text-slate-300 hover:text-slate-600 flex justify-center"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`; container.appendChild(div); lucide.createIcons(); }
+        function addItemRow() { const container = document.getElementById('items-list'); const div = document.createElement('div'); div.className = 'item-row grid grid-cols-12 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-100 items-center'; div.innerHTML = `<input type="text" placeholder="Description" class="col-span-5 bg-transparent font-bold text-[11px] outline-none" required><input type="number" step="0.01" placeholder="Qty" class="col-span-1 bg-transparent font-bold text-[11px] outline-none text-center" required><input type="text" placeholder="Unit" class="col-span-1 bg-transparent font-bold text-[11px] outline-none text-center"><input type="number" step="0.01" placeholder="Price" class="col-span-2 bg-transparent font-bold text-[11px] outline-none text-center" required><input type="number" step="0.1" placeholder="%" class="col-span-1 bg-transparent font-bold text-[11px] outline-none text-center sst-col ${CO_DATA[document.getElementById('issuing-company').value].sst ? '' : 'sst-hidden'}"><button type="button" onclick="this.parentElement.remove()" class="col-span-2 text-red-300 hover:text-red-600 flex justify-center"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`; container.appendChild(div); lucide.createIcons(); }
         function toggleSSTFields() { const isSST = CO_DATA[document.getElementById('issuing-company').value].sst; document.querySelectorAll('.sst-col').forEach(el => el.classList.toggle('sst-hidden', !isSST)); }
 
         document.getElementById('po-form').onsubmit = async function(e) {
@@ -708,7 +704,7 @@
             };
             
             if (editingId) { await supabaseClient.from('po_logs').update(payload).eq('id', editingId); alert("PO Updated & Resubmitted"); } else { await supabaseClient.from('po_logs').insert(payload); alert("PO Submitted"); }
-            try { await emailjs.send(EMAIL_SERVICE, EMAIL_TEMPLATE, { to_email: "admin1@example.com", to_name: "COMPANY Admin", system_name: "COMPANY PO SYSTEM", header_bg: "#666666", title: editingId ? "PO Resubmitted" : "New PO Request", html_body: createRow("PO Number", payload.po_number) + createRow("Company", payload.company_name) + createRow("Supplier", payload.supplier_name) + createRow("Total Amount", "RM " + formatRM(payload.total_amount)), remark_text: editingId ? `PO Number ${payload.po_number} corrected and resubmitted.` : "Please review via Admin Portal." }); } catch (e) { console.warn("PO notification email failed:", e); }
+            try { await emailjs.send(EMAIL_SERVICE, EMAIL_TEMPLATE, { to_email: "admin1@example.com", to_name: "COMPANY Admin", system_name: "COMPANY PO SYSTEM", header_bg: "#059669", title: editingId ? "PO Resubmitted" : "New PO Request", html_body: createRow("PO Number", payload.po_number) + createRow("Company", payload.company_name) + createRow("Supplier", payload.supplier_name) + createRow("Total Amount", "RM " + formatRM(payload.total_amount)), remark_text: editingId ? `PO Number ${payload.po_number} corrected and resubmitted.` : "Please review via Admin Portal." }); } catch (e) { console.warn("PO notification email failed:", e); }
             cancelEdit();
         };
         
@@ -887,7 +883,7 @@
                     
                     pendingSuppliersDB = suppliers;
                     document.getElementById('sup-db-status-text').innerText = `READY TO SYNC: ${pendingSuppliersDB.length} SUPPLIERS`;
-                    document.getElementById('sup-db-status-text').className = "bg-slate-500/20 text-slate-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase";
+                    document.getElementById('sup-db-status-text').className = "bg-yellow-500/20 text-yellow-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase";
 
                 } catch (err) {
                     alert("Error processing Excel file: " + err.message);
