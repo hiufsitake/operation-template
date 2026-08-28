@@ -50,7 +50,7 @@
         .sst-hidden { display: none !important; }
         /* Drag and Drop Effects */
         .drag-over { border-color: #10b981 !important; background-color: rgba(16, 185, 129, 0.1) !important; }
-        #drop-zone *, #sup-drop-zone * { pointer-events: none; }
+        #drop-zone * { pointer-events: none; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-24 text-slate-900 font-medium">
@@ -138,30 +138,13 @@
             <section class="bg-slate-900 p-6 rounded-[2.5rem] shadow-xl border-t-4 border-emerald-500 text-white">
                 <div class="flex justify-between items-center mb-4">
                     <div>
-                        <h2 class="font-black uppercase text-[10px] tracking-widest text-emerald-400 italic">Bulk Import</h2>
-                        <p class="text-[14px] font-bold">Upload Master List</p>
+                        <h2 class="font-black uppercase text-[10px] tracking-widest text-emerald-400 italic">Suppliers</h2>
+                        <p class="text-[14px] font-bold">Manage Supplier Directory</p>
                     </div>
                     <button onclick="openSupplierModal()" class="bg-emerald-500 hover:bg-emerald-400 text-[#0f172a] px-4 py-2 rounded-xl font-black text-[10px] uppercase flex items-center gap-2 transition-all shadow-sm">
                         <i data-lucide="plus" class="w-4 h-4"></i> New Supplier
                     </button>
                 </div>
-
-                <div class="flex gap-3 mb-4">
-                    <label id="sup-drop-zone" for="supplier-excel-file" class="flex-1 bg-white/5 border-2 border-dashed border-slate-500 hover:border-emerald-500 hover:bg-emerald-500/10 p-8 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all min-h-[140px]">
-                        <i data-lucide="file-spreadsheet" class="w-8 h-8 mb-3 text-emerald-500"></i>
-                        <span id="sup-excel-label" class="text-[11px] font-black uppercase tracking-widest text-center text-slate-300">Drag & Drop Excel/CSV File Here<br><span class="text-[9px] font-medium text-slate-400 normal-case mt-1 inline-block">or click to browse your files</span></span>
-                        <input type="file" id="supplier-excel-file" accept=".xlsx, .xls, .csv" class="hidden" onchange="if(this.files[0]) { document.getElementById('sup-excel-label').innerText = this.files[0].name; loadSupplierExcel(this.files[0]); }">
-                    </label>
-                </div>
-
-                <div class="flex justify-between items-center bg-slate-800 p-4 rounded-2xl">
-                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Current Status:</span>
-                    <span id="sup-db-status-text" class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-lg text-[9px] font-black uppercase">Synced: 0 Suppliers</span>
-                </div>
-
-                <button onclick="syncSuppliersToSupabase()" id="btn-upload-excel" class="w-full mt-4 bg-emerald-500 text-[#0f172a] font-black p-4 rounded-2xl uppercase tracking-widest text-[10px] shadow-lg flex items-center justify-center gap-2 hover:bg-emerald-400 transition-all">
-                    <i data-lucide="cloud-upload" class="w-4 h-4"></i> Overwrite & Sync Database
-                </button>
             </section>
 
             <section class="bg-white p-6 rounded-[2rem] shadow-sm border space-y-4">
@@ -271,11 +254,10 @@
 
         const ADMIN_EMAILS = ['admin1@example.com', 'admin2@example.com', 'admin3@example.com'];
         const APPROVER_MAP = { 'admin1@example.com': 'HFS', 'admin3@example.com': 'WKS', 'admin2@example.com': 'TFH' };
-        let currentPOs = [], isAuthorized = false, targetTab = 'create', currentApproverInitials = '';
+        let currentPOs = [], isAuthorized = true, targetTab = 'create', currentApproverInitials = '';
         let editingId = null; 
         
         let suppliersList = [];
-        let pendingSuppliersDB = []; 
 
         let inactivityTimeout;
         const TIMEOUT_DURATION = 900000; 
@@ -333,20 +315,6 @@
 
             fetchRecords();
 
-            const supDropZone = document.getElementById('sup-drop-zone');
-            if(supDropZone) {
-                supDropZone.addEventListener('dragover', (e) => { e.preventDefault(); supDropZone.classList.add('drag-over'); });
-                supDropZone.addEventListener('dragleave', (e) => { e.preventDefault(); supDropZone.classList.remove('drag-over'); });
-                supDropZone.addEventListener('drop', (e) => {
-                    e.preventDefault(); supDropZone.classList.remove('drag-over');
-                    if(e.dataTransfer.files.length) {
-                        const fileInput = document.getElementById('supplier-excel-file');
-                        fileInput.files = e.dataTransfer.files;
-                        document.getElementById('sup-excel-label').innerText = e.dataTransfer.files[0].name;
-                        loadSupplierExcel(e.dataTransfer.files[0]);
-                    }
-                });
-            }
         }
 
         async function setAutoPONumber() {
@@ -437,8 +405,6 @@
             const { data: supData } = await supabaseClient.from('suppliers').select('*').order('company_name');
             suppliersList = supData || [];
             
-            document.getElementById('sup-db-status-text').innerText = `SYNCED: ${suppliersList.length} SUPPLIERS`;
-            document.getElementById('sup-db-status-text').className = "bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-lg text-[9px] font-black uppercase";
             renderSuppliersTable();
 
             document.getElementById('review-list').innerHTML = currentPOs.filter(p => p.status === 'Pending').map(po => `
@@ -819,108 +785,6 @@
                 await fetchRecords();
             } catch (err) {
                 alert("Error deleting record: " + err.message);
-            }
-        }
-
-        // --- BULK UPLOAD EXCEL PARSING LOGIC ---
-        async function loadSupplierExcel(file) {
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
-                    
-                    let headerIndex = -1;
-                    let cNameIdx = -1, addrIdx = -1, hpIdx = -1, emailIdx = -1, remarkIdx = -1;
-
-                    for(let i = 0; i < rows.length; i++) {
-                        const row = rows[i];
-                        if (!row) continue;
-                        
-                        const matchIdx = row.findIndex(cell => typeof cell === 'string' && cell.trim().toUpperCase() === "COMPANY NAME");
-                        
-                        if(matchIdx !== -1) {
-                            headerIndex = i;
-                            cNameIdx = matchIdx;
-                            row.forEach((cell, idx) => {
-                                if(!cell || typeof cell !== 'string') return;
-                                const up = cell.trim().toUpperCase();
-                                if(up === "ADDRESS") addrIdx = idx;
-                                if(up === "H/P" || up === "HP" || up.includes("PHONE")) hpIdx = idx;
-                                if(up === "EMAIL ADDRESS" || up.includes("EMAIL")) emailIdx = idx;
-                                if(up === "REMARK" || up.includes("REMARK")) remarkIdx = idx;
-                            });
-                            break; 
-                        }
-                    }
-
-                    if (headerIndex === -1 || cNameIdx === -1) {
-                        return alert("Could not find the 'COMPANY NAME' column. Please check the Excel formatting.");
-                    }
-
-                    const suppliers = [];
-                    for(let i = headerIndex + 1; i < rows.length; i++) {
-                        const row = rows[i];
-                        if(!row || row.length <= cNameIdx) continue;
-                        
-                        const company_name = row[cNameIdx] ? String(row[cNameIdx]).trim() : null;
-                        if(!company_name || company_name === '') continue; 
-                        
-                        suppliers.push({
-                            company_name: company_name,
-                            address: addrIdx !== -1 && row[addrIdx] ? String(row[addrIdx]).trim() : null,
-                            hp: hpIdx !== -1 && row[hpIdx] ? String(row[hpIdx]).trim() : null,
-                            email_address: emailIdx !== -1 && row[emailIdx] ? String(row[emailIdx]).trim() : null,
-                            remark: remarkIdx !== -1 && row[remarkIdx] ? String(row[remarkIdx]).trim() : null
-                        });
-                    }
-
-                    if(suppliers.length === 0) return alert("No valid suppliers found below the header row.");
-                    
-                    pendingSuppliersDB = suppliers;
-                    document.getElementById('sup-db-status-text').innerText = `READY TO SYNC: ${pendingSuppliersDB.length} SUPPLIERS`;
-                    document.getElementById('sup-db-status-text').className = "bg-yellow-500/20 text-yellow-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase";
-
-                } catch (err) {
-                    alert("Error processing Excel file: " + err.message);
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        async function syncSuppliersToSupabase() {
-            if (pendingSuppliersDB.length === 0) return alert("Please select an Excel file first.");
-            if (!confirm("WARNING: This will overwrite the entire database with the uploaded Excel file. Continue?")) return;
-            
-            const btn = document.getElementById('btn-upload-excel');
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Syncing...`; 
-            btn.disabled = true;
-            lucide.createIcons();
-
-            try {
-                const { error: delErr } = await supabaseClient.from('suppliers').delete().gt('id', -1); 
-                if (delErr) throw new Error("Failed to clear old data: " + delErr.message);
-
-                const { error: insErr } = await supabaseClient.from('suppliers').insert(pendingSuppliersDB);
-                if (insErr) throw new Error("Insert failed: " + insErr.message);
-                
-                alert(`Successfully updated ${pendingSuppliersDB.length} suppliers in database!`);
-                
-                document.getElementById('supplier-excel-file').value = '';
-                document.getElementById('sup-excel-label').innerHTML = `Drag & Drop Excel/CSV File Here<br><span class="text-[9px] font-medium text-slate-400 normal-case mt-1 inline-block">or click to browse your files</span>`;
-                pendingSuppliersDB = [];
-                await fetchRecords(); 
-
-            } catch (err) {
-                alert("Sync Error: " + err.message);
-            } finally {
-                btn.innerHTML = `<i data-lucide="cloud-upload" class="w-4 h-4"></i> Overwrite & Sync Database`; 
-                btn.disabled = false;
-                lucide.createIcons();
             }
         }
 

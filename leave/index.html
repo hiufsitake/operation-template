@@ -206,7 +206,7 @@
         const ADMIN_EMAILS = ['admin1@example.com', 'admin2@example.com', 'admin3@example.com'];
         const APPROVER_MAP = { 'admin1@example.com': 'HFS', 'admin3@example.com': 'WKS', 'admin2@example.com': 'TFH' };
         let db = { staff: [], logs: [] };
-        let isAuthorized = false, durationMode = 'full', halfDayType = 'Morning', currentApproverInitials = '';
+        let isAuthorized = true, durationMode = 'full', halfDayType = 'Morning', currentApproverInitials = '';
         let targetTab = 'apply', editingDraftId = null;
 
         let inactivityTimeout;

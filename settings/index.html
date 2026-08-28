@@ -187,7 +187,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const ADMIN_EMAILS = ['admin1@example.com', 'admin2@example.com', 'admin3@example.com'];
 const TO_EMAIL = 'admin1@example.com';
 
-let staffDatabase = [], isAuthorized = false;
+let staffDatabase = [], isAuthorized = true;
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
 function showToast(msg, type = 'success') {
@@ -210,14 +210,10 @@ function openModule(name) {
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
     lucide.createIcons();
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (session && ADMIN_EMAILS.includes(session.user.email)) {
-        isAuthorized = true;
-        document.getElementById('add-staff-section').classList.remove('hidden');
-        document.getElementById('pending-approvals-section').classList.remove('hidden');
-    }
+    document.getElementById('add-staff-section').classList.remove('hidden');
+    document.getElementById('pending-approvals-section').classList.remove('hidden');
     await fetchStaff();
-    if (isAuthorized) await fetchPending();
+    await fetchPending();
 }
 
 // ── Pending approvals ───────────────────────────────────────────────────────

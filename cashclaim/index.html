@@ -154,7 +154,7 @@
 
         const ADMIN_EMAILS = ['admin1@example.com', 'admin2@example.com', 'admin3@example.com'];
         const APPROVER_MAP = { 'admin1@example.com': 'HFS', 'admin3@example.com': 'WKS', 'admin2@example.com': 'TFH' };
-        let currentClaims = [], isAuthorized = false, targetTab = 'create', editingId = null, currentApproverInitials = '';
+        let currentClaims = [], isAuthorized = true, targetTab = 'create', editingId = null, currentApproverInitials = '';
         const formatRM = (num) => num.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const createRow = (label, value) => `<tr><td style="padding: 8px 0; color: #64748b; font-size: 12px; font-weight: bold;">${label}</td><td style="padding: 8px 0; color: #0f172a; font-size: 14px; font-weight: bold; text-align: right;">${value}</td></tr>`;
 
