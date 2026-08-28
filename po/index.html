@@ -79,26 +79,6 @@
         </div>
 
         <div id="tab-create">
-            <section id="ai-scan-container" class="mb-6 bg-slate-900 p-6 rounded-[2.5rem] shadow-xl border-t-4 border-slate-500 text-white">
-                <div class="flex justify-between items-center mb-4">
-                    <div>
-                        <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400 italic">Smart Scanner</h2>
-                        <p class="text-[14px] font-bold">Auto-Extract Invoice / Quotation</p>
-                    </div>
-                    <i data-lucide="sparkles" class="w-6 h-6 text-slate-400"></i>
-                </div>
-                <div class="flex gap-3">
-                    <label id="drop-zone" for="quotation-file" class="flex-1 bg-white/5 border-2 border-dashed border-slate-500 hover:border-slate-500 hover:bg-slate-500/10 p-8 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all min-h-[140px]">
-                        <i data-lucide="camera" class="w-8 h-8 mb-3 text-slate-500"></i>
-                        <span class="text-[11px] font-black uppercase tracking-widest text-center text-slate-300">Scan Document (Drop PDF/Img Here)<br><span class="text-[9px] font-medium text-slate-400 normal-case mt-1 inline-block">or click to browse your files</span></span>
-                        <input type="file" id="quotation-file" accept="image/*,.pdf" class="hidden" onchange="handleAIProcessing(this)">
-                    </label>
-                    <div id="ai-status" class="hidden flex-1 bg-slate-500/10 border-2 border-slate-500/20 p-4 rounded-2xl flex flex-col items-center justify-center gap-2">
-                        <div class="w-4 h-4 border-2 border-slate-500 border-t-transparent rounded-full animate-spin"></div>
-                        <span id="ai-status-text" class="text-[9px] font-black uppercase tracking-widest text-slate-500 text-center">Reading...</span>
-                    </div>
-                </div>
-            </section>
 
             <form id="po-form" class="space-y-6">
                 <section class="bg-white p-6 rounded-[2.5rem] shadow-sm border space-y-4">
@@ -275,13 +255,6 @@
     </div>
 
     <script>
-        // AI calls now go through our own server-side proxy (key stays on the server).
-        const GEMINI_PROXY = '/api/gemini';
-        async function aiAuthHeaders(extra = {}) {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            return { 'Authorization': `Bearer ${session?.access_token || ''}`, ...extra };
-        }
-
         const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
         const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -364,20 +337,6 @@
 
             fetchRecords();
 
-            const dropZone = document.getElementById('drop-zone');
-            if(dropZone) {
-                dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-                dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); });
-                dropZone.addEventListener('drop', (e) => {
-                    e.preventDefault(); dropZone.classList.remove('drag-over');
-                    if(e.dataTransfer.files.length) {
-                        const fileInput = document.getElementById('quotation-file');
-                        fileInput.files = e.dataTransfer.files;
-                        handleAIProcessing(fileInput);
-                    }
-                });
-            }
-
             const supDropZone = document.getElementById('sup-drop-zone');
             if(supDropZone) {
                 supDropZone.addEventListener('dragover', (e) => { e.preventDefault(); supDropZone.classList.add('drag-over'); });
@@ -392,97 +351,6 @@
                     }
                 });
             }
-        }
-
-        async function getWorkingModel() {
-            const preferred = ["gemini-3-flash-preview", "gemini-flash-latest", "gemini-2.5-flash"];
-            try {
-                const res = await fetch(`${GEMINI_PROXY}/v1beta/models`, { headers: await aiAuthHeaders() });
-                const data = await res.json();
-                for (const p of preferred) {
-                    const m = data.models.find(mod => mod.name.includes(p) && mod.supportedGenerationMethods.includes("generateContent"));
-                    if (m) return m.name;
-                }
-                const m = data.models.find(mod => mod.name.includes("flash") && mod.supportedGenerationMethods.includes("generateContent"));
-                return m ? m.name : "models/gemini-3-flash-preview";
-            } catch (e) { return "models/gemini-3-flash-preview"; }
-        }
-
-        async function handleAIProcessing(input) {
-            const file = input.files[0];
-            if (!file) return;
-            const statusEl = document.getElementById('ai-status');
-            const statusText = document.getElementById('ai-status-text');
-            statusEl.classList.remove('hidden');
-            input.parentElement.classList.add('hidden');
-
-            const modelName = await getWorkingModel();
-            statusText.innerText = `Scanning Document...`;
-            
-            try {
-                let mime = file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg');
-                const uploadRes = await fetch(`${GEMINI_PROXY}/upload/v1beta/files`, {
-                    method: 'POST', headers: await aiAuthHeaders({ 'X-Goog-Upload-Protocol': 'raw', 'X-Goog-Upload-Header-Content-Type': mime, 'Content-Type': mime }), body: file
-                });
-                const uploadData = await uploadRes.json();
-                const fileUri = uploadData.file.uri;
-
-                const response = await fetch(`${GEMINI_PROXY}/v1beta/${modelName}:generateContent`, {
-                    method: 'POST', headers: await aiAuthHeaders({ 'Content-Type': 'application/json' }),
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Act as a professional procurement manager. Extract data from this document (quotation or invoice) to generate a Purchase Order. Ensure item descriptions are professional and accurate. Return ONLY a raw JSON object with exactly these keys: billed_to (string, identify which of our companies this is addressed to: output 'SOLUTIONS' if COMPANY A, 'OPTIMIZATION' if COMPANY B, 'ENERGY' if COMPANY C, otherwise null), supplier_name (string), supplier_address (string), items (array of objects, each item object must have keys: desc (string, write like a professional procurement listing), qty (number), unit (string, e.g. lot, pcs, kg), price (number, unit price before tax), sst (number, the SST or Tax percentage applied to this item, e.g. 0, 6, 8, or 10. Default to 0 if none is found)). Do not wrap in markdown." }, { fileData: { mimeType: mime, fileUri: fileUri } }] }],
-                        generationConfig: { responseMimeType: "application/json" }
-                    })
-                });
-                
-                const result = await response.json();
-                let rawText = result.candidates[0].content.parts[0].text;
-                rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-                const data = JSON.parse(rawText);
-                
-                if (data.billed_to && ['SOLUTIONS', 'OPTIMIZATION', 'ENERGY'].includes(data.billed_to)) {
-                    document.getElementById('issuing-company').value = data.billed_to;
-                    toggleSSTFields();
-                }
-
-                if (data.supplier_name) document.getElementById('supplier-name').value = data.supplier_name;
-                if (data.supplier_address) document.getElementById('supplier-address').value = data.supplier_address;
-
-                if (data.items && data.items.length > 0) {
-                    const rows = document.querySelectorAll('.item-row');
-                    if (rows.length === 1) {
-                        const inputs = rows[0].querySelectorAll('input');
-                        if (inputs[0].value === "" && inputs[1].value === "" && inputs[3].value === "") {
-                            rows[0].remove();
-                        }
-                    }
-
-                    const isSSTAllowed = CO_DATA[document.getElementById('issuing-company').value].sst;
-
-                    data.items.forEach(item => {
-                        addItemRow(); 
-                        const newRows = document.querySelectorAll('.item-row'); 
-                        const lastRow = newRows[newRows.length - 1]; 
-                        const inputs = lastRow.querySelectorAll('input'); 
-                        
-                        inputs[0].value = item.desc || ""; 
-                        inputs[1].value = item.qty || 1; 
-                        inputs[2].value = item.unit || ""; 
-                        inputs[3].value = item.price || 0; 
-                        
-                        if (inputs[4]) {
-                            inputs[4].value = isSSTAllowed ? (item.sst || "") : "";
-                        }
-                    });
-                }
-            } catch (err) {
-                console.error("Scan Error:", err);
-                alert("Failed to scan document. Please check the file or enter data manually.");
-            }
-
-            statusEl.classList.add('hidden');
-            input.parentElement.classList.remove('hidden');
-            input.value = ""; 
         }
 
         async function setAutoPONumber() {

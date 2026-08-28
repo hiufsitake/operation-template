@@ -57,22 +57,6 @@
 
     <main class="max-w-4xl mx-auto p-4 mt-6">
         <div id="tab-scan" class="space-y-6">
-            <section class="bg-slate-900 p-6 rounded-[2.5rem] shadow-xl border-t-4 border-slate-500 text-white">
-                <div class="flex justify-between items-center mb-4">
-                    <div>
-                        <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400 italic">Smart Scanner</h2>
-                        <p class="text-[14px] font-bold">PDF Auto-Extraction</p>
-                    </div>
-                    <i data-lucide="sparkles" class="w-6 h-6 text-slate-400"></i>
-                </div>
-                <div class="flex gap-3">
-                    <label id="drop-zone" for="pdf-file" class="file-drop-zone flex-1 bg-white/5 border-2 border-dashed border-slate-500 hover:border-slate-500 hover:bg-slate-500/10 p-8 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all min-h-[140px]" style="--drag-theme: #b0b0b0; --drag-bg: rgba(176, 176, 176, 0.1);">
-                        <i data-lucide="file-up" class="w-8 h-8 mb-3 text-slate-500"></i>
-                        <span id="file-label" class="text-[11px] font-black uppercase tracking-widest text-center text-slate-300">Scan Merged Receipts (Drop PDF Here)<br><span class="text-[9px] font-medium text-slate-400 normal-case mt-1 inline-block">or click to browse your files</span></span>
-                        <input type="file" id="pdf-file" accept="application/pdf" class="hidden" onchange="if(this.files[0]) { document.getElementById('file-label').innerText = this.files[0].name; processFiles(); }">
-                    </label>
-                </div>
-            </section>
 
             <section id="results-section" class="hidden bg-white p-6 rounded-[2rem] shadow-sm border space-y-4">
                 <div class="flex justify-between items-center mb-2">
@@ -118,28 +102,6 @@
 
         // Approval gate: only admins or staff-table members may use this module.
 
-        // AI calls now go through our own server-side proxy (key stays on the server).
-        const GEMINI_PROXY = '/api/gemini';
-        async function aiAuthHeaders(extra = {}) {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            return { 'Authorization': `Bearer ${session?.access_token || ''}`, ...extra };
-        }
-
-        // Pick the best available model, falling back if a preview model is retired.
-        async function getWorkingModel() {
-            const preferred = ["gemini-3-flash-preview", "gemini-flash-latest", "gemini-2.5-flash"];
-            try {
-                const res = await fetch(`${GEMINI_PROXY}/v1beta/models`, { headers: await aiAuthHeaders() });
-                const data = await res.json();
-                for (const p of preferred) {
-                    const m = data.models.find(mod => mod.name.includes(p) && mod.supportedGenerationMethods.includes("generateContent"));
-                    if (m) return m.name;
-                }
-                const m = data.models.find(mod => mod.name.includes("flash") && mod.supportedGenerationMethods.includes("generateContent"));
-                return m ? m.name : "models/gemini-3-flash-preview";
-            } catch (e) { return "models/gemini-3-flash-preview"; }
-        }
-        
         let customerDB = [];
         let receiptsQueue = [];
 
@@ -152,42 +114,6 @@
         async function init() {
             lucide.createIcons();
             await fetchMasterDatabase();
-
-            // --- ADDED DRAG AND DROP EVENT LISTENERS (Foolproof Version) ---
-            const dropZone = document.getElementById('drop-zone');
-            if(dropZone) {
-                // Prevent default behaviors so the browser allows dropping
-                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }, false);
-                });
-
-                // Add the yellow highlight when dragging over
-                ['dragenter', 'dragover'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, () => {
-                        dropZone.classList.add('drag-over');
-                    }, false);
-                });
-
-                // Remove the highlight when dragging leaves or drops
-                ['dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, () => {
-                        dropZone.classList.remove('drag-over');
-                    }, false);
-                });
-
-                // Handle the actual file drop
-                dropZone.addEventListener('drop', (e) => {
-                    if(e.dataTransfer.files.length) {
-                        const fileInput = document.getElementById('pdf-file');
-                        fileInput.files = e.dataTransfer.files;
-                        document.getElementById('file-label').innerText = e.dataTransfer.files[0].name;
-                        processFiles();
-                    }
-                });
-            }
         }
 
         function switchTab(tabId) {
@@ -218,57 +144,6 @@
                 return db.length > 3 && (target.includes(db) || db.includes(target));
             });
             return match ? match.email : '';
-        }
-
-        async function processFiles() {
-            const file = document.getElementById('pdf-file').files[0];
-            if (!file) return alert("Select PDF.");
-            const label = document.getElementById('file-label');
-            const dropZone = document.getElementById('drop-zone');
-            dropZone.style.pointerEvents = 'none';
-            try {
-                const pdfBytes = await file.arrayBuffer();
-                const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-                const pages = pdfDoc.getPages();
-                document.getElementById('results-section').classList.remove('hidden');
-                const tbody = document.getElementById('queue-body');
-                tbody.innerHTML = ''; receiptsQueue = [];
-                const modelName = await getWorkingModel();
-                for (let i = 0; i < pages.length; i++) {
-                    label.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin inline-block"></i> Scanning (${i+1}/${pages.length})...`;
-                    lucide.createIcons();
-                    const single = await PDFLib.PDFDocument.create();
-                    const [page] = await single.copyPages(pdfDoc, [i]);
-                    single.addPage(page);
-                    const b64 = safeUint8ToBase64(await single.save());
-                    const res = await fetch(`${GEMINI_PROXY}/v1beta/${modelName}:generateContent`, {
-                        method: "POST", headers: await aiAuthHeaders({ "Content-Type": "application/json" }),
-                        body: JSON.stringify({ contents: [{ parts: [{ text: `Extract ONLY JSON. Keys: "issuer", "receipt_no", "customer_name", "description".` }, { inline_data: { mime_type: "application/pdf", data: b64 } }] }] })
-                    });
-                    const jsonRes = await res.json();
-                    let rawText = jsonRes.candidates[0].content.parts[0].text;
-                    rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
-                    const ext = JSON.parse(rawText);
-                    const email = matchEmail(ext.customer_name);
-                    const item = { id: i, base64: b64, ...ext, email, status: email ? 'Ready' : 'Pending' };
-                    receiptsQueue.push(item);
-                    tbody.innerHTML += `
-                        <tr id="row-${i}" class="hover:bg-slate-50 transition-colors border-b border-slate-50">
-                            <td class="p-3 text-[9px] font-bold text-slate-400 uppercase">${item.issuer || '-'}</td>
-                            <td class="p-3 text-[11px] font-black text-slate-800">${item.receipt_no || '-'}</td>
-                            <td class="p-3 text-[10px] font-bold text-slate-600">${item.customer_name || '-'}</td>
-                            <td class="p-3"><input type="email" value="${item.email}" onchange="updateRow(${i}, this.value)" class="w-full bg-slate-100 border-none p-2 rounded-lg text-[10px] font-bold focus:ring-2 focus:ring-slate-500 outline-none"></td>
-                            <td class="p-3"><span id="stat-${i}" class="badge ${item.status === 'Ready' ? 'badge-ready' : 'badge-pending'}">${item.status}</span></td>
-                            <td class="p-3 text-center flex gap-1 justify-center">
-                                <button onclick="sendSingleRow(${i})" class="text-slate-500 hover:bg-slate-50 p-2 rounded-lg transition-all"><i data-lucide="send" class="w-4 h-4"></i></button>
-                                <button onclick="viewPDF(${i})" class="text-slate-500 hover:bg-slate-50 p-2 rounded-lg transition-all"><i data-lucide="eye" class="w-4 h-4"></i></button>
-                                <button onclick="document.getElementById('row-${i}').remove()" class="text-slate-400 hover:bg-slate-50 p-2 rounded-lg transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                            </td>
-                        </tr>`;
-                    lucide.createIcons();
-                }
-            } catch (e) { alert("Processing Error: " + e.message); }
-            finally { label.innerText = file.name; dropZone.style.pointerEvents = 'auto'; lucide.createIcons(); }
         }
 
         function updateRow(id, mail) {

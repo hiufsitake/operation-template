@@ -50,32 +50,6 @@
 
     <main class="max-w-7xl mx-auto p-4 mt-6 space-y-6">
         
-        <section class="bg-slate-900 p-6 rounded-[2.5rem] shadow-xl border-t-4 border-slate-500 text-white">
-            <div class="flex justify-between items-center mb-4">
-                <div>
-                    <h2 class="font-black uppercase text-[10px] tracking-widest text-slate-400 italic">SMART SCANNER</h2>
-                    <p class="text-[14px] font-bold">Upload Master List</p>
-                </div>
-                <i data-lucide="database" class="w-6 h-6 text-slate-400"></i>
-            </div>
-
-            <div class="flex gap-3 mb-4">
-                <label id="db-drop-zone" for="excel-file" class="file-drop-zone flex-1 bg-white/5 border-2 border-dashed border-slate-500 hover:border-slate-500 hover:bg-slate-500/10 p-8 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all min-h-[140px]" style="--drag-theme: #808080; --drag-bg: rgba(128, 128, 128, 0.1);">
-                    <i data-lucide="file-spreadsheet" class="w-8 h-8 mb-3 text-slate-500"></i>
-                    <span id="excel-label" class="text-[11px] font-black uppercase tracking-widest text-center text-slate-300">Drag & Drop Excel/CSV File Here<br><span class="text-[9px] font-medium text-slate-400 normal-case mt-1 inline-block">or click to browse your files</span></span>
-                    <input type="file" id="excel-file" accept=".xlsx, .xls, .csv" class="hidden" onchange="if(this.files[0]) { document.getElementById('excel-label').innerText = this.files[0].name; loadExcel(this.files[0]); }">
-                </label>
-            </div>
-
-            <div class="flex justify-between items-center bg-slate-800 p-4 rounded-2xl">
-                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Current Status:</span>
-                <span id="db-status-text" class="bg-slate-500/20 text-slate-400 px-3 py-1 rounded-lg text-[9px] font-black uppercase">Synced: 0 Customers</span>
-            </div>
-
-            <button onclick="syncToSupabase()" id="sync-btn" class="w-full mt-4 bg-slate-500 text-[#171717] font-black p-4 rounded-2xl uppercase tracking-widest text-[10px] shadow-lg flex items-center justify-center gap-2 hover:bg-slate-400 transition-all">
-                <i data-lucide="cloud-upload" class="w-4 h-4"></i> Overwrite & Sync Database
-            </button>
-        </section>
 
         <section class="bg-white p-6 rounded-[2rem] shadow-sm border space-y-4">
             <div class="flex justify-between items-center mb-4">
@@ -174,42 +148,6 @@
         async function init() {
             lucide.createIcons();
             
-            // --- ADDED DRAG AND DROP EVENT LISTENERS (Foolproof Version) ---
-            const dropZone = document.getElementById('db-drop-zone');
-            if(dropZone) {
-                // Prevent default behaviors so the browser allows dropping
-                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }, false);
-                });
-
-                // Add the emerald highlight when dragging over
-                ['dragenter', 'dragover'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, () => {
-                        dropZone.classList.add('drag-over');
-                    }, false);
-                });
-
-                // Remove the highlight when dragging leaves or drops
-                ['dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, () => {
-                        dropZone.classList.remove('drag-over');
-                    }, false);
-                });
-
-                // Handle the actual file drop
-                dropZone.addEventListener('drop', (e) => {
-                    if(e.dataTransfer.files.length) {
-                        const fileInput = document.getElementById('excel-file');
-                        fileInput.files = e.dataTransfer.files;
-                        document.getElementById('excel-label').innerText = e.dataTransfer.files[0].name;
-                        loadExcel(e.dataTransfer.files[0]);
-                    }
-                });
-            }
-
             await fetchCustomers();
         }
 
@@ -218,7 +156,6 @@
                 const { data, error } = await supabaseClient.from('customers').select('*').order('company_name');
                 if (error) throw error;
                 liveDatabase = data || [];
-                document.getElementById('db-status-text').innerText = `SYNCED: ${liveDatabase.length} CUSTOMERS`;
                 renderTable();
             } catch (err) { console.error("Database Load Error:", err); }
         }
@@ -267,67 +204,6 @@
                 (c.remark && c.remark.toLowerCase().includes(query))
             );
             renderTable(filtered);
-        }
-
-        async function loadExcel(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
-                let nIdx = -1, aIdx = -1, pIdx = -1, hIdx = -1, eIdx = -1, rIdx = -1;
-                let temp = [];
-                for (let r = 0; r < rows.length; r++) {
-                    const row = rows[r]; if (!row) continue;
-                    if (nIdx === -1) {
-                        row.forEach((cell, c) => {
-                            const v = String(cell || '').toLowerCase().trim();
-                            if (v.includes('company name')) nIdx = c;
-                            else if (v.includes('email')) eIdx = c; 
-                            else if (v.includes('address')) aIdx = c;
-                            else if (v.includes('pic')) pIdx = c;
-                            else if (v.includes('h/p') || v.includes('hp')) hIdx = c;
-                            else if (v.includes('remark')) rIdx = c;
-                        });
-                    } else if (row[nIdx]) {
-                        temp.push({ 
-                            name: String(row[nIdx] || '').trim(), 
-                            address: aIdx !== -1 ? String(row[aIdx] || '').trim() : '',
-                            pic: pIdx !== -1 ? String(row[pIdx] || '').trim() : '',
-                            hp: hIdx !== -1 ? String(row[hIdx] || '').trim() : '',
-                            email: eIdx !== -1 ? String(row[eIdx] || '').trim() : '',
-                            remark: rIdx !== -1 ? String(row[rIdx] || '').trim() : ''
-                        });
-                    }
-                }
-                customerDB = temp;
-                document.getElementById('db-status-text').innerText = `READY TO SYNC: ${customerDB.length} CUSTOMERS`;
-                document.getElementById('db-status-text').className = "bg-slate-500/20 text-slate-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase";
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        async function syncToSupabase() {
-            const btn = document.getElementById('sync-btn');
-            if (customerDB.length === 0) return alert("Please select an Excel file first.");
-            if (!confirm("WARNING: This will overwrite the entire database with the uploaded Excel file. Continue?")) return;
-            
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Syncing...`; btn.disabled = true;
-            lucide.createIcons();
-            try {
-                await supabaseClient.from('customers').delete().not('company_name', 'is', null);
-                const { error } = await supabaseClient.from('customers').insert(customerDB.map(c => ({ 
-                    company_name: c.name, address: c.address, pic: c.pic, hp: c.hp, email_address: c.email, remark: c.remark
-                })));
-                if (error) throw error;
-                alert("Cloud Database Updated Successfully!");
-                await fetchCustomers(); 
-                document.getElementById('excel-file').value = "";
-                document.getElementById('excel-label').innerHTML = `Drag & Drop Excel/CSV File Here<br><span class="text-[9px] font-medium text-slate-400 normal-case mt-1 inline-block">or click to browse your files</span>`;
-            } catch (err) { alert("Sync Error: " + err.message); }
-            finally { 
-                btn.innerHTML = `<i data-lucide="cloud-upload" class="w-4 h-4"></i> Overwrite & Sync Database`; 
-                btn.disabled = false; lucide.createIcons(); 
-            }
         }
 
         function openModal() {
