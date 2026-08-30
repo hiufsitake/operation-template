@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="../applogo.png">
+    <link rel="manifest" href="../manifest.json">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../ilogo.PNG" type="image/png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../vendor/lucide.min.js"></script>
+    <script src="../vendor/jspdf.umd.min.js"></script>
+    <script src="../vendor/jspdf.plugin.autotable.min.js"></script>
+
+    <title>Company | Subscription Request</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        .input-box { border: 2px solid #f1f5f9; padding: 0.85rem 1rem; border-radius: 1rem; background: #f8fafc; font-weight: 700; width: 100%; outline: none; transition: all 0.2s; font-size: 0.875rem; }
+        .input-box:focus { border-color: #10b981; background: white; }
+        .input-box::placeholder { color: #94a3b8; font-weight: 500; }
+        .field-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-left: 0.5rem; }
+        .req::after { content: " *"; color: #ef4444; }
+
+        /* Module selection cards */
+        .mod-card { position: relative; cursor: pointer; border: 2px solid #f1f5f9; background: #fff; border-radius: 1.5rem; padding: 1.15rem; transition: all 0.18s cubic-bezier(0.4,0,0.2,1); display: flex; gap: 0.9rem; align-items: flex-start; }
+        .mod-card:hover { border-color: #cbd5e1; transform: translateY(-2px); box-shadow: 0 10px 20px -8px rgba(0,0,0,0.15); }
+        .mod-card input { position: absolute; opacity: 0; pointer-events: none; }
+        .mod-card.selected { border-color: #10b981; background: #f0fdf9; box-shadow: 0 10px 20px -10px rgba(16,185,129,0.45); }
+        .mod-check { width: 22px; height: 22px; border-radius: 8px; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: auto; transition: all 0.18s; color: transparent; background: #fff; }
+        .mod-card.selected .mod-check { background: #10b981; border-color: #10b981; color: #fff; }
+
+        .term-opt { cursor: pointer; position: relative; }
+        .term-opt input { position: absolute; opacity: 0; pointer-events: none; }
+        .term-box { border: 2px solid #f1f5f9; border-radius: 1.25rem; padding: 1rem; text-align: center; transition: all 0.18s; background: #fff; }
+        .term-opt:hover .term-box { border-color: #cbd5e1; }
+        .term-opt.selected .term-box { border-color: #10b981; background: #f0fdf9; box-shadow: 0 8px 18px -10px rgba(16,185,129,0.5); }
+
+        .summary-card { position: sticky; top: 6.5rem; }
+        @media (max-width: 1023px) { .summary-card { position: static; } }
+
+        .toast { position: fixed; left: 50%; transform: translateX(-50%) translateY(140%); bottom: 1.5rem; transition: transform .35s cubic-bezier(0.34,1.2,0.64,1); z-index: 200; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen pb-24 text-slate-900 font-medium">
+
+    <nav class="bg-[#0f172a] text-white p-5 sticky top-0 z-50 shadow-xl border-b-2 border-emerald-500">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="../index.html" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-all"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+                <h1 class="font-black italic text-xl uppercase tracking-tighter leading-none">COMPANY <span class="text-emerald-500 uppercase text-xs">Request</span></h1>
+            </div>
+            <button onclick="downloadPDF()" class="bg-emerald-500 hover:bg-emerald-400 text-[#0f172a] px-4 py-2 rounded-xl font-black text-[10px] uppercase flex items-center gap-2 transition-all shadow-sm">
+                <i data-lucide="download" class="w-4 h-4"></i> <span class="hidden sm:inline">Download PDF</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-4 mt-6 space-y-6">
+
+        <!-- Hero -->
+        <section class="bg-[#0f172a] text-white p-8 md:p-10 rounded-[2.5rem] shadow-xl border-t-4 border-emerald-500">
+            <p class="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 italic mb-2">Operations Portal</p>
+            <h2 class="text-2xl md:text-3xl font-black uppercase italic tracking-tight leading-tight">Subscription Request Form</h2>
+            <p class="text-slate-400 text-xs font-bold mt-3 max-w-2xl leading-relaxed">
+                Choose only the modules you need. Each module is <span class="text-emerald-400">RM100 per month</span>,
+                billed as a <span class="text-emerald-400">6-month upfront payment</span> that covers development and
+                deployment of your portal.
+            </p>
+            <div class="flex flex-wrap gap-3 mt-6">
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3">
+                    <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Per Module</p>
+                    <p class="text-lg font-black text-emerald-400">RM100<span class="text-[10px] text-slate-400"> /month</span></p>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3">
+                    <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Minimum Term</p>
+                    <p class="text-lg font-black text-white">6 <span class="text-[10px] text-slate-400">months upfront</span></p>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3">
+                    <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Modules Available</p>
+                    <p class="text-lg font-black text-white">9</p>
+                </div>
+            </div>
+        </section>
+
+        <form id="request-form" onsubmit="return false;">
+        <div class="grid lg:grid-cols-3 gap-6 items-start">
+
+            <!-- LEFT: form fields -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Company information -->
+                <section class="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border space-y-5">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-emerald-500 text-white p-2.5 rounded-xl"><i data-lucide="building-2" class="w-4 h-4"></i></div>
+                        <div>
+                            <h3 class="font-black uppercase italic text-slate-800 text-sm tracking-tight">Company Information</h3>
+                            <p class="text-[10px] font-bold text-slate-400">Details used on your invoice and portal letterhead</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="field-label req">Company Name</label>
+                        <input type="text" id="c-name" class="input-box" placeholder="e.g. Acme Engineering Sdn. Bhd." required>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="field-label req">Business Registration No. (BRN / SSM)</label>
+                            <input type="text" id="c-brn" class="input-box" placeholder="e.g. 202301012345 (1501234-A)" required>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="field-label">SST Registration No.</label>
+                            <input type="text" id="c-sst" class="input-box" placeholder="Leave blank if not registered">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="field-label req">Registered Business Address</label>
+                        <textarea id="c-address" rows="3" class="input-box" placeholder="Unit / Street / Building" required></textarea>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="space-y-1">
+                            <label class="field-label req">Postcode</label>
+                            <input type="text" id="c-postcode" class="input-box" placeholder="98000" required>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="field-label req">City</label>
+                            <input type="text" id="c-city" class="input-box" placeholder="Miri" required>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="field-label req">State</label>
+                            <input type="text" id="c-state" class="input-box" placeholder="Sarawak" required>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="field-label req">Company Phone</label>
+                            <input type="tel" id="c-phone" class="input-box" placeholder="+60 85-000 000" required>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="field-label req">Company Email</label>
+                            <input type="email" id="c-email" class="input-box" placeholder="accounts@yourcompany.com" required>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="field-label">Industry</label>
+                            <input type="text" id="c-industry" class="input-box" placeholder="e.g. Construction, Oil &amp; Gas, Trading">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="field-label">Estimated Portal Users</label>
+                            <select id="c-users" class="input-box text-slate-600">
+                                <option value="1 – 10">1 – 10</option>
+                                <option value="11 – 25">11 – 25</option>
+                                <option value="26 – 50">26 – 50</option>
+                                <option value="51 – 100">51 – 100</option>
+                                <option value="More than 100">More than 100</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PIC -->
+                <section class="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border space-y-5">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-blue-500 text-white p-2.5 rounded-xl"><i data-lucide="user-round" class="w-4 h-4"></i></div>
+                        <div>
+                            <h3 class="font-black uppercase italic text-slate-800 text-sm tracking-tight">Person In Charge</h3>
+                            <p class="text-[10px] font-bold text-slate-400">Who we coordinate the rollout with</p>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="field-label req">Full Name</label>
+                            <input type="text" id="p-name" class="input-box" placeholder="Full name" required>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="field-label req">Designation</label>
+                            <input type="text" id="p-role" class="input-box" placeholder="e.g. Operations Manager" required>
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="field-label req">Mobile No.</label>
+                            <input type="tel" id="p-phone" class="input-box" placeholder="+60 12-000 0000" required>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="field-label req">Email Address</label>
+                            <input type="email" id="p-email" class="input-box" placeholder="name@yourcompany.com" required>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Modules -->
+                <section class="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border space-y-5">
+                    <div class="flex flex-wrap gap-3 justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-purple-600 text-white p-2.5 rounded-xl"><i data-lucide="layout-grid" class="w-4 h-4"></i></div>
+                            <div>
+                                <h3 class="font-black uppercase italic text-slate-800 text-sm tracking-tight">Select Your Modules</h3>
+                                <p class="text-[10px] font-bold text-slate-400">RM100 per module, per month — pick any combination</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="selectAllModules(true)" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-2 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all">Select All</button>
+                            <button type="button" onclick="selectAllModules(false)" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-2 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all">Clear</button>
+                        </div>
+                    </div>
+
+                    <div id="module-grid" class="grid sm:grid-cols-2 gap-3"></div>
+                    <p id="module-warning" class="hidden text-[11px] font-bold text-red-500 bg-red-50 p-3 rounded-xl">Please select at least one module.</p>
+                </section>
+
+                <!-- Term -->
+                <section class="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border space-y-5">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-orange-500 text-white p-2.5 rounded-xl"><i data-lucide="calendar-clock" class="w-4 h-4"></i></div>
+                        <div>
+                            <h3 class="font-black uppercase italic text-slate-800 text-sm tracking-tight">Subscription Term</h3>
+                            <p class="text-[10px] font-bold text-slate-400">Minimum 6 months, paid upfront</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="term-opt selected" data-months="6">
+                            <input type="radio" name="term" value="6" checked>
+                            <div class="term-box">
+                                <p class="text-xl font-black text-slate-800">6</p>
+                                <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-1">Months</p>
+                                <p class="text-[9px] font-black uppercase tracking-widest text-emerald-600 mt-1">Minimum</p>
+                            </div>
+                        </label>
+                        <label class="term-opt" data-months="12">
+                            <input type="radio" name="term" value="12">
+                            <div class="term-box">
+                                <p class="text-xl font-black text-slate-800">12</p>
+                                <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-1">Months</p>
+                                <p class="text-[9px] font-black uppercase tracking-widest text-slate-300 mt-1">1 Year</p>
+                            </div>
+                        </label>
+                        <label class="term-opt" data-months="24">
+                            <input type="radio" name="term" value="24">
+                            <div class="term-box">
+                                <p class="text-xl font-black text-slate-800">24</p>
+                                <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-1">Months</p>
+                                <p class="text-[9px] font-black uppercase tracking-widest text-slate-300 mt-1">2 Years</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="field-label">Preferred Start Date</label>
+                            <input type="date" id="s-start" class="input-box text-slate-600">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="field-label">How did you hear about us?</label>
+                            <input type="text" id="s-source" class="input-box" placeholder="Referral, demo, website…">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="field-label">Additional Requirements / Notes</label>
+                        <textarea id="s-notes" rows="3" class="input-box" placeholder="Custom fields, approval flow, integrations, branding requests…"></textarea>
+                    </div>
+                </section>
+            </div>
+
+            <!-- RIGHT: sticky summary -->
+            <div class="lg:col-span-1">
+                <div class="summary-card bg-[#0f172a] text-white p-6 rounded-[2rem] shadow-xl border-t-4 border-emerald-500 space-y-5">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400 italic">Order Summary</p>
+                        <p class="text-[11px] font-bold text-slate-400 mt-1">Updates as you choose</p>
+                    </div>
+
+                    <div id="summary-modules" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+                        <p class="text-[11px] font-bold text-slate-500 italic">No modules selected yet.</p>
+                    </div>
+
+                    <div class="border-t border-slate-700 pt-4 space-y-2.5 text-[11px] font-bold">
+                        <div class="flex justify-between text-slate-400">
+                            <span>Modules selected</span>
+                            <span id="sum-count" class="text-white">0</span>
+                        </div>
+                        <div class="flex justify-between text-slate-400">
+                            <span>Rate per module</span>
+                            <span class="text-white">RM100 / month</span>
+                        </div>
+                        <div class="flex justify-between text-slate-400">
+                            <span>Term</span>
+                            <span id="sum-term" class="text-white">6 months</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4">
+                        <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Calculation</p>
+                        <p id="sum-formula" class="text-[11px] font-bold text-slate-300">0 × RM100 × 6 months</p>
+                    </div>
+
+                    <div class="border-t border-slate-700 pt-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-emerald-400">Total Payable Upfront</p>
+                        <p id="sum-total" class="text-3xl font-black text-white mt-1">RM 0.00</p>
+                        <p class="text-[9px] font-bold text-slate-500 mt-2 leading-relaxed">
+                            Covers development, deployment and hosting for the selected term.
+                            SST will be added where applicable.
+                        </p>
+                    </div>
+
+                    <div class="space-y-2.5">
+                        <button type="button" onclick="submitRequest()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-[#0f172a] font-black p-4 rounded-2xl uppercase tracking-widest text-[10px] transition-all shadow-lg flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i> Submit Request
+                        </button>
+                        <button type="button" onclick="downloadPDF()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-black p-4 rounded-2xl uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="file-down" class="w-4 h-4"></i> Download as PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </form>
+
+        <footer class="text-center py-6">
+            <p class="text-[9px] font-black uppercase tracking-[0.5em] text-slate-400">© 2026 All Rights Reserved.</p>
+        </footer>
+    </main>
+
+    <!-- Confirmation modal -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[100] p-4">
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden">
+            <div class="bg-emerald-500 p-6 text-center text-[#0f172a]">
+                <div class="bg-white/25 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3"><i data-lucide="check-check" class="w-8 h-8"></i></div>
+                <h2 class="font-black uppercase italic tracking-tight text-lg">Request Ready</h2>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-xs font-bold text-slate-500 leading-relaxed">
+                    Here is a summary of your request. Download the PDF and email it to us, or send it
+                    directly from your mail client using the button below.
+                </p>
+                <div id="confirm-body" class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-[11px] font-bold text-slate-600 space-y-1.5 max-h-64 overflow-y-auto"></div>
+                <div class="flex flex-col sm:flex-row gap-3 pt-1">
+                    <button onclick="emailRequest()" class="flex-1 bg-[#0f172a] hover:bg-slate-800 text-white font-black p-4 rounded-2xl uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2"><i data-lucide="mail" class="w-4 h-4"></i> Email Request</button>
+                    <button onclick="downloadPDF()" class="flex-1 bg-emerald-50 text-emerald-600 border border-emerald-100 font-black p-4 rounded-2xl uppercase tracking-widest text-[10px] hover:bg-emerald-100 transition-all flex items-center justify-center gap-2"><i data-lucide="file-down" class="w-4 h-4"></i> Download PDF</button>
+                </div>
+                <button onclick="closeConfirm()" class="w-full text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 pt-1">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast bg-[#0f172a] text-white px-6 py-4 rounded-2xl shadow-2xl text-[11px] font-black uppercase tracking-widest"></div>
+
+    <script>
+        // ── Pricing ───────────────────────────────────────────────────────────
+        const RATE_PER_MODULE = 100;   // RM per module, per month
+        const MIN_MONTHS      = 6;     // minimum upfront term
+
+        // Vendor contact the request is emailed to. Replace with your own.
+        const VENDOR_EMAIL = 'sales@example.com';
+        const VENDOR_NAME  = '<Company Name> Sdn. Bhd.';
+
+        const MODULES = [
+            { id: 'project',    name: 'Project Management', icon: 'folder-kanban',  color: 'bg-orange-500',   desc: 'Track projects, progress, invoicing and payment status.' },
+            { id: 'po',         name: 'PO System',          icon: 'shopping-cart',  color: 'bg-emerald-500',  desc: 'Raise, approve and issue purchase orders with PDF output.' },
+            { id: 'cashclaim',  name: 'Cash Claim',         icon: 'wallet',         color: 'bg-blue-500',     desc: 'Staff cash reimbursements with approval flow and PDF vouchers.' },
+            { id: 'staffclaim', name: 'Staff Claim',        icon: 'file-signature', color: 'bg-purple-600',   desc: 'Expense claims with itemised entry and approvals.' },
+            { id: 'leave',      name: 'Leave System',       icon: 'calendar',       color: 'bg-slate-900',    desc: 'Leave applications, balances and approval workflow.' },
+            { id: 'receipt',    name: 'Receipt Sender',     icon: 'receipt',        color: 'bg-yellow-500',   desc: 'Issue and email receipts to customers, with history.' },
+            { id: 'customers',  name: 'Customer Database',  icon: 'database',       color: 'bg-emerald-600',  desc: 'Central customer directory with search and contacts.' },
+            { id: 'vehicle',    name: 'Vehicle Management', icon: 'truck',          color: 'bg-red-500',      desc: 'Fleet records with road tax and insurance expiry reminders.' },
+            { id: 'pcm',        name: 'Project Costing',    icon: 'banknote',       color: 'bg-[#78350f]',    desc: 'Cost tracking per project with margin visibility.' }
+        ];
+
+        // ── Render module cards ───────────────────────────────────────────────
+        function renderModules() {
+            document.getElementById('module-grid').innerHTML = MODULES.map(m => `
+                <label class="mod-card" data-id="${m.id}">
+                    <input type="checkbox" value="${m.id}" onchange="onModuleToggle(this)">
+                    <div class="${m.color} text-white p-2.5 rounded-xl shrink-0"><i data-lucide="${m.icon}" class="w-4 h-4"></i></div>
+                    <div class="min-w-0">
+                        <p class="font-black uppercase italic text-slate-800 text-[11px] leading-tight">${m.name}</p>
+                        <p class="text-[10px] font-bold text-slate-400 leading-snug mt-1">${m.desc}</p>
+                        <p class="text-[10px] font-black text-emerald-600 mt-1.5">RM100 / month</p>
+                    </div>
+                    <span class="mod-check"><i data-lucide="check" class="w-3.5 h-3.5"></i></span>
+                </label>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function onModuleToggle(input) {
+            input.closest('.mod-card').classList.toggle('selected', input.checked);
+            updateSummary();
+        }
+
+        function selectAllModules(state) {
+            document.querySelectorAll('#module-grid input[type=checkbox]').forEach(cb => {
+                cb.checked = state;
+                cb.closest('.mod-card').classList.toggle('selected', state);
+            });
+            updateSummary();
+        }
+
+        function selectedModules() {
+            return Array.from(document.querySelectorAll('#module-grid input:checked'))
+                .map(cb => MODULES.find(m => m.id === cb.value));
+        }
+
+        function selectedMonths() {
+            const el = document.querySelector('input[name=term]:checked');
+            return el ? parseInt(el.value, 10) : MIN_MONTHS;
+        }
+
+        // ── Term selection ────────────────────────────────────────────────────
+        document.addEventListener('change', (e) => {
+            if (e.target.name === 'term') {
+                document.querySelectorAll('.term-opt').forEach(o => {
+                    o.classList.toggle('selected', o.querySelector('input').checked);
+                });
+                updateSummary();
+            }
+        });
+
+        // ── Live summary ──────────────────────────────────────────────────────
+        function money(n) {
+            return 'RM ' + n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function updateSummary() {
+            const mods = selectedModules();
+            const months = selectedMonths();
+            const total = mods.length * RATE_PER_MODULE * months;
+
+            document.getElementById('summary-modules').innerHTML = mods.length
+                ? mods.map(m => `
+                    <div class="flex justify-between items-center gap-2 text-[11px] font-bold">
+                        <span class="text-slate-300 truncate">${m.name}</span>
+                        <span class="text-emerald-400 shrink-0">RM${RATE_PER_MODULE}/mo</span>
+                    </div>`).join('')
+                : '<p class="text-[11px] font-bold text-slate-500 italic">No modules selected yet.</p>';
+
+            document.getElementById('sum-count').innerText = mods.length;
+            document.getElementById('sum-term').innerText = months + ' months';
+            document.getElementById('sum-formula').innerText =
+                `${mods.length} module${mods.length === 1 ? '' : 's'} × RM${RATE_PER_MODULE} × ${months} months`;
+            document.getElementById('sum-total').innerText = money(total);
+        }
+
+        // ── Validation + collect ──────────────────────────────────────────────
+        const FIELDS = [
+            ['c-name', 'Company Name'], ['c-brn', 'Business Registration No.'], ['c-address', 'Business Address'],
+            ['c-postcode', 'Postcode'], ['c-city', 'City'], ['c-state', 'State'],
+            ['c-phone', 'Company Phone'], ['c-email', 'Company Email'],
+            ['p-name', 'PIC Name'], ['p-role', 'PIC Designation'], ['p-phone', 'PIC Mobile'], ['p-email', 'PIC Email']
+        ];
+
+        function val(id) { return (document.getElementById(id).value || '').trim(); }
+
+        function collect() {
+            const mods = selectedModules();
+            const months = selectedMonths();
+            return {
+                company: {
+                    name: val('c-name'), brn: val('c-brn'), sst: val('c-sst') || 'Not registered',
+                    address: val('c-address'), postcode: val('c-postcode'), city: val('c-city'), state: val('c-state'),
+                    phone: val('c-phone'), email: val('c-email'),
+                    industry: val('c-industry') || '-', users: document.getElementById('c-users').value
+                },
+                pic: { name: val('p-name'), role: val('p-role'), phone: val('p-phone'), email: val('p-email') },
+                modules: mods, months: months,
+                start: val('s-start') || 'To be confirmed',
+                source: val('s-source') || '-',
+                notes: val('s-notes') || '-',
+                total: mods.length * RATE_PER_MODULE * months
+            };
+        }
+
+        function validate() {
+            for (const [id, label] of FIELDS) {
+                if (!val(id)) {
+                    const el = document.getElementById(id);
+                    el.focus();
+                    el.classList.add('border-red-400');
+                    setTimeout(() => el.classList.remove('border-red-400'), 2500);
+                    showToast('Please fill in: ' + label);
+                    return false;
+                }
+            }
+            if (selectedModules().length === 0) {
+                const w = document.getElementById('module-warning');
+                w.classList.remove('hidden');
+                w.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(() => w.classList.add('hidden'), 4000);
+                return false;
+            }
+            return true;
+        }
+
+        // ── Submit ────────────────────────────────────────────────────────────
+        function submitRequest() {
+            if (!validate()) return;
+            const r = collect();
+            document.getElementById('confirm-body').innerHTML = `
+                <div class="flex justify-between gap-3"><span class="text-slate-400">Company</span><span class="text-right">${esc(r.company.name)}</span></div>
+                <div class="flex justify-between gap-3"><span class="text-slate-400">BRN</span><span class="text-right">${esc(r.company.brn)}</span></div>
+                <div class="flex justify-between gap-3"><span class="text-slate-400">SST No.</span><span class="text-right">${esc(r.company.sst)}</span></div>
+                <div class="flex justify-between gap-3"><span class="text-slate-400">PIC</span><span class="text-right">${esc(r.pic.name)} — ${esc(r.pic.role)}</span></div>
+                <div class="flex justify-between gap-3"><span class="text-slate-400">Modules</span><span class="text-right">${r.modules.length}</span></div>
+                <div class="pl-3 border-l-2 border-emerald-200 space-y-1 my-2">
+                    ${r.modules.map(m => `<div class="text-slate-500">• ${esc(m.name)}</div>`).join('')}
+                </div>
+                <div class="flex justify-between gap-3"><span class="text-slate-400">Term</span><span class="text-right">${r.months} months upfront</span></div>
+                <div class="flex justify-between gap-3 pt-2 border-t border-slate-200 text-emerald-600"><span>Total Payable</span><span class="text-right">${money(r.total)}</span></div>
+            `;
+            const modal = document.getElementById('confirm-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeConfirm() {
+            const modal = document.getElementById('confirm-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+                { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+            ));
+        }
+
+        // ── Email ─────────────────────────────────────────────────────────────
+        function emailRequest() {
+            const r = collect();
+            const lines = [
+                'SUBSCRIPTION REQUEST — OPERATIONS PORTAL', '',
+                '--- COMPANY ---',
+                'Company Name  : ' + r.company.name,
+                'BRN / SSM No. : ' + r.company.brn,
+                'SST Reg. No.  : ' + r.company.sst,
+                'Address       : ' + r.company.address,
+                '                ' + r.company.postcode + ' ' + r.company.city + ', ' + r.company.state,
+                'Phone         : ' + r.company.phone,
+                'Email         : ' + r.company.email,
+                'Industry      : ' + r.company.industry,
+                'Portal Users  : ' + r.company.users, '',
+                '--- PERSON IN CHARGE ---',
+                'Name          : ' + r.pic.name,
+                'Designation   : ' + r.pic.role,
+                'Mobile        : ' + r.pic.phone,
+                'Email         : ' + r.pic.email, '',
+                '--- MODULES REQUESTED (' + r.modules.length + ') ---',
+                ...r.modules.map((m, i) => '  ' + (i + 1) + '. ' + m.name + ' — RM' + RATE_PER_MODULE + '/month'),
+                '',
+                '--- SUBSCRIPTION ---',
+                'Term          : ' + r.months + ' months (upfront)',
+                'Start Date    : ' + r.start,
+                'Calculation   : ' + r.modules.length + ' x RM' + RATE_PER_MODULE + ' x ' + r.months + ' months',
+                'TOTAL PAYABLE : ' + money(r.total), '',
+                '--- OTHER ---',
+                'Heard via     : ' + r.source,
+                'Notes         : ' + r.notes
+            ];
+            const subject = 'Portal Subscription Request — ' + r.company.name;
+            window.location.href = 'mailto:' + VENDOR_EMAIL +
+                '?subject=' + encodeURIComponent(subject) +
+                '&body=' + encodeURIComponent(lines.join('\n'));
+        }
+
+        // ── PDF ───────────────────────────────────────────────────────────────
+        function downloadPDF() {
+            if (!validate()) { closeConfirm(); return; }
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                showToast('PDF library unavailable — use Email Request instead');
+                return;
+            }
+            const r = collect();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const today = new Date().toLocaleDateString('en-GB');
+
+            doc.setFont('helvetica', 'bold').setFontSize(16).text(VENDOR_NAME, 14, 20);
+            doc.setFontSize(9).setFont('helvetica', 'normal').setTextColor(100);
+            doc.text('Operations Portal — Subscription Request Form', 14, 26);
+            doc.setTextColor(0);
+            doc.setFontSize(9).text('Date: ' + today, 196, 20, { align: 'right' });
+            doc.setDrawColor(16, 185, 129).setLineWidth(0.8).line(14, 30, 196, 30);
+
+            doc.autoTable({
+                startY: 36,
+                head: [['Company Information', '']],
+                body: [
+                    ['Company Name', r.company.name],
+                    ['BRN / SSM No.', r.company.brn],
+                    ['SST Registration No.', r.company.sst],
+                    ['Registered Address', r.company.address + '\n' + r.company.postcode + ' ' + r.company.city + ', ' + r.company.state],
+                    ['Phone', r.company.phone],
+                    ['Email', r.company.email],
+                    ['Industry', r.company.industry],
+                    ['Estimated Portal Users', r.company.users]
+                ],
+                theme: 'grid', headStyles: { fillColor: [15, 23, 42] },
+                styles: { fontSize: 9, cellPadding: 2.5 },
+                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 55 } }
+            });
+
+            doc.autoTable({
+                startY: doc.lastAutoTable.finalY + 5,
+                head: [['Person In Charge', '']],
+                body: [
+                    ['Name', r.pic.name], ['Designation', r.pic.role],
+                    ['Mobile', r.pic.phone], ['Email', r.pic.email]
+                ],
+                theme: 'grid', headStyles: { fillColor: [15, 23, 42] },
+                styles: { fontSize: 9, cellPadding: 2.5 },
+                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 55 } }
+            });
+
+            doc.autoTable({
+                startY: doc.lastAutoTable.finalY + 5,
+                head: [['No.', 'Module Requested', 'Rate (RM/month)', 'Months', 'Subtotal (RM)']],
+                body: r.modules.map((m, i) => [
+                    i + 1, m.name,
+                    RATE_PER_MODULE.toFixed(2), r.months,
+                    (RATE_PER_MODULE * r.months).toFixed(2)
+                ]),
+                theme: 'grid', headStyles: { fillColor: [16, 185, 129] },
+                styles: { fontSize: 9, cellPadding: 2.5 },
+                columnStyles: { 0: { cellWidth: 12, halign: 'center' }, 2: { halign: 'right' }, 3: { halign: 'center' }, 4: { halign: 'right' } }
+            });
+
+            let y = doc.lastAutoTable.finalY + 8;
+            doc.setFont('helvetica', 'normal').setFontSize(9).setTextColor(100);
+            doc.text(r.modules.length + ' module(s) x RM' + RATE_PER_MODULE + ' x ' + r.months + ' months (upfront)', 14, y);
+            doc.setTextColor(0).setFont('helvetica', 'bold').setFontSize(13);
+            doc.text('TOTAL PAYABLE UPFRONT: ' + money(r.total), 196, y, { align: 'right' });
+
+            y += 10;
+            doc.setFontSize(9).setFont('helvetica', 'normal');
+            doc.text('Preferred start date: ' + r.start, 14, y); y += 6;
+            const notes = doc.splitTextToSize('Notes: ' + r.notes, 182);
+            doc.text(notes, 14, y); y += notes.length * 5 + 4;
+
+            doc.setFontSize(8).setTextColor(120);
+            const terms = doc.splitTextToSize(
+                'Payment is due upfront for the full term selected and covers development, deployment and hosting of the ' +
+                'selected modules. SST will be added where applicable. This form is a request for service and is not a ' +
+                'binding contract until confirmed in writing by ' + VENDOR_NAME + '.', 182);
+            doc.text(terms, 14, y); y += terms.length * 4 + 12;
+
+            doc.setTextColor(0).setFontSize(9);
+            doc.line(14, y, 80, y); doc.line(120, y, 186, y);
+            doc.text('Authorised Signature & Company Stamp', 14, y + 5);
+            doc.text('Date', 120, y + 5);
+
+            const safe = r.company.name.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '') || 'Request';
+            doc.save('Subscription_Request_' + safe + '.pdf');
+            showToast('PDF downloaded');
+        }
+
+        // ── Toast ─────────────────────────────────────────────────────────────
+        let toastTimer;
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ── Init ──────────────────────────────────────────────────────────────
+        document.getElementById('confirm-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'confirm-modal') closeConfirm();
+        });
+
+        renderModules();
+        updateSummary();
+        lucide.createIcons();
+    </script>
+</body>
+</html>
