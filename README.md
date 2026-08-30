@@ -7,6 +7,25 @@ A template internal web portal for a company's group of businesses, built as a P
 
 ---
 
+## Client Subscription Request Form
+
+`docs/Subscription_Request_Form.xlsx` is the order form to send prospective
+clients. They pick which of the nine modules they want, and the sheet totals the
+upfront cost automatically.
+
+- **RM100 per module, per month**, minimum **6 months paid upfront**
+  (e.g. 3 modules x RM100 x 6 months = RM1,800).
+- Yellow cells are the client's to fill in; the Subtotal and Total Payable cells
+  are formulas and should not be typed over.
+- Captures company name, BRN/SSM, SST registration no., registered address,
+  contact details, person-in-charge, preferred start date and free-text
+  requirements, and ends with a signature/company-stamp block.
+
+To change the rate or the minimum term, edit `RATE` / `MIN_MONTHS` at the top of
+`scripts/build_request_form.py` and rebuild the workbook.
+
+---
+
 ## Modules
 
 | Module | Path | Description |
