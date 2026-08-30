@@ -12,8 +12,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../ilogo.PNG" type="image/png"> 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="/vendor/supabase-js.min.js"></script>
+    <script src="../vendor/lucide.min.js"></script>
+    <script src="../vendor/supabase-js.min.js"></script>
+    <script src="../vendor/demo-data.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
@@ -300,7 +301,7 @@
 </main>
 
     <script>
-        const CO_KEYS = ['SOLUTIONS', 'OPA', 'ADVISORY', 'OPTIMIZATION', 'ENERGY'];
+        const CO_KEYS = ['SOLUTIONS'];
         const ADMIN_EMAILS = ['admin1@example.com', 'admin2@example.com', 'admin3@example.com'];
         let currentProjects = [];
         let activeCompany = 'SOLUTIONS';

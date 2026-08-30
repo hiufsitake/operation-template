@@ -11,8 +11,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="../config.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="/vendor/supabase-js.min.js"></script>
+    <script src="../vendor/lucide.min.js"></script>
+    <script src="../vendor/supabase-js.min.js"></script>
+    <script src="../vendor/demo-data.js"></script>
     <title>Company | PCM (BETA)</title>
 
     <style>
@@ -776,7 +777,7 @@
 
         function filterCompany(company) {
             activeCompanyFilter = company;
-            const buttons = ['All', 'SOLUTIONS', 'OPA', 'ADVISORY', 'OPTIMIZATION', 'ENERGY'];
+            const buttons = ['All', 'SOLUTIONS'];
             buttons.forEach(b => {
                 const el = document.getElementById('filter-' + b);
                 if (b === company) {
@@ -1114,5 +1115,7 @@
 
         window.onload = init;
     </script>
+    <!-- Autocomplete source for project-number inputs (populated by populateDatalist()) -->
+    <datalist id="project-list-options"></datalist>
 </body>
 </html>
