@@ -151,7 +151,7 @@ const HQ_TEL  = "+000-000 0000 (Head Office)";
 ## Auth Flow
 
 - Supabase Email auth (no OAuth)
-- **Demo mode: disabled.** This template repo removed every page's auth guard so it's freely explorable without a Supabase account — `index.html` skips straight to the dashboard and every module page skips its session check. To re-enable real auth, restore the `supabaseClient.auth.getSession()` guard at the top of each module (redirect to `../index.html` when there's no session) and put back `index.html`'s original login/session flow.
+- **Demo mode: no credentials checked.** `index.html` always opens on the login screen, but `handleAuth()` ignores any input and drops the visitor straight into the dashboard — the email/password fields and the register/reset actions are removed, and a notice on the card tells visitors to just click Login. Every module page has its session guard removed too. To re-enable real auth, restore the `supabaseClient.auth.getSession()` guard at the top of each module (redirect to `../index.html` when there's no session) and put back `index.html`'s original login/session flow and its email/password inputs.
 - Tab session tracked via `sessionStorage.company_tab_session` (logs out when tab closes) — inactive while demo mode is on
 - Password reset via `resetPasswordForEmail`
 - `window.confirm()` / `window.alert()` are **avoided** on iOS PWA — use the custom toast/modal system instead

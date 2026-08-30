@@ -58,7 +58,7 @@
     <div class="w-full max-w-md space-y-12 text-center">
         <div class="flex flex-col items-center">
             <img src="logo.jpg" alt="Company Logo" class="w-64 md:w-80 h-auto object-contain mb-4">
-            <div class="h-1 w-12 bg-emerald-500 rounded-full mb-2"></div>
+            <span class="inline-block bg-slate-900 text-white text-[9px] font-black uppercase tracking-[0.35em] px-4 py-1.5 rounded-full mb-3">Demo Template</span>
             <p class="text-[11px] font-black uppercase tracking-[0.5em] text-slate-400">Operations Portal</p>
         </div>
 
@@ -67,14 +67,20 @@
                 <h2 id="auth-title" class="text-xl font-black text-slate-800">Welcome</h2>
                 <p id="auth-subtitle" class="text-xs font-bold text-slate-400">Please login to access the system.</p>
             </div>
-            <div class="space-y-4">
-                <input type="email" id="email" placeholder="Email Address" class="input-box" required>
-                <input type="password" id="password" placeholder="Password" class="input-box" required>
-                <div id="forgot-link-box" class="text-right"><button onclick="toggleResetMode()" class="text-[10px] font-bold text-slate-400 hover:text-emerald-500 uppercase tracking-widest">Forgot Password?</button></div>
+
+            <div class="bg-slate-50 border-2 border-slate-200 rounded-[1.5rem] p-4 text-left flex gap-3">
+                <div class="bg-slate-900 text-white p-2 rounded-xl h-8 w-8 flex items-center justify-center shrink-0"><i data-lucide="info" class="w-4 h-4"></i></div>
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-800">This is a demo template</p>
+                    <p class="text-[11px] font-bold text-slate-500 leading-relaxed mt-1">
+                        Just click <span class="text-slate-800">Login</span> to enter &mdash; no registration and no password needed.
+                        The data inside is sample data for demonstration only.
+                    </p>
+                </div>
             </div>
+
             <div class="flex flex-col gap-3">
                 <button onclick="handleAuth()" id="submit-btn" class="w-full bg-slate-900 text-white font-black p-5 rounded-[2rem] shadow-xl uppercase tracking-widest text-xs hover:bg-emerald-600 transition-all">Login</button>
-                <button onclick="toggleAuthMode()" id="toggle-btn" class="w-full bg-white border-2 border-slate-200 text-slate-900 font-black p-5 rounded-[2rem] uppercase tracking-widest text-[10px] hover:border-emerald-500 hover:text-emerald-500 transition-all shadow-sm">Create New Account</button>
             </div>
             <p id="error-msg" class="text-red-500 text-xs font-bold hidden bg-red-50 p-3 rounded-xl"></p>
         </div>
@@ -241,9 +247,10 @@
         }
 
         async function initPortal() {
-            // Demo mode: no login required — every visitor goes straight to the dashboard.
+            // Demo mode: always start at the login screen. No credentials are
+            // checked -- handleAuth() lets any visitor straight through.
             document.getElementById('app-loader').classList.add('fade-out');
-            showDashboard();
+            showAuth();
         }
 
         if (supabaseClient) {
@@ -309,7 +316,7 @@
             }));
         }
         function showDashboard() { hideAllViews(); document.getElementById('dashboard-view').classList.remove('hidden'); setTimeout(loadPendingDots, 200); setTimeout(loadPendingDots, 3000); }
-        function showAuth() { hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); if(isResetMode) toggleResetMode(); }
+        function showAuth() { hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); lucide.createIcons(); }
         function showUpdatePasswordView() { hideAllViews(); document.getElementById('update-password-view').classList.remove('hidden'); }
         function showPending() { hideAllViews(); document.getElementById('pending-view').classList.remove('hidden'); lucide.createIcons(); }
         function hideAllViews() { document.getElementById('auth-view').classList.add('hidden'); document.getElementById('dashboard-view').classList.add('hidden'); document.getElementById('update-password-view').classList.add('hidden'); document.getElementById('pending-view').classList.add('hidden'); }
@@ -360,30 +367,20 @@
             } catch {}
         }
 
+        // Demo mode: no credentials are checked. Clicking Login drops any
+        // visitor straight into the portal with the sample data loaded.
         async function handleAuth() {
-            const email = document.getElementById('email').value; const password = document.getElementById('password').value; const btn = document.getElementById('submit-btn'); const errorMsg = document.getElementById('error-msg');
-            if (!email) { errorMsg.innerText = "Please enter your email."; errorMsg.classList.remove('hidden'); return; }
-            if (!isResetMode && !password) { errorMsg.innerText = "Please enter your password."; errorMsg.classList.remove('hidden'); return; }
-            if (!supabaseClient) { errorMsg.innerText = "Still loading — please wait a moment and try again."; errorMsg.classList.remove('hidden'); return; }
-            btn.innerHTML = '<span class="animate-pulse">Processing...</span>'; errorMsg.classList.add('hidden');
-            if (isResetMode) { const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: window.location.href }); if (error) { errorMsg.innerText = error.message; errorMsg.classList.remove('hidden'); btn.innerText = "Send Reset Link"; } else { alert("Reset link sent!"); toggleResetMode(); } return; }
-            if (isLoginMode) { sessionStorage.setItem('company_tab_session', 'true');
-                try {
-                    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('Login timed out — please try again.')), 15000));
-                    const { data, error } = await Promise.race([supabaseClient.auth.signInWithPassword({ email, password }), timeout]);
-                    if (error) { sessionStorage.removeItem('company_tab_session'); errorMsg.innerText = error.message; errorMsg.classList.remove('hidden'); btn.innerText = "Login"; }
-                    else { if (data?.session?.user?.email) applyInitials(data.session.user.email); await enterPortal(data?.session?.user?.email); startInactivityTimer(); btn.innerText = "Login"; }
-                } catch (e) { sessionStorage.removeItem('company_tab_session'); errorMsg.innerText = e.message || "Login failed. Please try again."; errorMsg.classList.remove('hidden'); btn.innerText = "Login"; }
-            } else { const { error } = await supabaseClient.auth.signUp({ email, password, options: { emailRedirectTo: window.location.href } }); if (error) { errorMsg.innerText = error.message; errorMsg.classList.remove('hidden'); btn.innerText = "Sign Up"; } else { alert("Account created! Check email."); toggleAuthMode(); btn.innerText = "Login"; } }
+            const btn = document.getElementById('submit-btn');
+            btn.innerHTML = '<span class="animate-pulse">Signing in...</span>';
+            sessionStorage.setItem('company_tab_session', 'true');
+            applyInitials('admin1@example.com');
+            showDashboard();
+            startInactivityTimer();
+            btn.innerText = "Login";
         }
-
-        function toggleResetMode() { isResetMode = !isResetMode; isLoginMode = true; updateAuthUI(); }
-        function toggleAuthMode() { if (isResetMode) { toggleResetMode(); return; } isLoginMode = !isLoginMode; updateAuthUI(); }
-        function updateAuthUI() { const title = document.getElementById('auth-title'); const subtitle = document.getElementById('auth-subtitle'); const btn = document.getElementById('submit-btn'); const toggle = document.getElementById('toggle-btn'); const passwordInput = document.getElementById('password'); const forgotLink = document.getElementById('forgot-link-box'); document.getElementById('error-msg').classList.add('hidden'); if (isResetMode) { title.innerText = "Reset Password"; subtitle.innerText = "Enter email to reset."; passwordInput.classList.add('hidden-force'); forgotLink.classList.add('hidden-force'); btn.innerText = "Send Link"; toggle.innerText = "Back"; } else if (isLoginMode) { title.innerText = "Welcome"; subtitle.innerText = "Please login to access."; passwordInput.classList.remove('hidden-force'); forgotLink.classList.remove('hidden-force'); btn.innerText = "Login"; toggle.innerText = "Create Account"; } else { title.innerText = "Register"; subtitle.innerText = "Enter details."; passwordInput.classList.remove('hidden-force'); forgotLink.classList.add('hidden-force'); btn.innerText = "Sign Up"; toggle.innerText = "Back to Login"; } }
 
         async function handlePasswordUpdate() { const newPass = document.getElementById('new-password').value; if(!newPass) return alert("Enter password"); const { error } = await supabaseClient.auth.updateUser({ password: newPass }); if (!error) { alert("Updated!"); sessionStorage.setItem('company_tab_session', 'true'); window.location.href = window.location.pathname; } else { alert(error.message); } }
         async function handleLogout() { stopInactivityTimer(); sessionStorage.removeItem('company_tab_session'); if (supabaseClient) await supabaseClient.auth.signOut(); showAuth(); }
-        document.getElementById('password').addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAuth(); });
         lucide.createIcons();
         // This script sits at the end of <body> (DOM already parsed) and Supabase loaded synchronously above,
         // so start the session check immediately instead of waiting on window.onload (images/fonts/CDN).
