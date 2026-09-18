@@ -257,10 +257,24 @@
         }
 
         async function initPortal() {
-            // Demo mode: always start at the login screen. No credentials are
-            // checked -- handleAuth() lets any visitor straight through.
             document.getElementById('app-loader').classList.add('fade-out');
-            showAuth();
+
+            // Demo mode: no credentials are checked, but the login screen is
+            // still the entry point. A fresh open or a refresh starts at login;
+            // coming back from a module keeps the dashboard, so the browser's
+            // Back button returns to the dashboard instead of looking like a
+            // logout. A refresh also resets the sample data, so dropping the
+            // session on reload keeps the two in step.
+            const nav = performance.getEntriesByType('navigation')[0];
+            if (nav && nav.type === 'reload') sessionStorage.removeItem('company_tab_session');
+
+            if (sessionStorage.getItem('company_tab_session')) {
+                applyInitials('admin1@example.com');
+                showDashboard();
+                startInactivityTimer();
+            } else {
+                showAuth();
+            }
         }
 
         if (supabaseClient) {
