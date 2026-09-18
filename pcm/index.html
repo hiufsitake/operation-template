@@ -167,11 +167,10 @@
                         </button>
                     </div>
                     <div class="flex gap-3">
-                        <label id="drop-zone" for="pv-upload" class="file-drop-zone flex-1 bg-white/5 border-2 border-dashed border-slate-500 hover:border-[#78350f] hover:bg-[#78350f]/10 py-8 px-4 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all min-h-[140px]" style="--drag-theme: #78350f; --drag-bg: rgba(120, 53, 15, 0.1);">
+                        <div id="drop-zone" onclick="demoScanNotice()" class="file-drop-zone flex-1 bg-white/5 border-2 border-dashed border-slate-500 hover:border-[#78350f] hover:bg-[#78350f]/10 py-8 px-4 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all min-h-[140px]" style="--drag-theme: #78350f; --drag-bg: rgba(120, 53, 15, 0.1);">
                             <i data-lucide="camera" class="w-8 h-8 mb-3 text-[#78350f]"></i>
                             <span class="text-[11px] font-black uppercase tracking-widest text-center text-slate-300">Scan Document (Drop PDF/Img Here)<br><span class="text-[9px] font-medium text-slate-400 normal-case mt-1 inline-block">or click to browse your files</span></span>
-                            <input type="file" id="pv-upload" accept="image/*,.pdf" class="hidden" multiple onchange="handleAIProcessing(this)">
-                        </label>
+                        </div>
                         
                         <div id="ai-status" class="hidden flex-1 bg-[#78350f]/10 border-2 border-[#78350f]/20 py-8 px-4 rounded-2xl flex flex-col items-center justify-center gap-3">
                             <div class="w-6 h-6 border-2 border-[#78350f] border-t-transparent rounded-full animate-spin"></div>
@@ -356,26 +355,6 @@
 
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session && ADMIN_EMAILS.includes(session.user.email)) isAuthorized = true;
-
-            const dropZone = document.getElementById('drop-zone');
-            if(dropZone) {
-                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
-                });
-                ['dragenter', 'dragover'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, () => { dropZone.classList.add('drag-over'); }, false);
-                });
-                ['dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, () => { dropZone.classList.remove('drag-over'); }, false);
-                });
-                dropZone.addEventListener('drop', (e) => {
-                    if(e.dataTransfer.files.length) {
-                        const fileInput = document.getElementById('pv-upload');
-                        fileInput.files = e.dataTransfer.files;
-                        handleAIProcessing(fileInput);
-                    }
-                });
-            }
 
             await fetchDatabase();
             filterCompany('All');
@@ -1118,5 +1097,24 @@
     </script>
     <!-- Autocomplete source for project-number inputs (populated by populateDatalist()) -->
     <datalist id="project-list-options"></datalist>
+    <script>
+        // Demo template: the Smart Scanner panels below are shown for
+        // illustration only -- no document is read and no AI call is made.
+        // Clicking one says so rather than silently doing nothing.
+        function demoScanNotice() {
+            let el = document.getElementById('demo-scan-toast');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'demo-scan-toast';
+                el.className = 'fixed left-1/2 -translate-x-1/2 bottom-8 z-[100] bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest px-5 py-3 rounded-2xl shadow-2xl border border-white/10 transition-opacity duration-300 opacity-0';
+                document.body.appendChild(el);
+            }
+            el.textContent = 'Smart Scanner is a visual preview in this demo template';
+            requestAnimationFrame(() => el.classList.remove('opacity-0'));
+            clearTimeout(window.__demoScanToastTimer);
+            window.__demoScanToastTimer = setTimeout(() => el.classList.add('opacity-0'), 2600);
+        }
+    </script>
+
 </body>
 </html>

@@ -84,6 +84,26 @@
 
         <div id="tab-create">
 
+            <section id="ai-scan-container" class="mb-6 bg-slate-900 p-6 rounded-[2.5rem] shadow-xl border-t-4 border-purple-500 text-white">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="font-black uppercase text-[10px] tracking-widest text-purple-400 italic">SMART SCANNER</h2>
+                        <p class="text-[14px] font-bold">PDF &amp; JPG Auto-Extraction</p>
+                    </div>
+                    <i data-lucide="sparkles" class="w-6 h-6 text-purple-400"></i>
+                </div>
+                <div class="flex gap-3">
+                    <div id="drop-zone" onclick="demoScanNotice()" class="file-drop-zone flex-1 bg-white/5 border-2 border-dashed border-slate-500 hover:border-purple-500 hover:bg-purple-500/10 p-8 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all min-h-[140px]" style="--drag-theme: #a855f7; --drag-bg: rgba(168, 85, 247, 0.1);">
+                        <i data-lucide="camera" class="w-8 h-8 mb-3 text-purple-500"></i>
+                        <span class="text-[11px] font-black uppercase tracking-widest text-center text-slate-300">Scan Receipts (Drop PDF/Img Here)<br><span class="text-[9px] font-medium text-slate-400 normal-case mt-1 inline-block">or click to browse your files</span></span>
+                    </div>
+                    <div id="ai-status" class="hidden flex-1 bg-purple-500/10 border-2 border-purple-500/20 p-4 rounded-2xl flex flex-col items-center justify-center gap-2">
+                        <div class="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span id="ai-status-text" class="text-[9px] font-black uppercase tracking-widest text-purple-500 text-center">Uploading...</span>
+                    </div>
+                </div>
+            </section>
+
             <form id="claim-form" class="space-y-6">
                 <input type="hidden" id="edit-id" value="">
                 
@@ -486,5 +506,24 @@
         };
         init();
     </script>
+    <script>
+        // Demo template: the Smart Scanner panels below are shown for
+        // illustration only -- no document is read and no AI call is made.
+        // Clicking one says so rather than silently doing nothing.
+        function demoScanNotice() {
+            let el = document.getElementById('demo-scan-toast');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'demo-scan-toast';
+                el.className = 'fixed left-1/2 -translate-x-1/2 bottom-8 z-[100] bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest px-5 py-3 rounded-2xl shadow-2xl border border-white/10 transition-opacity duration-300 opacity-0';
+                document.body.appendChild(el);
+            }
+            el.textContent = 'Smart Scanner is a visual preview in this demo template';
+            requestAnimationFrame(() => el.classList.remove('opacity-0'));
+            clearTimeout(window.__demoScanToastTimer);
+            window.__demoScanToastTimer = setTimeout(() => el.classList.add('opacity-0'), 2600);
+        }
+    </script>
+
 </body>
 </html>
